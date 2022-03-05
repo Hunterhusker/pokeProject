@@ -1,0 +1,21 @@
+This is my implementation of the world, the traversal function for it, and the heatMap code to find paths to the player
+
+    Instead of just printing all the stuff out and making a mess, I decided to have the game act as normal and add in commands
+so that the TAs can move around and see everything still. Therefore you can go look at other maps and such and then decide if
+you want to use the h command to see the map of the costs. I just thought it would be cleaner and let you see that I didn't
+just duct tape this thing together, but it actually really works. Also I like my UI rn lol.
+
+How to use:
+n ~ go north
+s ~ go south
+e ~ go east
+w ~ go west 
+f x y ~ go to the coordinates x y
+q ~ quits the game
+h 'type' ~ when putting in the exact char of the enemy(without the ''), it will print the heat map above the board
+     ~ valid types are R for rival and H for hiker
+
+Any known bugs:
+       Only thing I have found is when running in terminal is when I full screen it so I can see the heatmap, it may truncate the
+    end of a line into the next line, I am fairly sure thats a terminal size thing, and not a real bug, since I don't see why it
+    would ever do that otherwise. But I thought I would mention it.
