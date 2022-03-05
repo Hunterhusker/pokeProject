@@ -266,7 +266,9 @@ int main(int argc, char *argv[])
         }
     }
 
-    userInput(&world, &player, &heatMap);
+    // userInput(&world, &player, &heatMap); // if we are running this as a sim, we def don't need user input lol
+
+
 
     destroyWorld(&world); // must be run to collect garbage at the end
 
