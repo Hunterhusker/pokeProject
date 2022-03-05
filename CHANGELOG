@@ -1,0 +1,11 @@
+Feb 26, 2022
+    I have done some code cleanup and removed a few methods that ended up not being used
+    Added entity.h to use like an interface for the different entity types
+    Using the struct from entity.h to make an entity map for the screens
+    Converted the player into an entity and put it in the new entity map
+        This forced me to have to move the entity struct into mapBuilder.h because of the dependencies on each other
+    Added a method to handle the numtrainers switch
+        made use of the atoi() method which converts char strings of numbers to ints, which is neat
+        made my own method to check if the string for the trainer count has any non numeric chars, which has the most disgusting for loop I have seen
+
+Mar 5, 2022
