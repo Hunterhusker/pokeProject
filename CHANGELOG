@@ -9,4 +9,7 @@ Feb 26, 2022
         made my own method to check if the string for the trainer count has any non numeric chars, which has the most disgusting for loop I have seen
 
 Mar 5, 2022
+    Removed the entity type and will use the cell type for now for the entities (this will be changed when we move to C++ because of better generic support)
     Moved my code over to a private github repo for editing between my laptop and desktop
+    Added .c files to define all of the different enemy types
+    Commented out the usage of my userInput() function in my main class since we don't need it
