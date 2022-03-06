@@ -33,6 +33,21 @@ void emptyEntityMap(cell_t *eMap[21][80])
     }
 }
 
+/**
+ * Free all of the declared entities
+ * @param eMap ~ the entity map
+ */
+void deleteAllEntities(cell_t *eMap[21][80])
+{
+    for (int i = 0; i < 21; i++) {
+        for (int j = 0; j < 80; j++) {
+            if (eMap[i][j] != NULL) {
+                free(eMap[i][j]);
+            }
+        }
+    }
+}
+
 void emptyGrid(cell_t map[21][80])
 {
     for (int i = 0; i < 21; i++)
