@@ -54,6 +54,8 @@ void destroyWorld(gameBoard_t *world)
         {
             if (world->board[i][j] != NULL)
             {
+                deleteAllEntities(world->board[i][j]->eMap); // added deletion of all entities
+
                 free(world->board[i][j]);
             }
         }
@@ -142,10 +144,14 @@ void userInput(gameBoard_t *world, cell_t *player, heatMap_t *heatMap)
     char message[50] = "Welcome! Check the readme for commands";
     int x = 0, y = 0, success;
     bool printHM = false;
-    
+
+    minHeap_t mh;
+
     while (in != 'q')
     {
-        placePlayer(world->board[world->currY][world->currX], player);
+        //placePlayer(world->board[world->currY][world->currX], player);
+//        placeEntity(world->board[world->currY][world->currX], &mh, '@');
+//        placeEntity(world->board[world->currY][world->currX], &mh, 'h');
 
         if (printHM) {
             printHeatMap(heatMap);
@@ -155,12 +161,12 @@ void userInput(gameBoard_t *world, cell_t *player, heatMap_t *heatMap)
 
         printCurr(world, message);
 
-        unplacePlayer(world->board[world->currY][world->currX], player);
-        
+        //unplacePlayer(world->board[world->currY][world->currX], player);
+
         printf("> ");
-        
+
         scanf(" %c", &in);
-        
+
         if (in == 'n') {
             // go north
             success = goToLoc(world, world->currX, world->currY-1);
@@ -235,14 +241,51 @@ void userInput(gameBoard_t *world, cell_t *player, heatMap_t *heatMap)
     }
 }
 
+int placeEntities(int entityCount, map_t *screen, minHeap_t *mh)
+{
+    int type;
+
+    for (int i = 0; i < entityCount; i++) {
+        type = rand() % 5;
+
+        switch (type) {
+            case 0: // make a hiker
+                placeEntity(screen, mh, 'h');
+                break;
+
+            case 1: // make a pacer
+                placeEntity(screen, mh, 'p');
+                break;
+
+            case 2: // make a wanderer
+                placeEntity(screen, mh, 'w');
+                break;
+
+            case 3: // make a stationary
+                placeEntity(screen, mh, 's');
+                break;
+
+            case 4: // make a random walker
+                placeEntity(screen, mh, 'n');
+                break;
+
+            default: // shit pants
+                return -1;
+        }
+    }
+
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
     gameBoard_t world;
-    cell_t player;
+    cell_t *player; // a pointer to the player for better access
     heatMap_t heatMap;
     int trainerCnt = 10;
 
-    player.type = '@';
+    minHeap_t gameTime;
+    gameTime.currLen = 0; // wasteful to add a whole init for the one line
 
     worldInit(&world);
 
@@ -266,9 +309,14 @@ int main(int argc, char *argv[])
         }
     }
 
-    // userInput(&world, &player, &heatMap); // if we are running this as a sim, we def don't need user input lol
+    // Add the player and save a pointer to them for to do stuff
+    player = placeEntity(world.board[world.currY][world.currX], &gameTime, '@');
 
+    placeEntities(trainerCnt, world.board[world.currY][world.currX], &gameTime);
 
+    printCurr(&world, "oopsies");
+
+    //userInput(&world, &player, &heatMap); // if we are running this as a sim, we def don't need user input lol
 
     destroyWorld(&world); // must be run to collect garbage at the end
 
