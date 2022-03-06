@@ -13,3 +13,10 @@ Mar 5, 2022
     Moved my code over to a private github repo for editing between my laptop and desktop
     Added .c files to define all of the different enemy types
     Commented out the usage of my userInput() function in my main class since we don't need it
+    Added a mhDeleteCell() function since we will need it to remove enemies from the heap if they get killed early
+    Change of mind since copying code is bad, entities will share methods since they're all almost the same
+        This also means that the player's own methods will be depreciated since it is going to be treated as any old entity for now
+    Updated the cost function to determine the cost of movement for all of the new enemy types as well as the player
+        Might move this to a different file since it has outgrown the heatMap functions
+    Added a generic place entity function that places entities randomly throughout the map, and covers the place player behavior for simplicity
+    removed the various .c files for each entity since they share lots of behaviour and can be kept together in one file for the most part
