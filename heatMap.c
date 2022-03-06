@@ -101,47 +101,70 @@ void fillHeatMap(map_t *screen, heatMap_t *heatMap, cell_t *player, char enemyTy
  */
 int determineCost(char biomeType, char npcType)
 {
-    // For hikers
-    if (npcType == 'H') {
-        switch (biomeType) {
-            case '#':
-            case '.':
-                return 10;
+    switch (npcType) {
+        case 'h':
+            switch (biomeType) {
+                case '#':
+                case '.':
+                    return 10;
 
-            case ':':
-                return 15;
+                case ':':
+                    return 15;
 
-            case 'M':
-            case 'C':
-            case '%':
-                return INT_MAX; // -1 is infinity for me because lazy
+                case 'M':
+                case 'C':
+                case '%':
+                    return INT_MAX; // -1 is infinity for me because lazy
 
-            default:
-                return 0; // 0 is an uh oh for this function since anything should have a cost
-        }
+                default:
+                    return 0; // 0 is an uh oh for this function since anything should have a cost
+            }
+
+        // Rival costs are the same as the others, so I added them here for cost calculation
+        case 'r':
+        case 'p':
+        case 's':
+        case 'w':
+        case 'n':
+            switch (biomeType) {
+                case '#':
+                case '.':
+                    return 10;
+
+                case ':':
+                    return 20;
+
+                case 'M':
+                case 'C':
+                case '%':
+                    return INT_MAX; // -1 is infinity for me because lazy
+
+                default:
+                    return 0; // 0 is an uh oh for this function since anything should have a cost
+            }
+
+        // Case for calculating the costs of movement for the player
+        case '@':
+            switch (biomeType) {
+                case '#':
+                case '.':
+                case 'M':
+                case 'C':
+                    return 10;
+
+                case ':':
+                    return 20;
+
+                case '%':
+                    return INT_MAX; // -1 is infinity for me because lazy
+
+                default:
+                    return 0; // 0 is an uh oh for this function since anything should have a cost
+            }
+
+        default:
+            return INT_MAX;
     }
-
-    // For rivals
-    if (npcType == 'R') {
-        switch (biomeType) {
-            case '#':
-            case '.':
-                return 10;
-
-            case ':':
-                return 20;
-
-            case 'M':
-            case 'C':
-            case '%':
-                return INT_MAX; // -1 is infinity for me because lazy
-
-            default:
-                return 0; // 0 is an uh oh for this function since anything should have a cost
-        }
-    }
-
-    return INT_MAX;
 }
 
 /**
