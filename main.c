@@ -316,6 +316,10 @@ int main(int argc, char *argv[])
 
     printCurr(&world, "oopsies");
 
+    delEntity(world.board[world.currY][world.currX], &gameTime, player);
+
+    printCurr(&world, "oopsies");
+
     //userInput(&world, &player, &heatMap); // if we are running this as a sim, we def don't need user input lol
 
     destroyWorld(&world); // must be run to collect garbage at the end

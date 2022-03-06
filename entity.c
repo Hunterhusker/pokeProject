@@ -10,7 +10,7 @@ cell_t* placeEntity(map_t *screen, minHeap_t *mh, char type)
 {
     srand(time(NULL));
 
-    int x, y;
+    int x, y, facing;
     bool in = false;
 
     if (type == '@') {
@@ -75,6 +75,7 @@ cell_t* placeEntity(map_t *screen, minHeap_t *mh, char type)
     while (!in) {
         x = (rand() % 78) + 1;
         y = (rand() % 19) + 1;
+        facing = rand() % 4; // just a little random direction we can put into the cell for pacers and rand walkers
 
         if (screen->eMap[y][x] == NULL && screen->map[y][x].type != 'M' && screen->map[y][x].type != 'C' && screen->map[y][x].type != '%') {
             // Malloc some space for our entity
@@ -84,6 +85,7 @@ cell_t* placeEntity(map_t *screen, minHeap_t *mh, char type)
             screen->eMap[y][x]->type = type;
             screen->eMap[y][x]->x = x;
             screen->eMap[y][x]->y = y;
+            screen->eMap[y][x]->weight = facing; // Putting the facing in here since it is wasted space anyways right now
 
             // Get the cost of the cell we were plopped down on for a good start time
             screen->eMap[y][x]->dist = determineCost(screen->map[y][x].type, type);
@@ -98,12 +100,26 @@ cell_t* placeEntity(map_t *screen, minHeap_t *mh, char type)
     return screen->eMap[y][x];
 }
 
-int delEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
+void delEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
 {
-    
+    // Remove it from the heap
+    mhDeleteElement(mh, entity);
+
+    // Remove it from the map
+    screen->eMap[entity->y][entity->x] = NULL;
+
+    // free the memory
+    free(entity);
 }
 
 int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
 {
-    
+    switch (entity->type) {
+        case '@':
+            break;
+
+        default:
+            printf("ruh roh \n");
+            break;
+    }
 }

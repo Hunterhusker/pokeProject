@@ -66,7 +66,7 @@ void movePlayer(map_t *screen, cell_t *player, minHeap_t *mh);
 
 // Entity methods
 cell_t* placeEntity(map_t *screen, minHeap_t *mh, char type);
-int delEntity(map_t *screen, minHeap_t *mh, cell_t *entity);
+void delEntity(map_t *screen, minHeap_t *mh, cell_t *entity);
 int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity);
 
 //// Rival Methods
