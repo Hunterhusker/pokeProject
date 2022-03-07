@@ -20,3 +20,9 @@ Mar 5, 2022
         Might move this to a different file since it has outgrown the heatMap functions
     Added a generic place entity function that places entities randomly throughout the map, and covers the place player behavior for simplicity
     removed the various .c files for each entity since they share lots of behaviour and can be kept together in one file for the most part
+
+Mar 6, 2022
+    Did the exam, so this took a bit of a back seat
+    Added some random walking to the player character where after every move it chooses a new direction and then will try that next turn
+    Added a case for moving stationaries that says "what no" and doesn't do it
+    That's all for tonight, since it is nearly midnight
