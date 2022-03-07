@@ -3,12 +3,6 @@
 
 #include <stdbool.h>
 
-/// The struct to represent each individual possible entity location, and store the entities seperate from the maps
-//typedef struct entity {
-//    char type;
-//    int x, y;
-//} entity_t;
-
 // The map struct to represent each individual spot on the map
 typedef struct cell
 {
@@ -59,27 +53,9 @@ void layPath(cell_t map[21][80], int exits[4][2]);
 void addShop(cell_t map[21][80], char shopIcon);
 void generate(int e1, int e2, int e3, int e4, map_t *board, int shopChance);
 
-// Player Methods
-void placePlayer(map_t *map, cell_t *player, minHeap_t *mh);
-void unplacePlayer(map_t *map, cell_t *player, minHeap_t *mh);
-void movePlayer(map_t *screen, cell_t *player, minHeap_t *mh);
-
 // Entity methods
 cell_t* placeEntity(map_t *screen, minHeap_t *mh, char type);
 void delEntity(map_t *screen, minHeap_t *mh, cell_t *entity);
 int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity);
-
-//// Rival Methods
-//cell_t placeRival(map_t *screen, minHeap_t *mh);
-//int delRival(map_t *screen, cell_t *rival, minHeap_t *mh);
-//int nextRivalMove(map_t *screen, cell_t *rival, minHeap_t *mh);
-//
-//// Hiker methods
-//cell_t placeHiker(map_t *screen, minHeap_t *mh);
-//int delHiker(map_t *screen, cell_t *hiker, minHeap_t *mh);
-//int nextHikerMove(map_t *screen, cell_t *hiker, minHeap_t *mh);
-//
-//// Stationary Enemy methods
-//cell_t placeStationary(map_t *screen, minHeap_t *mh);
 
 #endif
