@@ -30,6 +30,7 @@ cell_t* placeEntity(map_t *screen, minHeap_t *mh, char type)
                         screen->eMap[i][loc]->type = type;
                         screen->eMap[i][loc]->y = i;
                         screen->eMap[i][loc]->x = loc;
+                        screen->eMap[i][loc]->weight = rand() % 4;
 
                         screen->eMap[i][loc]->dist = determineCost(screen->map[i][loc].type, type);
 
@@ -53,6 +54,7 @@ cell_t* placeEntity(map_t *screen, minHeap_t *mh, char type)
                         screen->eMap[loc][i]->type = type;
                         screen->eMap[loc][i]->y = loc;
                         screen->eMap[loc][i]->x = i;
+                        screen->eMap[loc][i]->weight = rand() % 4;
 
                         screen->eMap[loc][i]->dist = 0;
 
@@ -114,12 +116,86 @@ void delEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
 
 int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
 {
+    int mvCost;
+
     switch (entity->type) {
+        bool valid = false;
+
         case '@':
+            while (!valid) {
+                switch (entity->weight) {
+                    case 0: // North
+                        mvCost = determineCost(screen->map[entity->y - 1][entity->x].type, entity->type);
+
+                        if (screen->eMap[entity->y - 1][entity->x] == NULL || mvCost != 0 || mvCost != INT_MAX) {
+                            valid = true;
+
+                            screen->eMap[entity->y][entity->x]->dist += mvCost;
+
+                            screen->eMap[entity->y - 1][entity->x] = screen->eMap[entity->y][entity->x]; // Move up
+                            screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
+                        }
+                        break;
+
+                    case 1: // East
+                        mvCost = determineCost(screen->map[entity->y][entity->x + 1].type, entity->type);
+
+                        if (screen->eMap[entity->y][entity->x + 1] == NULL || mvCost != 0 || mvCost != INT_MAX) {
+                            valid = true;
+
+                            screen->eMap[entity->y][entity->x]->dist += mvCost;
+
+                            screen->eMap[entity->y][entity->x + 1] = screen->eMap[entity->y][entity->x]; // Move over
+                            screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
+                        }
+                        break;
+
+                    case 2: // South
+                        mvCost = determineCost(screen->map[entity->y + 1][entity->x].type, entity->type);
+
+                        if (screen->eMap[entity->y + 1][entity->x] == NULL || mvCost != 0 || mvCost != INT_MAX) {
+                            valid = true;
+
+                            screen->eMap[entity->y][entity->x]->dist += mvCost;
+
+                            screen->eMap[entity->y + 1][entity->x] = screen->eMap[entity->y][entity->x]; // Move over
+                            screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
+                        }
+                        break;
+
+                    case 3: // West
+                        mvCost = determineCost(screen->map[entity->y][entity->x - 1].type, entity->type);
+
+                        if (screen->eMap[entity->y][entity->x - 1] == NULL || mvCost != 0 || mvCost != INT_MAX) {
+                            valid = true;
+
+                            screen->eMap[entity->y][entity->x]->dist += mvCost;
+
+                            screen->eMap[entity->y][entity->x - 1] = screen->eMap[entity->y][entity->x]; // Move down
+                            screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
+                        }
+                        break;
+
+                    default: // *sobs uncontrollably*
+                        return -1;
+                }
+            }
+
+            entity->weight = rand() % 4;
+
+            break;
+
+        case 's': // don't move bro
             break;
 
         default:
             printf("ruh roh \n");
-            break;
+            return -1;
     }
+
+    // Since we are only going to move the first thing in the heap, and we update its distance accordingly,
+    //     we can just heapify down on the head of the heap to restore the heap property
+    heapifyDown(mh, 0);
+
+    return 0;
 }
