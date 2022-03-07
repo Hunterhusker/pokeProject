@@ -316,7 +316,7 @@ int main(int argc, char *argv[])
 
     printCurr(&world, "oopsies");
 
-    delEntity(world.board[world.currY][world.currX], &gameTime, player);
+    moveEntity(world.board[world.currY][world.currX], &gameTime, player);
 
     printCurr(&world, "oopsies");
 
