@@ -13,5 +13,6 @@ int mhFind(minHeap_t *mh, cell_t *cell);
 void mhResetMap(cell_t map[21][80]);
 void mhAddAll(minHeap_t *mh, cell_t map[21][80]);
 void mhDeleteElement(minHeap_t *mh, cell_t *theDoomed);
+cell_t *peek(minHeap_t *mh);
 
 #endif

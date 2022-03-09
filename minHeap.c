@@ -145,3 +145,8 @@ void mhDeleteElement(minHeap_t *mh, cell_t *theDoomed)
 
     heapifyDown(mh, i); // restore the heap property
 }
+
+// Just peek at the cell in the front of the list w/o removing it
+cell_t *peek(minHeap_t *mh) {
+    return mh->heap[0].data;
+}
