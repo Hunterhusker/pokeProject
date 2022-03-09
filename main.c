@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <unistd.h>
 #include "mapBuilder.h"
 #include "heatMap.h"
+#include "minHeap.h"
 
 typedef struct gameBoard
 {
@@ -241,6 +243,17 @@ void userInput(gameBoard_t *world, cell_t *player, heatMap_t *heatMap)
     }
 }
 
+void runSimulation(map_t *screen, minHeap_t *mh, gameBoard_t *world, cell_t *player)
+{
+    while (mh->currLen != 0) {
+        printCurr(world, "simulation running");
+
+        moveEntity(screen, mh, peek(mh));
+
+        usleep(250000);
+    }
+}
+
 int placeEntities(int entityCount, map_t *screen, minHeap_t *mh)
 {
     int type;
@@ -284,8 +297,8 @@ int main(int argc, char *argv[])
     heatMap_t heatMap;
     int trainerCnt = 10;
 
-    minHeap_t gameTime;
-    gameTime.currLen = 0; // wasteful to add a whole init for the one line
+    //minHeap_t gameTime;
+    //gameTime.currLen = 0; // wasteful to add a whole init for the one line
 
     worldInit(&world);
 
@@ -310,17 +323,25 @@ int main(int argc, char *argv[])
     }
 
     // Add the player and save a pointer to them for to do stuff
-    player = placeEntity(world.board[world.currY][world.currX], &gameTime, '@');
+    player = placeEntity(world.board[world.currY][world.currX], &world.board[world.currY][world.currX]->mh,'n');
 
-    placeEntities(trainerCnt, world.board[world.currY][world.currX], &gameTime);
+    //placeEntities(trainerCnt, world.board[world.currY][world.currX], &world.board[world.currY][world.currX]->mh);
 
-    printCurr(&world, "oopsies");
+    // Runs the simulation
+    runSimulation(world.board[world.currY][world.currX], &world.board[world.currY][world.currX]->mh, &world, &player);
 
-    moveEntity(world.board[world.currY][world.currX], &gameTime, player);
+//    int x = world.board[world.currY][world.currX]->mh.currLen;
+//    cell_t temp;
+//
+//    moveEntity(world.board[world.currY][world.currX], &world.board[world.currY][world.currX]->mh, player);
+//
+//    for (int i = 0; i < x; i++) {
+//        temp = mhExtract(&world.board[world.currY][world.currX]->mh);
+//
+//        printf("%c %d\n", temp.type, temp.dist);
+//    }
 
-    printCurr(&world, "oopsies");
-
-    //userInput(&world, &player, &heatMap); // if we are running this as a sim, we def don't need user input lol
+    printCurr(&world, "simulation terminated");
 
     destroyWorld(&world); // must be run to collect garbage at the end
 
