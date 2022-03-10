@@ -36,7 +36,8 @@ void printCurr(gameBoard_t *world, char str[])
     printMap(world->board[world->currY][world->currX]);
 
     printf("Current Location: (%d, %d): %s\n", world->currX, world->currY, str);
-    printf("Commands: n, s, e, w, f x y, h 'type', & q to quit: check ReadMe for more\n");
+    printf("Have fun watching, use ctl + c to quit\n");
+    //printf("Commands: n, s, e, w, f x y, h 'type', & q to quit: check ReadMe for more\n");
 }
 
 void worldInit(gameBoard_t *world)
@@ -140,115 +141,122 @@ int goToLoc(gameBoard_t *world, int x, int y)
     return 0;
 }
 
-void userInput(gameBoard_t *world, cell_t *player, heatMap_t *heatMap)
-{
-    char in = ' ', enemyType;
-    char message[50] = "Welcome! Check the readme for commands";
-    int x = 0, y = 0, success;
-    bool printHM = false;
-
-    minHeap_t mh;
-
-    while (in != 'q')
-    {
-        //placePlayer(world->board[world->currY][world->currX], player);
-//        placeEntity(world->board[world->currY][world->currX], &mh, '@');
-//        placeEntity(world->board[world->currY][world->currX], &mh, 'h');
-
-        if (printHM) {
-            printHeatMap(heatMap);
-
-            printHM = false;
-        }
-
-        printCurr(world, message);
-
-        //unplacePlayer(world->board[world->currY][world->currX], player);
-
-        printf("> ");
-
-        scanf(" %c", &in);
-
-        if (in == 'n') {
-            // go north
-            success = goToLoc(world, world->currX, world->currY-1);
-
-            if (success != -1) {
-                strcpy(message, "Went north!");
-            } else {
-                strcpy(message, "Invalid, too far north!");
-            }
-        } else if (in == 's') {
-            // go south
-            success = goToLoc(world, world->currX, world->currY+1);
-
-            if (success != -1) {
-                strcpy(message, "Went south!");
-            } else {
-                strcpy(message, "Invalid, too far south!");
-            }
-        } else if (in == 'e') {
-            // go east
-            success = goToLoc(world, world->currX+1, world->currY);
-
-            if (success != -1) {
-                strcpy(message, "Went east!");
-            } else {
-                strcpy(message, "Invalid, too far east!");
-            }
-        } else if (in == 'w') {
-            // go west
-            success = goToLoc(world, world->currX-1, world->currY);
-
-            if (success != -1) {
-                strcpy(message, "Went west!");
-            } else {
-                strcpy(message, "Invalid, too far west!");
-            }
-        } else if (in == 'f') {
-            // fly away!
-            scanf(" %d %d", &x, &y);
-
-            success = goToLoc(world, x, y);
-
-            if (success != -1) {
-                sprintf(message, "Flew to (%d, %d)", x, y);
-            } else {
-                sprintf(message, "Can't fly to (%d, %d)", x, y);
-            }
-        } else if (in == 'h') {
-            scanf(" %c", &enemyType);
-
-            if (enemyType == 'H') {
-                fillHeatMap(world->board[world->currY][world->currX], heatMap, player, 'H');
-
-                printHM = true;
-
-                sprintf(message, "Printed the map for the hiker!");
-            } else if (enemyType == 'R') {
-                fillHeatMap(world->board[world->currY][world->currX], heatMap, player, 'R');
-
-                printHM = true;
-
-                sprintf(message, "Printed the map for the rival!");
-            } else {
-                sprintf(message, "Unknown enemy \"%c\", staying put!", enemyType);
-            }
-        } else if (in == 'q') {
-                printf("Goodbye!\n");
-        } else {
-            // Prints a custom error message (apparently sprintf is sketchy, so I will avoid it as much as I can)
-            sprintf(message, "Unknown input \"%c\", staying put!", in);
-        }
-    }
-}
+//void userInput(gameBoard_t *world, cell_t *player, heatMap_t *heatMap)
+//{
+//    char in = ' ', enemyType;
+//    char message[50] = "Welcome! Check the readme for commands";
+//    int x = 0, y = 0, success;
+//    bool printHM = false;
+//
+//    minHeap_t mh;
+//
+//    while (in != 'q')
+//    {
+//        //placePlayer(world->board[world->currY][world->currX], player);
+////        placeEntity(world->board[world->currY][world->currX], &mh, '@');
+////        placeEntity(world->board[world->currY][world->currX], &mh, 'h');
+//
+//        if (printHM) {
+//            printHeatMap(heatMap);
+//
+//            printHM = false;
+//        }
+//
+//        printCurr(world, message);
+//
+//        //unplacePlayer(world->board[world->currY][world->currX], player);
+//
+//        printf("> ");
+//
+//        scanf(" %c", &in);
+//
+//        if (in == 'n') {
+//            // go north
+//            success = goToLoc(world, world->currX, world->currY-1);
+//
+//            if (success != -1) {
+//                strcpy(message, "Went north!");
+//            } else {
+//                strcpy(message, "Invalid, too far north!");
+//            }
+//        } else if (in == 's') {
+//            // go south
+//            success = goToLoc(world, world->currX, world->currY+1);
+//
+//            if (success != -1) {
+//                strcpy(message, "Went south!");
+//            } else {
+//                strcpy(message, "Invalid, too far south!");
+//            }
+//        } else if (in == 'e') {
+//            // go east
+//            success = goToLoc(world, world->currX+1, world->currY);
+//
+//            if (success != -1) {
+//                strcpy(message, "Went east!");
+//            } else {
+//                strcpy(message, "Invalid, too far east!");
+//            }
+//        } else if (in == 'w') {
+//            // go west
+//            success = goToLoc(world, world->currX-1, world->currY);
+//
+//            if (success != -1) {
+//                strcpy(message, "Went west!");
+//            } else {
+//                strcpy(message, "Invalid, too far west!");
+//            }
+//        } else if (in == 'f') {
+//            // fly away!
+//            scanf(" %d %d", &x, &y);
+//
+//            success = goToLoc(world, x, y);
+//
+//            if (success != -1) {
+//                sprintf(message, "Flew to (%d, %d)", x, y);
+//            } else {
+//                sprintf(message, "Can't fly to (%d, %d)", x, y);
+//            }
+//        } else if (in == 'h') {
+//            scanf(" %c", &enemyType);
+//
+//            if (enemyType == 'H') {
+//                fillHeatMap(world->board[world->currY][world->currX], heatMap, player, 'H');
+//
+//                printHM = true;
+//
+//                sprintf(message, "Printed the map for the hiker!");
+//            } else if (enemyType == 'R') {
+//                fillHeatMap(world->board[world->currY][world->currX], heatMap, player, 'R');
+//
+//                printHM = true;
+//
+//                sprintf(message, "Printed the map for the rival!");
+//            } else {
+//                sprintf(message, "Unknown enemy \"%c\", staying put!", enemyType);
+//            }
+//        } else if (in == 'q') {
+//                printf("Goodbye!\n");
+//        } else {
+//            // Prints a custom error message (apparently sprintf is sketchy, so I will avoid it as much as I can)
+//            sprintf(message, "Unknown input \"%c\", staying put!", in);
+//        }
+//    }
+//}
 
 void runSimulation(map_t *screen, minHeap_t *mh, gameBoard_t *world, cell_t *player)
 {
     while (mh->currLen != 0) {
+
+        while (peek(mh) != player) {
+            moveEntity(screen, mh, peek(mh), player);
+
+            //printCurr(world, "AHHHHH");
+        }
+
         printCurr(world, "simulation running");
 
-        moveEntity(screen, mh, peek(mh));
+        moveEntity(screen, mh, peek(mh), player);
 
         usleep(250000);
     }
@@ -259,7 +267,7 @@ int placeEntities(int entityCount, map_t *screen, minHeap_t *mh)
     int type;
 
     for (int i = 0; i < entityCount; i++) {
-        type = rand() % 5;
+        type = rand() % 6;
 
         switch (type) {
             case 0: // make a hiker
@@ -282,6 +290,10 @@ int placeEntities(int entityCount, map_t *screen, minHeap_t *mh)
                 placeEntity(screen, mh, 'n');
                 break;
 
+            case 5: // make a random walker
+                placeEntity(screen, mh, 'r');
+                break;
+
             default: // shit pants
                 return -1;
         }
@@ -294,11 +306,7 @@ int main(int argc, char *argv[])
 {
     gameBoard_t world;
     cell_t *player; // a pointer to the player for better access
-    heatMap_t heatMap;
     int trainerCnt = 10;
-
-    //minHeap_t gameTime;
-    //gameTime.currLen = 0; // wasteful to add a whole init for the one line
 
     worldInit(&world);
 
@@ -322,27 +330,14 @@ int main(int argc, char *argv[])
         }
     }
 
-    // Add the player and save a pointer to them for to do stuff
-    player = placeEntity(world.board[world.currY][world.currX], &world.board[world.currY][world.currX]->mh,'n');
+    player = placeEntity(world.board[world.currY][world.currX], &world.board[world.currY][world.currX]->mh,'@');
 
-    //placeEntities(trainerCnt, world.board[world.currY][world.currX], &world.board[world.currY][world.currX]->mh);
+    placeEntities(trainerCnt, world.board[world.currY][world.currX], &world.board[world.currY][world.currX]->mh);
 
     // Runs the simulation
-    runSimulation(world.board[world.currY][world.currX], &world.board[world.currY][world.currX]->mh, &world, &player);
+    runSimulation(world.board[world.currY][world.currX], &world.board[world.currY][world.currX]->mh, &world, player);
 
-//    int x = world.board[world.currY][world.currX]->mh.currLen;
-//    cell_t temp;
-//
-//    moveEntity(world.board[world.currY][world.currX], &world.board[world.currY][world.currX]->mh, player);
-//
-//    for (int i = 0; i < x; i++) {
-//        temp = mhExtract(&world.board[world.currY][world.currX]->mh);
-//
-//        printf("%c %d\n", temp.type, temp.dist);
-//    }
-
-    printCurr(&world, "simulation terminated");
-
+    // This is where I would free the data, IF I COULD REACH IT!!!! DINKLEBERG
     destroyWorld(&world); // must be run to collect garbage at the end
 
     return 0;
