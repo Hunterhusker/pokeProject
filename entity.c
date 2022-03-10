@@ -119,99 +119,23 @@ void delEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
     free(entity);
 }
 
-int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
+int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity, cell_t *player)
 {
-    int mvCost;
+    int iters;
+    heatMap_t hm;
+    bool valid;
 
     switch (entity->type) {
-        bool valid = false;
-
         case '@':
-            while (!valid) {
-                switch (entity->weight) {
-                    case 0: // North
-                        mvCost = determineCost(screen->map[entity->y - 1][entity->x].type, entity->type);
-
-                        if (screen->eMap[entity->y - 1][entity->x] == NULL || mvCost != 0 || mvCost != INT_MAX) {
-                            valid = true;
-
-                            screen->eMap[entity->y][entity->x]->dist += mvCost;
-
-                            screen->eMap[entity->y - 1][entity->x] = screen->eMap[entity->y][entity->x]; // Move up
-                            screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
-
-                            entity->y--;
-                        }
-                        break;
-
-                    case 1: // East
-                        mvCost = determineCost(screen->map[entity->y][entity->x + 1].type, entity->type);
-
-                        if (screen->eMap[entity->y][entity->x + 1] == NULL || mvCost != 0 || mvCost != INT_MAX) {
-                            valid = true;
-
-                            screen->eMap[entity->y][entity->x]->dist += mvCost;
-
-                            screen->eMap[entity->y][entity->x + 1] = screen->eMap[entity->y][entity->x]; // Move over
-                            screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
-
-                            entity->x++;
-                        }
-                        break;
-
-                    case 2: // South
-                        mvCost = determineCost(screen->map[entity->y + 1][entity->x].type, entity->type);
-
-                        if (screen->eMap[entity->y + 1][entity->x] == NULL || mvCost != 0 || mvCost != INT_MAX) {
-                            valid = true;
-
-                            screen->eMap[entity->y][entity->x]->dist += mvCost;
-
-                            screen->eMap[entity->y + 1][entity->x] = screen->eMap[entity->y][entity->x]; // Move over
-                            screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
-
-                            entity->y++;
-                        }
-                        break;
-
-                    case 3: // West
-                        mvCost = determineCost(screen->map[entity->y][entity->x - 1].type, entity->type);
-
-                        if (screen->eMap[entity->y][entity->x - 1] == NULL || mvCost != 0 || mvCost != INT_MAX) {
-                            valid = true;
-
-                            screen->eMap[entity->y][entity->x]->dist += mvCost;
-
-                            screen->eMap[entity->y][entity->x - 1] = screen->eMap[entity->y][entity->x]; // Move down
-                            screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
-
-                            entity->x--;
-                        }
-                        break;
-
-                    default: // *sobs uncontrollably*
-                        return -1;
-                }
-            }
-
-            entity->weight = rand() % 4;
-
-            break;
-
-        case 's': // don't move bro how'd you get here
-            break;
-
-        case 'p': // Pacer movement code
-
             switch (entity->weight) {
                 case 0: // north
                     // If the next space is occupied, or is a different terrain type, turn around and try to move
-                    if (screen->eMap[entity->y - 1][entity->x] != NULL || determineCost(screen->map[entity->y - 1][entity->x].type, entity->type) == INT_MAX) {
+                    if ((entity->y - 1 > 0 && screen->eMap[entity->y - 1][entity->x] != NULL) || determineCost(screen->map[entity->y - 1][entity->x].type, entity->type) == INT_MAX) {
                         // Update the direction of the entity so it turns around
                         entity->weight = 2;
 
                         // If the next space is valid, then we can go, if not, do nothing
-                        if (screen->eMap[entity->y + 1][entity->x] == NULL && determineCost(screen->map[entity->y + 1][entity->x].type, entity->type) != INT_MAX) {
+                        if (entity->y + 1 < 20 && screen->eMap[entity->y + 1][entity->x] == NULL && determineCost(screen->map[entity->y + 1][entity->x].type, entity->type) != INT_MAX) {
                             // Increment the time of the next move in the heap
                             entity->dist += determineCost(screen->map[entity->y + 1][entity->x].type, entity->type);
 
@@ -219,8 +143,11 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
                             screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
 
                             entity->y++;
+                        } else {
+                            // If the poor thing get's stuck put him further into the gametime heap and hope a space opens for him
+                            entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
                         }
-                    } else if (screen->eMap[entity->y - 1][entity->x] == NULL && determineCost(screen->map[entity->y - 1][entity->x].type, entity->type) != INT_MAX) {
+                    } else if (entity->y - 1 > 0 && screen->eMap[entity->y - 1][entity->x] == NULL && determineCost(screen->map[entity->y - 1][entity->x].type, entity->type) != INT_MAX) {
                         // Increment the time of the next move in the heap
                         entity->dist += determineCost(screen->map[entity->y - 1][entity->x].type, entity->type);
 
@@ -228,17 +155,21 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
                         screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
 
                         entity->y--;
+                    } else {
+                        entity->weight = 2;
+
+                        entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
                     }
                     break;
 
                 case 1:
                     // If the next space is occupied, or is a different terrain type, turn around and try to move
-                    if (screen->eMap[entity->y][entity->x + 1] != NULL || determineCost(screen->map[entity->y][entity->x + 1].type, entity->type) == INT_MAX) {
+                    if ((entity->x + 1 < 79 && screen->eMap[entity->y][entity->x + 1] != NULL) || determineCost(screen->map[entity->y][entity->x + 1].type, entity->type) == INT_MAX) {
                         // Update the direction of the entity so it turns around
                         entity->weight = 3;
 
                         // If the next space is valid, then we can go, if not, do nothing
-                        if (screen->eMap[entity->y][entity->x - 1] == NULL && determineCost(screen->map[entity->y][entity->x - 1].type, entity->type) != INT_MAX) {
+                        if (entity->x - 1 > 0 && screen->eMap[entity->y][entity->x - 1] == NULL && determineCost(screen->map[entity->y][entity->x - 1].type, entity->type) != INT_MAX) {
                             // Increment the time of the next move in the heap
                             entity->dist += determineCost(screen->map[entity->y][entity->x - 1].type, entity->type);
 
@@ -246,8 +177,11 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
                             screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
 
                             entity->x--;
+                        } else {
+                            // If the poor thing get's stuck put him further into the gametime heap and hope a space opens for him
+                            entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
                         }
-                    } else if (screen->eMap[entity->y][entity->x + 1] == NULL && determineCost(screen->map[entity->y][entity->x + 1].type, entity->type) != INT_MAX) {
+                    } else if (entity->x + 1 < 79 && screen->eMap[entity->y][entity->x + 1] == NULL && determineCost(screen->map[entity->y][entity->x + 1].type, entity->type) != INT_MAX) {
                         // Increment the time of the next move in the heap
                         entity->dist += determineCost(screen->map[entity->y][entity->x + 1].type, entity->type);
 
@@ -255,17 +189,21 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
                         screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
 
                         entity->x++;
+                    } else {
+                        entity->weight = 3;
+
+                        entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
                     }
                     break;
 
                 case 2:
                     // If the next space is occupied, or is a different terrain type, turn around and try to move
-                    if (screen->eMap[entity->y + 1][entity->x] != NULL || determineCost(screen->map[entity->y + 1][entity->x].type, entity->type) == INT_MAX) {
+                    if ((entity->y + 1 < 20 && screen->eMap[entity->y + 1][entity->x] != NULL) || determineCost(screen->map[entity->y + 1][entity->x].type, entity->type) == INT_MAX) {
                         // Update the direction of the entity so it turns around
                         entity->weight = 0;
 
                         // If the next space is valid, then we can go, if not, do nothing
-                        if (screen->eMap[entity->y - 1][entity->x] == NULL && determineCost(screen->map[entity->y - 1][entity->x].type, entity->type) != INT_MAX) {
+                        if (entity->y - 1 > 0 && screen->eMap[entity->y - 1][entity->x] == NULL && determineCost(screen->map[entity->y - 1][entity->x].type, entity->type) != INT_MAX) {
                             // Increment the time of the next move in the heap
                             entity->dist += determineCost(screen->map[entity->y - 1][entity->x].type, entity->type);
 
@@ -273,8 +211,11 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
                             screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
 
                             entity->y--;
+                        } else {
+                            // If the poor thing get's stuck put him further into the gametime heap and hope a space opens for him
+                            entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
                         }
-                    } else if (screen->eMap[entity->y + 1][entity->x] == NULL && determineCost(screen->map[entity->y + 1][entity->x].type, entity->type) != INT_MAX) {
+                    } else if (entity->y + 1 < 20 && screen->eMap[entity->y + 1][entity->x] == NULL && determineCost(screen->map[entity->y + 1][entity->x].type, entity->type) != INT_MAX) {
                         // Increment the time of the next move in the heap
                         entity->dist += determineCost(screen->map[entity->y + 1][entity->x].type, entity->type);
 
@@ -282,17 +223,21 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
                         screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
 
                         entity->y++;
+                    } else {
+                        entity->weight = 0;
+
+                        entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
                     }
                     break;
 
                 case 3:
                     // If the next space is occupied, or is a different terrain type, turn around and try to move
-                    if (screen->eMap[entity->y][entity->x - 1] != NULL || determineCost(screen->map[entity->y][entity->x - 1].type, entity->type) == INT_MAX) {
+                    if ((entity->x - 1 > 0 && screen->eMap[entity->y][entity->x - 1] != NULL) || determineCost(screen->map[entity->y][entity->x - 1].type, entity->type) == INT_MAX) {
                         // Update the direction of the entity so it turns around
                         entity->weight = 1;
 
                         // If the next space is valid, then we can go, if not, do nothing
-                        if (screen->eMap[entity->y][entity->x + 1] == NULL && determineCost(screen->map[entity->y][entity->x + 1].type, entity->type) != INT_MAX) {
+                        if (entity->x + 1 < 79 && screen->eMap[entity->y][entity->x + 1] == NULL && determineCost(screen->map[entity->y][entity->x + 1].type, entity->type) != INT_MAX) {
                             // Increment the time of the next move in the heap
                             entity->dist += determineCost(screen->map[entity->y][entity->x + 1].type, entity->type);
 
@@ -300,8 +245,11 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
                             screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
 
                             entity->x++;
+                        } else {
+                            // If the poor thing get's stuck put him further into the gametime heap and hope a space opens for him
+                            entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
                         }
-                    } else if (screen->eMap[entity->y][entity->x - 1] == NULL && determineCost(screen->map[entity->y][entity->x - 1].type, entity->type) != INT_MAX) {
+                    } else if (entity->x - 1 > 0 && screen->eMap[entity->y][entity->x - 1] == NULL && determineCost(screen->map[entity->y][entity->x - 1].type, entity->type) != INT_MAX) {
                         // Increment the time of the next move in the heap
                         entity->dist += determineCost(screen->map[entity->y][entity->x - 1].type, entity->type);
 
@@ -309,6 +257,156 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
                         screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
 
                         entity->x--;
+                    } else {
+                        entity->weight = 1;
+
+                        entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
+                    }
+                    break;
+
+                default:
+                    return -1;
+            }
+            break;
+
+        case 's': // don't move bro how'd you get here
+            break;
+
+        case 'p': // Pacer movement code
+            switch (entity->weight) {
+                case 0: // north
+                    // If the next space is occupied, or is a different terrain type, turn around and try to move
+                    if ((entity->y - 1 > 0 && screen->eMap[entity->y - 1][entity->x] != NULL) || determineCost(screen->map[entity->y - 1][entity->x].type, entity->type) == INT_MAX) {
+                        // Update the direction of the entity so it turns around
+                        entity->weight = 2;
+
+                        // If the next space is valid, then we can go, if not, do nothing
+                        if (entity->y + 1 < 20 && screen->eMap[entity->y + 1][entity->x] == NULL && determineCost(screen->map[entity->y + 1][entity->x].type, entity->type) != INT_MAX) {
+                            // Increment the time of the next move in the heap
+                            entity->dist += determineCost(screen->map[entity->y + 1][entity->x].type, entity->type);
+
+                            screen->eMap[entity->y + 1][entity->x] = screen->eMap[entity->y][entity->x]; // Move up
+                            screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
+
+                            entity->y++;
+                        } else {
+                            // If the poor thing get's stuck put him further into the gametime heap and hope a space opens for him
+                            entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
+                        }
+                    } else if (entity->y - 1 > 0 && screen->eMap[entity->y - 1][entity->x] == NULL && determineCost(screen->map[entity->y - 1][entity->x].type, entity->type) != INT_MAX) {
+                        // Increment the time of the next move in the heap
+                        entity->dist += determineCost(screen->map[entity->y - 1][entity->x].type, entity->type);
+
+                        screen->eMap[entity->y - 1][entity->x] = screen->eMap[entity->y][entity->x]; // Move up
+                        screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
+
+                        entity->y--;
+                    } else {
+                        entity->weight = 2;
+
+                        entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
+                    }
+                    break;
+
+                case 1:
+                    // If the next space is occupied, or is a different terrain type, turn around and try to move
+                    if ((entity->x + 1 < 79 && screen->eMap[entity->y][entity->x + 1] != NULL) || determineCost(screen->map[entity->y][entity->x + 1].type, entity->type) == INT_MAX) {
+                        // Update the direction of the entity so it turns around
+                        entity->weight = 3;
+
+                        // If the next space is valid, then we can go, if not, do nothing
+                        if (entity->x - 1 > 0 && screen->eMap[entity->y][entity->x - 1] == NULL && determineCost(screen->map[entity->y][entity->x - 1].type, entity->type) != INT_MAX) {
+                            // Increment the time of the next move in the heap
+                            entity->dist += determineCost(screen->map[entity->y][entity->x - 1].type, entity->type);
+
+                            screen->eMap[entity->y][entity->x - 1] = screen->eMap[entity->y][entity->x]; // Move up
+                            screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
+
+                            entity->x--;
+                        } else {
+                            // If the poor thing get's stuck put him further into the gametime heap and hope a space opens for him
+                            entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
+                        }
+                    } else if (entity->x + 1 < 79 && screen->eMap[entity->y][entity->x + 1] == NULL && determineCost(screen->map[entity->y][entity->x + 1].type, entity->type) != INT_MAX) {
+                        // Increment the time of the next move in the heap
+                        entity->dist += determineCost(screen->map[entity->y][entity->x + 1].type, entity->type);
+
+                        screen->eMap[entity->y][entity->x + 1] = screen->eMap[entity->y][entity->x]; // Move up
+                        screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
+
+                        entity->x++;
+                    } else {
+                        entity->weight = 3;
+
+                        entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
+                    }
+                    break;
+
+                case 2:
+                    // If the next space is occupied, or is a different terrain type, turn around and try to move
+                    if ((entity->y + 1 < 20 && screen->eMap[entity->y + 1][entity->x] != NULL) || determineCost(screen->map[entity->y + 1][entity->x].type, entity->type) == INT_MAX) {
+                        // Update the direction of the entity so it turns around
+                        entity->weight = 0;
+
+                        // If the next space is valid, then we can go, if not, do nothing
+                        if (entity->y - 1 > 0 && screen->eMap[entity->y - 1][entity->x] == NULL && determineCost(screen->map[entity->y - 1][entity->x].type, entity->type) != INT_MAX) {
+                            // Increment the time of the next move in the heap
+                            entity->dist += determineCost(screen->map[entity->y - 1][entity->x].type, entity->type);
+
+                            screen->eMap[entity->y - 1][entity->x] = screen->eMap[entity->y][entity->x]; // Move up
+                            screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
+
+                            entity->y--;
+                        } else {
+                            // If the poor thing get's stuck put him further into the gametime heap and hope a space opens for him
+                            entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
+                        }
+                    } else if (entity->y + 1 < 20 && screen->eMap[entity->y + 1][entity->x] == NULL && determineCost(screen->map[entity->y + 1][entity->x].type, entity->type) != INT_MAX) {
+                        // Increment the time of the next move in the heap
+                        entity->dist += determineCost(screen->map[entity->y + 1][entity->x].type, entity->type);
+
+                        screen->eMap[entity->y + 1][entity->x] = screen->eMap[entity->y][entity->x]; // Move up
+                        screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
+
+                        entity->y++;
+                    } else {
+                        entity->weight = 0;
+
+                        entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
+                    }
+                    break;
+
+                case 3:
+                    // If the next space is occupied, or is a different terrain type, turn around and try to move
+                    if ((entity->x - 1 > 0 && screen->eMap[entity->y][entity->x - 1] != NULL) || determineCost(screen->map[entity->y][entity->x - 1].type, entity->type) == INT_MAX) {
+                        // Update the direction of the entity so it turns around
+                        entity->weight = 1;
+
+                        // If the next space is valid, then we can go, if not, do nothing
+                        if (entity->x + 1 < 79 && screen->eMap[entity->y][entity->x + 1] == NULL && determineCost(screen->map[entity->y][entity->x + 1].type, entity->type) != INT_MAX) {
+                            // Increment the time of the next move in the heap
+                            entity->dist += determineCost(screen->map[entity->y][entity->x + 1].type, entity->type);
+
+                            screen->eMap[entity->y][entity->x + 1] = screen->eMap[entity->y][entity->x]; // Move up
+                            screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
+
+                            entity->x++;
+                        } else {
+                            // If the poor thing get's stuck put him further into the gametime heap and hope a space opens for him
+                            entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
+                        }
+                    } else if (entity->x - 1 > 0 && screen->eMap[entity->y][entity->x - 1] == NULL && determineCost(screen->map[entity->y][entity->x - 1].type, entity->type) != INT_MAX) {
+                        // Increment the time of the next move in the heap
+                        entity->dist += determineCost(screen->map[entity->y][entity->x - 1].type, entity->type);
+
+                        screen->eMap[entity->y][entity->x - 1] = screen->eMap[entity->y][entity->x]; // Move up
+                        screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
+
+                        entity->x--;
+                    } else {
+                        entity->weight = 1;
+
+                        entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
                     }
                     break;
 
@@ -319,15 +417,16 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
 
         case 'w':
             valid = false;
+            iters = 0;
 
             while (!valid) {
                 switch (entity->weight) {
                     case 0: // north
                         // If the next space is occupied, or is a different terrain type, turn around and try to move
-                        if (screen->eMap[entity->y - 1][entity->x] != NULL || screen->map[entity->y][entity->x].type != screen->map[entity->y - 1][entity->x].type) {
+                        if ((entity->y - 1 > 0 && screen->eMap[entity->y - 1][entity->x] != NULL) || screen->map[entity->y][entity->x].type != screen->map[entity->y - 1][entity->x].type) {
                             // Update the direction of the entity, so it doesn't keep going straight
                             entity->weight = rand() % 4;
-                        } else if (screen->eMap[entity->y - 1][entity->x] == NULL && screen->map[entity->y][entity->x].type == screen->map[entity->y - 1][entity->x].type) {
+                        } else if (entity->y - 1 > 0 && screen->eMap[entity->y - 1][entity->x] == NULL && screen->map[entity->y][entity->x].type == screen->map[entity->y - 1][entity->x].type) {
                             // Increment the time of the next move in the heap
                             entity->dist += determineCost(screen->map[entity->y - 1][entity->x].type, entity->type);
 
@@ -342,10 +441,10 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
 
                     case 1:
                         // If the next space is occupied, or is a different terrain type, turn around and try to move
-                        if (screen->eMap[entity->y][entity->x + 1] != NULL || screen->map[entity->y][entity->x].type != screen->map[entity->y][entity->x + 1].type) {
+                        if ((entity->x + 1 < 79 && screen->eMap[entity->y][entity->x + 1] != NULL) || screen->map[entity->y][entity->x].type != screen->map[entity->y][entity->x + 1].type) {
                             // Update the direction of the entity, so it doesn't keep going straight
                             entity->weight = rand() % 4;
-                        } else if (screen->eMap[entity->y][entity->x + 1] == NULL && screen->map[entity->y][entity->x].type == screen->map[entity->y][entity->x + 1].type) {
+                        } else if (entity->x + 1 < 79 && screen->eMap[entity->y][entity->x + 1] == NULL && screen->map[entity->y][entity->x].type == screen->map[entity->y][entity->x + 1].type) {
                             // Increment the time of the next move in the heap
                             entity->dist += determineCost(screen->map[entity->y][entity->x + 1].type, entity->type);
 
@@ -360,10 +459,10 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
 
                     case 2:
                         // If the next space is occupied, or is a different terrain type, turn around and try to move
-                        if (screen->eMap[entity->y + 1][entity->x] != NULL || screen->map[entity->y][entity->x].type != screen->map[entity->y + 1][entity->x].type) {
+                        if ((entity->y + 1 < 20 && screen->eMap[entity->y + 1][entity->x] != NULL) || screen->map[entity->y][entity->x].type != screen->map[entity->y + 1][entity->x].type) {
                             // Update the direction of the entity, so it doesn't keep going straight
                             entity->weight = rand() % 4;
-                        } else if (screen->eMap[entity->y + 1][entity->x] == NULL && screen->map[entity->y][entity->x].type == screen->map[entity->y + 1][entity->x].type) {
+                        } else if (entity->y + 1 < 20 && screen->eMap[entity->y + 1][entity->x] == NULL && screen->map[entity->y][entity->x].type == screen->map[entity->y + 1][entity->x].type) {
                             // Increment the time of the next move in the heap
                             entity->dist += determineCost(screen->map[entity->y + 1][entity->x].type, entity->type);
 
@@ -378,10 +477,10 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
 
                     case 3:
                         // If the next space is occupied, or is a different terrain type, turn around and try to move
-                        if (screen->eMap[entity->y][entity->x - 1] != NULL || screen->map[entity->y][entity->x].type != screen->map[entity->y][entity->x - 1].type) {
+                        if ((entity->x - 1 > 0 && screen->eMap[entity->y][entity->x - 1] != NULL) || screen->map[entity->y][entity->x].type != screen->map[entity->y][entity->x - 1].type) {
                             // Update the direction of the entity, so it doesn't keep going straight
                             entity->weight = rand() % 4;
-                        } else if (screen->eMap[entity->y][entity->x - 1] == NULL && screen->map[entity->y][entity->x].type == screen->map[entity->y][entity->x - 1].type) {
+                        } else if (entity->x - 1 > 0 && screen->eMap[entity->y][entity->x - 1] == NULL && screen->map[entity->y][entity->x].type == screen->map[entity->y][entity->x - 1].type) {
                             // Increment the time of the next move in the heap
                             entity->dist += determineCost(screen->map[entity->y][entity->x - 1].type, entity->type);
 
@@ -396,6 +495,15 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
 
                     default:
                         return -1;
+                }
+
+                iters++;
+
+                if (iters == 5) {
+                    // If the poor thing get's stuck put him further into the gametime heap and hope a space opens for him
+                    entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
+
+                    break;
                 }
             }
 
@@ -404,14 +512,16 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
         case 'n':
             valid = false;
 
+            iters = 0;
+
             while (!valid) {
                 switch (entity->weight) {
                     case 0: // north
                         // If the next space is occupied, or is a different terrain type, turn around and try to move
-                        if (screen->eMap[entity->y - 1][entity->x] != NULL || determineCost(screen->map[entity->y - 1][entity->x].type, entity->type) == INT_MAX) {
+                        if ((entity->y - 1 > 0 && screen->eMap[entity->y - 1][entity->x] != NULL) || determineCost(screen->map[entity->y - 1][entity->x].type, entity->type) == INT_MAX) {
                             // Update the direction of the entity, so it doesn't keep going straight
                             entity->weight = rand() % 4;
-                        } else if (screen->eMap[entity->y - 1][entity->x] == NULL && determineCost(screen->map[entity->y - 1][entity->x].type, entity->type) != INT_MAX) {
+                        } else if (entity->y - 1 > 0 && screen->eMap[entity->y - 1][entity->x] == NULL && determineCost(screen->map[entity->y - 1][entity->x].type, entity->type) != INT_MAX) {
                             // Increment the time of the next move in the heap
                             entity->dist += determineCost(screen->map[entity->y - 1][entity->x].type, entity->type);
 
@@ -426,10 +536,10 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
 
                     case 1:
                         // If the next space is occupied, or is a different terrain type, turn around and try to move
-                        if (screen->eMap[entity->y][entity->x + 1] != NULL || determineCost(screen->map[entity->y][entity->x + 1].type, entity->type) == INT_MAX) {
+                        if ((entity->x + 1 < 79 && screen->eMap[entity->y][entity->x + 1] != NULL) || determineCost(screen->map[entity->y][entity->x + 1].type, entity->type) == INT_MAX) {
                             // Update the direction of the entity, so it doesn't keep going straight
                             entity->weight = rand() % 4;
-                        } else if (screen->eMap[entity->y][entity->x + 1] == NULL && determineCost(screen->map[entity->y][entity->x + 1].type, entity->type) != INT_MAX) {
+                        } else if (entity->x + 1 < 79 && screen->eMap[entity->y][entity->x + 1] == NULL && determineCost(screen->map[entity->y][entity->x + 1].type, entity->type) != INT_MAX) {
                             // Increment the time of the next move in the heap
                             entity->dist += determineCost(screen->map[entity->y][entity->x + 1].type, entity->type);
 
@@ -444,10 +554,10 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
 
                     case 2:
                         // If the next space is occupied, or is a different terrain type, turn around and try to move
-                        if (screen->eMap[entity->y + 1][entity->x] != NULL || determineCost(screen->map[entity->y + 1][entity->x].type, entity->type) == INT_MAX) {
+                        if ((entity->y + 1 < 20 && screen->eMap[entity->y + 1][entity->x] != NULL) || determineCost(screen->map[entity->y + 1][entity->x].type, entity->type) == INT_MAX) {
                             // Update the direction of the entity, so it doesn't keep going straight
                             entity->weight = rand() % 4;
-                        } else if (screen->eMap[entity->y + 1][entity->x] == NULL && determineCost(screen->map[entity->y + 1][entity->x].type, entity->type) != INT_MAX) {
+                        } else if (entity->y + 1 < 20 && screen->eMap[entity->y + 1][entity->x] == NULL && determineCost(screen->map[entity->y + 1][entity->x].type, entity->type) != INT_MAX) {
                             // Increment the time of the next move in the heap
                             entity->dist += determineCost(screen->map[entity->y + 1][entity->x].type, entity->type);
 
@@ -462,10 +572,10 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
 
                     case 3:
                         // If the next space is occupied, or is a different terrain type, turn around and try to move
-                        if (screen->eMap[entity->y][entity->x - 1] != NULL || determineCost(screen->map[entity->y][entity->x - 1].type, entity->type) == INT_MAX) {
+                        if ((entity->x - 1 > 0 && screen->eMap[entity->y][entity->x - 1] != NULL) || determineCost(screen->map[entity->y][entity->x - 1].type, entity->type) == INT_MAX) {
                             // Update the direction of the entity, so it doesn't keep going straight
                             entity->weight = rand() % 4;
-                        } else if (screen->eMap[entity->y][entity->x - 1] == NULL && determineCost(screen->map[entity->y][entity->x - 1].type, entity->type) != INT_MAX) {
+                        } else if (entity->x - 1 > 0 && screen->eMap[entity->y][entity->x - 1] == NULL && determineCost(screen->map[entity->y][entity->x - 1].type, entity->type) != INT_MAX) {
                             // Increment the time of the next move in the heap
                             entity->dist += determineCost(screen->map[entity->y][entity->x - 1].type, entity->type);
 
@@ -481,12 +591,96 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
                     default:
                         return -1;
                 }
+
+                iters++;
+
+                if (iters == 5) {
+                    // If the poor thing get's stuck put him further into the gametime heap and hope a space opens for him
+                    entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
+
+                    break;
+                }
+            }
+
+            break;
+
+        case 'h':
+        case 'r':
+            // Fill up our heatmap w/ values for the hiker
+            fillHeatMap(screen, &hm, player, entity->type);
+
+            bool found = false;
+
+            int x, y;
+
+            minHeap_t neighbors;
+            neighbors.currLen = 0;
+
+            cell_t curr;
+
+            // Add all neighbors to a local minHeap
+            if (entity->y + 1 < 20) {
+                mhAdd(&neighbors, &hm.heatMap[entity->y + 1][entity->x]);
+
+                if (entity->x + 1 < 79) {
+                    mhAdd(&neighbors, &hm.heatMap[entity->y + 1][entity->x + 1]);
+                }
+
+                if (entity->x - 1 > 0) {
+                    mhAdd(&neighbors, &hm.heatMap[entity->y + 1][entity->x - 1]);
+                }
+            }
+
+            if (entity->y - 1 > 0) {
+                mhAdd(&neighbors, &hm.heatMap[entity->y - 1][entity->x]);
+
+                if (entity->x + 1 < 79) {
+                    mhAdd(&neighbors, &hm.heatMap[entity->y - 1][entity->x + 1]);
+                }
+
+                if (entity->x - 1 > 0) {
+                    mhAdd(&neighbors, &hm.heatMap[entity->y - 1][entity->x - 1]);
+                }
+            }
+
+            if (entity->x + 1 < 79) {
+                mhAdd(&neighbors, &hm.heatMap[entity->y][entity->x + 1]);
+            }
+
+
+            if (entity->x - 1 > 0) {
+                mhAdd(&neighbors, &hm.heatMap[entity->y][entity->x - 1]);
+            }
+
+
+            while (neighbors.currLen > 0 && !found) {
+                curr = mhExtract(&neighbors); // extract the location w/ smallest cost
+                x = curr.x;
+                y = curr.y;
+
+                // If there's space and the spot is traversable
+                if (screen->eMap[y][x] == NULL && determineCost(screen->map[y][x].type, entity->type) != INT_MAX) {
+                    found = true; // Stop the loop, and go there
+
+                    entity->dist += determineCost(screen->map[y][x].type, entity->type);
+
+                    screen->eMap[y][x] = screen->eMap[entity->y][entity->x];
+                    screen->eMap[entity->y][entity->x] = NULL;
+
+                    entity->x = x;
+                    entity->y = y;
+
+                    break;
+                }
+            }
+
+            if (neighbors.currLen == 0) {
+                entity->dist += 40;
             }
 
             break;
 
         default:
-            printf("ruh roh \n");
             return -1;
     }
 
