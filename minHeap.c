@@ -134,3 +134,19 @@ void mhAddAll(minHeap_t *mh, cell_t map[21][80])
         }
     }
 }
+
+void mhDeleteElement(minHeap_t *mh, cell_t *theDoomed)
+{
+    int i = mhFind(mh, theDoomed); // Find our cell in the list
+
+    mhSwap(mh, i, mh->currLen - 1); // Swap our cell to the end
+
+    mh->currLen--; // decrement the size
+
+    heapifyDown(mh, i); // restore the heap property
+}
+
+// Just peek at the cell in the front of the list w/o removing it
+cell_t *peek(minHeap_t *mh) {
+    return mh->heap[0].data;
+}

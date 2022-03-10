@@ -9,3 +9,46 @@ Feb 26, 2022
         made my own method to check if the string for the trainer count has any non numeric chars, which has the most disgusting for loop I have seen
 
 Mar 5, 2022
+    Removed the entity type and will use the cell type for now for the entities (this will be changed when we move to C++ because of better generic support)
+    Moved my code over to a private github repo for editing between my laptop and desktop
+    Added .c files to define all of the different enemy types
+    Commented out the usage of my userInput() function in my main class since we don't need it
+    Added a mhDeleteCell() function since we will need it to remove enemies from the heap if they get killed early
+    Change of mind since copying code is bad, entities will share methods since they're all almost the same
+        This also means that the player's own methods will be depreciated since it is going to be treated as any old entity for now
+    Updated the cost function to determine the cost of movement for all of the new enemy types as well as the player
+        Might move this to a different file since it has outgrown the heatMap functions
+    Added a generic place entity function that places entities randomly throughout the map, and covers the place player behavior for simplicity
+    removed the various .c files for each entity since they share lots of behaviour and can be kept together in one file for the most part
+
+Mar 6, 2022
+    Did the exam, so this took a bit of a back seat
+    Added some random walking to the player character where after every move it chooses a new direction and then will try that next turn
+    Added a case for moving stationaries that says "what no" and doesn't do it
+    That's all for tonight, since it is nearly midnight
+
+Mar 8, 2022
+    Added a minHeap inside of the map object so that each screen can have it's own game time since I only want to run the visible entities
+    Added a peek method so that we can just look at the heap and not extract
+        this will come in handy so we don't have to add repeatedly just peek, move, update, and heapifyDown
+    Fixed some player placement bugs and set the original weight to be 10, since it always will start on a path
+    Added pacer movement support
+    Added wanderer movement support
+    Made it so stationaries didn't get added to the game heap since they don't have tasks to do anymore
+    Also made non players not spawn on paths so that wanderers don't patrol the paths for eternity
+    Fixed pacers to leave their biomes, don't like this, I would rather they stay in their own lane smh
+    Implemented random walker movement as per @264 on piazza, I don't like this movement either as I dont have many obstacles so it might be changed later
+
+Mar 9, 2022
+    While doing hiker/rival movement, I realized my heatMap implementation was flawed and won't work the way it is, going to redo it all 😭
+    I was able to save the code by converting the array of ints to be an array of cells, but I am going to have to redo it over break for my sanity
+    Added functionality for rivals and hikers
+    Added the "simulation loop" so that the board was printed before each player move
+    Changed player movement so it didn't break everything
+    Fixed bug where rivals weren't being added
+    Fixed entities entering the exits bug
+    Fixed stall out bugs when rivals and hikers encircled the player and didn't let anything move
+    Fixed bug where pacers would see an exit and say yeah time to stall the game
+    Did some code clean up
+    Changed the strings printed under each game board to reflect the sim, not the old UI
+

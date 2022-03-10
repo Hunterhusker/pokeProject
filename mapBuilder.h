@@ -3,12 +3,6 @@
 
 #include <stdbool.h>
 
-//// The struct to represent each individual possible entity location, and store the entities seperate from the maps
-//typedef struct entity {
-//    char type;
-//    int x, y;
-//} entity_t;
-
 // The map struct to represent each individual spot on the map
 typedef struct cell
 {
@@ -22,16 +16,32 @@ typedef struct cell
     bool inHeap;
 } cell_t;
 
+/// Heap structs so that they can be used in here
+typedef struct heapNode
+{
+    cell_t  *data;
+    int *value;
+    //int x, y;
+} heapNode_t;
+
+typedef struct minHeap
+{
+    heapNode_t heap[1860];
+    int currLen;
+} minHeap_t;
+
 typedef struct map
 {
     cell_t map[21][80];
     cell_t *eMap[21][80];
     int exits[4][2];
+    minHeap_t mh;
 } map_t;
 
 // Map Methods
 void printMap(map_t *screen);
 void emptyEntityMap(cell_t *eMap[21][80]);
+void deleteAllEntities(cell_t *eMap[21][80]);
 void emptyGrid(cell_t map[21][80]);
 void placeExits(cell_t map[21][80], int exits[4][2], int e1, int e2, int e3, int e4);
 int placeBiomes(cell_t map[21][80], int filledTiles[][2]);
@@ -43,8 +53,9 @@ void layPath(cell_t map[21][80], int exits[4][2]);
 void addShop(cell_t map[21][80], char shopIcon);
 void generate(int e1, int e2, int e3, int e4, map_t *board, int shopChance);
 
-// Player Methods
-void placePlayer(map_t *map, cell_t *player);
-void unplacePlayer(map_t *map, cell_t *player);
+// Entity methods
+cell_t* placeEntity(map_t *screen, minHeap_t *mh, char type);
+void delEntity(map_t *screen, minHeap_t *mh, cell_t *entity);
+int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity, cell_t *player);
 
 #endif

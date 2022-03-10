@@ -33,6 +33,21 @@ void emptyEntityMap(cell_t *eMap[21][80])
     }
 }
 
+/**
+ * Free all of the declared entities
+ * @param eMap ~ the entity map
+ */
+void deleteAllEntities(cell_t *eMap[21][80])
+{
+    for (int i = 0; i < 21; i++) {
+        for (int j = 0; j < 80; j++) {
+            if (eMap[i][j] != NULL) {
+                free(eMap[i][j]);
+            }
+        }
+    }
+}
+
 void emptyGrid(cell_t map[21][80])
 {
     for (int i = 0; i < 21; i++)
@@ -561,6 +576,9 @@ void generate(int e1, int e2, int e3, int e4, map_t *board, int shopChance) {
     int filledTiles[1482][2];
     int currFilledAmt;
     int mChance = 1, cChance = 1; // just anything not 0 so if we don't want to do it we don't
+
+    // Set the current length of the internal minHeap to be 0
+    board->mh.currLen = 0;
 
     emptyGrid(board->map);
     emptyEntityMap(board->eMap);

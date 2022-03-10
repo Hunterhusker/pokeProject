@@ -3,4 +3,4 @@ project(pokeProject C)
 
 set(CMAKE_C_STANDARD 11)
 
-add_executable(pokeProject main.c minHeap.c mapBuilder.c heatMap.c player.c entity.c)
+add_executable(pokeProject main.c minHeap.c mapBuilder.c heatMap.c entity.c)
