@@ -39,3 +39,16 @@ Mar 8, 2022
     Fixed pacers to leave their biomes, don't like this, I would rather they stay in their own lane smh
     Implemented random walker movement as per @264 on piazza, I don't like this movement either as I dont have many obstacles so it might be changed later
 
+Mar 9, 2022
+    While doing hiker/rival movement, I realized my heatMap implementation was flawed and won't work the way it is, going to redo it all 😭
+    I was able to save the code by converting the array of ints to be an array of cells, but I am going to have to redo it over break for my sanity
+    Added functionality for rivals and hikers
+    Added the "simulation loop" so that the board was printed before each player move
+    Changed player movement so it didn't break everything
+    Fixed bug where rivals weren't being added
+    Fixed entities entering the exits bug
+    Fixed stall out bugs when rivals and hikers encircled the player and didn't let anything move
+    Fixed bug where pacers would see an exit and say yeah time to stall the game
+    Did some code clean up
+    Changed the strings printed under each game board to reflect the sim, not the old UI
+
