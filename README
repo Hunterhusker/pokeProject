@@ -1,4 +1,4 @@
-This is my implementation of the gameplay simulation code for 1.05
+This is my implementation of the gameplay simulation code for 1.04
 
     Sadly there is no more UI for now, and since the loop is unstoppable in its current state, I added in a little
 message that lets the player know it is just a sim and to use ctl + c to exit the loop.
