@@ -56,6 +56,6 @@ void generate(int e1, int e2, int e3, int e4, map_t *board, int shopChance);
 // Entity methods
 cell_t* placeEntity(map_t *screen, minHeap_t *mh, char type);
 void delEntity(map_t *screen, minHeap_t *mh, cell_t *entity);
-int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity);
+int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity, cell_t *player);
 
 #endif
