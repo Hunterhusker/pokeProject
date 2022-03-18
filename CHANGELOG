@@ -1,2 +1,5 @@
-
-
+Mar 17, 2022
+    Came back early to get this stuff working, so I am gonna start now
+    Got curses to work with my IDE so I can use it to run and debug my code
+    Reformatted the printCurr() function in main to work w/ curses instead
+    tried out some basic io reading, and am going to bed so tomorrow I will work harder on IO
