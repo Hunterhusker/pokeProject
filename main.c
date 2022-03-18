@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <curses.h>
 #include "mapBuilder.h"
 #include "heatMap.h"
 #include "minHeap.h"
@@ -33,11 +34,20 @@ void gameBoardInit(gameBoard_t *world)
 
 void printCurr(gameBoard_t *world, char str[])
 {
-    printMap(world->board[world->currY][world->currX]);
+    for (int i = 0; i < 21; i++) {
+        for (int j = 0; j < 80; j++) {
+            if (world->board[world->currY][world->currX]->eMap[i][j] != NULL) {
+                mvaddch(i, j, world->board[world->currY][world->currX]->eMap[i][j]->type);
+            } else {
+                mvaddch(i, j, world->board[world->currY][world->currX]->map[i][j].type);
+            }
+        }
+    }
 
-    printf("Current Location: (%d, %d): %s\n", world->currX, world->currY, str);
-    printf("Have fun watching, use ctl + c to quit\n");
-    //printf("Commands: n, s, e, w, f x y, h 'type', & q to quit: check ReadMe for more\n");
+    mvprintw(21, 0, "Current Location: (%d, %d): %s\n", world->currX, world->currY, str);
+    mvprintw(22, 0, "Check the readme for the control scheme");
+
+    refresh();
 }
 
 void worldInit(gameBoard_t *world)
@@ -304,6 +314,8 @@ int placeEntities(int entityCount, map_t *screen, minHeap_t *mh)
 
 int main(int argc, char *argv[])
 {
+    initscr();
+
     gameBoard_t world;
     cell_t *player; // a pointer to the player for better access
     int trainerCnt = 10;
@@ -335,10 +347,22 @@ int main(int argc, char *argv[])
     placeEntities(trainerCnt, world.board[world.currY][world.currX], &world.board[world.currY][world.currX]->mh);
 
     // Runs the simulation
-    runSimulation(world.board[world.currY][world.currX], &world.board[world.currY][world.currX]->mh, &world, player);
+    //runSimulation(world.board[world.currY][world.currX], &world.board[world.currY][world.currX]->mh, &world, player);
+
+    printCurr(&world, "poo");
 
     // This is where I would free the data, IF I COULD REACH IT!!!! DINKLEBERG
     destroyWorld(&world); // must be run to collect garbage at the end
+
+    raw();
+    noecho();
+    curs_set(0);
+
+    char ch = getch();
+
+    if (ch == 'q') {
+        endwin();
+    }
 
     return 0;
 }
