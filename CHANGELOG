@@ -3,3 +3,12 @@ Mar 17, 2022
     Got curses to work with my IDE so I can use it to run and debug my code
     Reformatted the printCurr() function in main to work w/ curses instead
     tried out some basic io reading, and am going to bed so tomorrow I will work harder on IO
+
+Mar 18, 2022
+    Moved the entity placement to mapBuilder.c to be called upon screen generation
+        Now the entities are added during screen creation, not later
+    Moved the endwin() de-init to the destroy world so that it is always called before the program ends
+    Added a runGame() function that moves anything in the heap and then when it sees the player, it stops and asks for input
+    Got full player movement added and it cannot leave the map, interact with entities, or anything else, just move on input
+
+Mar 19, 2022
