@@ -13,6 +13,7 @@ typedef struct gameBoard
     map_t *board[399][399];
     int currX;
     int currY;
+    int entityCount;
 } gameBoard_t;
 
 void gameBoardInit(gameBoard_t *world)
@@ -45,9 +46,9 @@ void printCurr(gameBoard_t *world, char str[])
     }
 
     mvprintw(21, 0, "Current Location: (%d, %d): %s\n", world->currX, world->currY, str);
-    mvprintw(22, 0, "Check the readme for the control scheme");
+    mvprintw(22, 0, "Use 10-key for movement; q to quit; check readme more controls");
 
-    refresh();
+    refresh(); // actually displays the board
 }
 
 void worldInit(gameBoard_t *world)
@@ -56,7 +57,7 @@ void worldInit(gameBoard_t *world)
     
     world->board[world->currY][world->currX] = malloc(sizeof (map_t));
     
-    generate(-1, -1, -1, -1, world->board[world->currY][world->currX], 100);
+    generate(-1, -1, -1, -1, world->board[world->currY][world->currX], 100, world->entityCount);
 }
 
 void destroyWorld(gameBoard_t *world)
@@ -73,6 +74,8 @@ void destroyWorld(gameBoard_t *world)
             }
         }
     }
+
+    endwin(); // de-init the screen so we can end the program
 }
 
 int isScreenGenerated(gameBoard_t *world, int x, int y)
@@ -143,7 +146,7 @@ int goToLoc(gameBoard_t *world, int x, int y)
 
     world->board[y][x] = malloc(sizeof (map_t));
 
-    generate(exits[0], exits[1], exits[2], exits[3], world->board[y][x], buildingChance(x, y));
+    generate(exits[0], exits[1], exits[2], exits[3], world->board[y][x], buildingChance(x, y), world->entityCount);
 
     world->currX = x;
     world->currY = y;
@@ -260,8 +263,6 @@ void runSimulation(map_t *screen, minHeap_t *mh, gameBoard_t *world, cell_t *pla
 
         while (peek(mh) != player) {
             moveEntity(screen, mh, peek(mh), player);
-
-            //printCurr(world, "AHHHHH");
         }
 
         printCurr(world, "simulation running");
@@ -272,61 +273,134 @@ void runSimulation(map_t *screen, minHeap_t *mh, gameBoard_t *world, cell_t *pla
     }
 }
 
-int placeEntities(int entityCount, map_t *screen, minHeap_t *mh)
+void cursesInit()
 {
-    int type;
+    initscr();
 
-    for (int i = 0; i < entityCount; i++) {
-        type = rand() % 6;
+    raw();
+    noecho();
+    curs_set(0);
+}
 
-        switch (type) {
-            case 0: // make a hiker
-                placeEntity(screen, mh, 'h');
-                break;
+void runGame(gameBoard_t *world, cell_t *player)
+{
+    char message[50] = "Your move!";
+    int result;
 
-            case 1: // make a pacer
-                placeEntity(screen, mh, 'p');
-                break;
+    bool alive = true;
+    while (alive) {
+        while (peek(&world->board[world->currY][world->currX]->mh) != player) {
+            moveEntity(world->board[world->currY][world->currX], &world->board[world->currY][world->currX]->mh, peek(&world->board[world->currY][world->currX]->mh), player);
+        }
 
-            case 2: // make a wanderer
-                placeEntity(screen, mh, 'w');
-                break;
+        printCurr(world, message);
 
-            case 3: // make a stationary
-                placeEntity(screen, mh, 's');
-                break;
+        // reset the message
+        strcpy(message, "Your move!");
 
-            case 4: // make a random walker
-                placeEntity(screen, mh, 'n');
-                break;
+        char ch = getch();
 
-            case 5: // make a random walker
-                placeEntity(screen, mh, 'r');
-                break;
+        if (ch == 'q') {
+            alive = false;
+        } else if (ch == '7' || ch == 'y') {
+            result = movePlayer(player->y - 1, player->x - 1, world->board[world->currY][world->currX], player);
 
-            default: // shit pants
-                return -1;
+            if (result == -1) {
+                sprintf(message, "Invalid move to (%d, %d)", player->y - 1, player->x - 1);
+            } else if (result == 1) {
+                sprintf(message, "Place occupied, cannot move there!");
+            } else if (result == 2) {
+                sprintf(message, "GO TO NEXT SCREEN SOMEHOW");
+            }
+        } else if (ch == '8' || ch == 'k') {
+            result = movePlayer(player->y - 1, player->x, world->board[world->currY][world->currX], player);
+
+            if (result == -1) {
+                sprintf(message, "Invalid move to (%d, %d)", player->y - 1, player->x);
+            } else if (result == 1) {
+                sprintf(message, "Place occupied, cannot move there!");
+            } else if (result == 2) {
+                sprintf(message, "GO TO NEXT SCREEN SOMEHOW");
+            }
+        } else if (ch == '9' || ch == 'u') {
+            result = movePlayer(player->y - 1, player->x + 1, world->board[world->currY][world->currX], player);
+
+            if (result == -1) {
+                sprintf(message, "Invalid move to (%d, %d)", player->y - 1, player->x + 1);
+            } else if (result == 1) {
+                sprintf(message, "Place occupied, cannot move there!");
+            } else if (result == 2) {
+                sprintf(message, "GO TO NEXT SCREEN SOMEHOW");
+            }
+        } else if (ch == '4' || ch == 'h') {
+            result = movePlayer(player->y, player->x - 1, world->board[world->currY][world->currX], player);
+
+            if (result == -1) {
+                sprintf(message, "Invalid move to (%d, %d)", player->y, player->x - 1);
+            } else if (result == 1) {
+                sprintf(message, "Place occupied, cannot move there!");
+            } else if (result == 2) {
+                sprintf(message, "GO TO NEXT SCREEN SOMEHOW");
+            }
+        } else if (ch == '5' || ch == ' ') {
+            sprintf(message, "Stood still...");
+        } else if (ch == '6' || ch == 'l') {
+            result = movePlayer(player->y, player->x + 1, world->board[world->currY][world->currX], player);
+
+            if (result == -1) {
+                sprintf(message, "Invalid move to (%d, %d)", player->y, player->x + 1);
+            } else if (result == 1) {
+                sprintf(message, "Place occupied, cannot move there!");
+            } else if (result == 2) {
+                sprintf(message, "GO TO NEXT SCREEN SOMEHOW");
+            }
+        } else if (ch == '1' || ch == 'b') {
+            result = movePlayer(player->y + 1, player->x - 1, world->board[world->currY][world->currX], player);
+
+            if (result == -1) {
+                sprintf(message, "Invalid move to (%d, %d)", player->y + 1, player->x - 1);
+            } else if (result == 1) {
+                sprintf(message, "Place occupied, cannot move there!");
+            } else if (result == 2) {
+                sprintf(message, "GO TO NEXT SCREEN SOMEHOW");
+            }
+        } else if (ch == '2' || ch == 'j') {
+            result = movePlayer(player->y + 1, player->x, world->board[world->currY][world->currX], player);
+
+            if (result == -1) {
+                sprintf(message, "Invalid move to (%d, %d)", player->y + 1, player->x);
+            } else if (result == 1) {
+                sprintf(message, "Place occupied, cannot move there!");
+            } else if (result == 2) {
+                sprintf(message, "GO TO NEXT SCREEN SOMEHOW");
+            }
+        } else if (ch == '3' || ch == 'n') {
+            result = movePlayer(player->y + 1, player->x + 1, world->board[world->currY][world->currX], player);
+
+            if (result == -1) {
+                sprintf(message, "Invalid move to (%d, %d)", player->y + 1, player->x + 1);
+            } else if (result == 1) {
+                sprintf(message, "Place occupied, cannot move there!");
+            } else if (result == 2) {
+                sprintf(message, "GO TO NEXT SCREEN SOMEHOW");
+            }
+        } else if (ch == 'p') {
+            sprintf(message, "player loc x: %d, y: %d", player->x, player->y);
         }
     }
-
-    return 0;
 }
 
 int main(int argc, char *argv[])
 {
-    initscr();
-
     gameBoard_t world;
     cell_t *player; // a pointer to the player for better access
     int trainerCnt = 10;
-
-    worldInit(&world);
 
     // Handle the switches
     if (argc >= 2) {
         if (!strcmp("--numtrainers", argv[1]) && argv[2] != NULL) {
             // Checks to make sure that the numbers after the switch are valid
-            for (char *i = &argv[2][0]; *i != NULL; i++) {
+            for (char *i = &argv[2][0]; *i != '\0'; i++) {
                 if (isdigit(*i) == 0) {
                     fprintf(stderr, "Usage: %s --numtrainers <int>\n", argv[0]);
                     return -1;
@@ -342,27 +416,19 @@ int main(int argc, char *argv[])
         }
     }
 
+    // Set the world's trainer count, so we can better pass it around
+    world.entityCount = trainerCnt;
+
+    worldInit(&world);
+
+    cursesInit();
+
+    // Put the player into it's starting location
     player = placeEntity(world.board[world.currY][world.currX], &world.board[world.currY][world.currX]->mh,'@');
 
-    placeEntities(trainerCnt, world.board[world.currY][world.currX], &world.board[world.currY][world.currX]->mh);
+    runGame(&world, player);
 
-    // Runs the simulation
-    //runSimulation(world.board[world.currY][world.currX], &world.board[world.currY][world.currX]->mh, &world, player);
-
-    printCurr(&world, "poo");
-
-    // This is where I would free the data, IF I COULD REACH IT!!!! DINKLEBERG
     destroyWorld(&world); // must be run to collect garbage at the end
-
-    raw();
-    noecho();
-    curs_set(0);
-
-    char ch = getch();
-
-    if (ch == 'q') {
-        endwin();
-    }
 
     return 0;
 }
