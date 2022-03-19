@@ -51,11 +51,13 @@ void findNeighbors(cell_t map[21][80], cell_t *cell, int neighbors[4][2]);
 void dijkstra(int x1, int y1, int x2, int y2, cell_t map[21][80]);
 void layPath(cell_t map[21][80], int exits[4][2]);
 void addShop(cell_t map[21][80], char shopIcon);
-void generate(int e1, int e2, int e3, int e4, map_t *board, int shopChance);
+void generate(int e1, int e2, int e3, int e4, map_t *board, int shopChance, int entityCount);
+int placeEntities(int entityCount, map_t *screen, minHeap_t *mh);
 
 // Entity methods
 cell_t* placeEntity(map_t *screen, minHeap_t *mh, char type);
 void delEntity(map_t *screen, minHeap_t *mh, cell_t *entity);
 int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity, cell_t *player);
+int movePlayer(int y, int x, map_t *screen, cell_t *player);
 
 #endif

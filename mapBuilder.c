@@ -570,7 +570,47 @@ void addShop(cell_t map[21][80], char shopIcon)
     }
 }
 
-void generate(int e1, int e2, int e3, int e4, map_t *board, int shopChance) {
+int placeEntities(int entityCount, map_t *screen, minHeap_t *mh)
+{
+    int type;
+
+    for (int i = 0; i < entityCount; i++) {
+        type = rand() % 6;
+
+        switch (type) {
+            case 0: // make a hiker
+                placeEntity(screen, mh, 'h');
+                break;
+
+            case 1: // make a pacer
+                placeEntity(screen, mh, 'p');
+                break;
+
+            case 2: // make a wanderer
+                placeEntity(screen, mh, 'w');
+                break;
+
+            case 3: // make a stationary
+                placeEntity(screen, mh, 's');
+                break;
+
+            case 4: // make a random walker
+                placeEntity(screen, mh, 'n');
+                break;
+
+            case 5: // make a random walker
+                placeEntity(screen, mh, 'r');
+                break;
+
+            default: // shit pants
+                return -1;
+        }
+    }
+
+    return 0;
+}
+
+void generate(int e1, int e2, int e3, int e4, map_t *board, int shopChance, int entityCount) {
     srand(time(NULL));
 
     int filledTiles[1482][2];
@@ -603,4 +643,6 @@ void generate(int e1, int e2, int e3, int e4, map_t *board, int shopChance) {
     if (cChance == 0) {
         addShop(board->map, 'C');
     }
+
+    placeEntities(entityCount, board, &board->mh);
 }
