@@ -12,3 +12,5 @@ Mar 18, 2022
     Got full player movement added and it cannot leave the map, interact with entities, or anything else, just move on input
 
 Mar 19, 2022
+    Added between screen movement for the cardinal directions
+    Took a mental health day since thinking about doing the diagonals made me sad
