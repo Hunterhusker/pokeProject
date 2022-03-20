@@ -149,14 +149,14 @@ int determineCost(char biomeType, char npcType)
             switch (biomeType) {
                 case '#':
                 case '.':
+                case 'M':
+                case 'C':
                     return 10;
 
                 case ':':
                     return 20;
 
                 case '%':
-                case 'M': //TODO PUT THESE BACK ON 10 WHEN WE CAN USE THEM
-                case 'C':
                     return INT_MAX; // -1 is infinity for me because lazy
 
                 default:
