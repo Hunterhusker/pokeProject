@@ -293,6 +293,7 @@ void runGame(gameBoard_t *world, cell_t *player)
             moveEntity(world->board[world->currY][world->currX], &world->board[world->currY][world->currX]->mh, peek(&world->board[world->currY][world->currX]->mh), player);
         }
 
+        // TODO: make the entities update the buffer as they move so that we don't waste power/time redoing the whole board each time
         printCurr(world, message);
 
         // reset the message
@@ -320,7 +321,40 @@ void runGame(gameBoard_t *world, cell_t *player)
             } else if (result == 1) {
                 sprintf(message, "Place occupied, cannot move there!");
             } else if (result == 2) {
-                sprintf(message, "GO TO NEXT SCREEN SOMEHOW");
+                /// Move to the screen north one
+
+                // A check to see if the space is occupied, if so, then we will stay put and tell the user their path is blocked
+                if (world->board[world->currY - 1][world->currX] != NULL) {
+                    if (world->board[world->currY - 1][world->currX]->eMap[19][player->x] != NULL) {
+                        sprintf(message, "The exit is blocked, you need another path!");
+                        continue;
+                    }
+                }
+
+                // Grab the player from the current screen
+                cell_t *temp = world->board[world->currY][world->currX]->eMap[player->y][player->x];
+
+                // Nullify the old location of the player, since they're no longer there
+                world->board[world->currY][world->currX]->eMap[player->y][player->x] = NULL;
+
+                // Remove the player from the heap
+                mhDeleteElement(&world->board[world->currY][world->currX]->mh, player);
+
+                // Move boards
+                goToLoc(world, world->currX, world->currY - 1);
+
+                // Add the player into the end of the new map
+                world->board[world->currY][world->currX]->eMap[19][player->x] = temp;
+                player->y = 19;
+
+                // Set the player's distance to be the first place in the heap TODO: might want this to be different
+                player->dist = peek(&world->board[world->currY][world->currX]->mh)->dist - 1;
+
+                // Add the player to the heap and buzz off
+                mhAdd(&world->board[world->currY][world->currX]->mh, player);
+
+                // Add a message to let the player know what happened
+                sprintf(message, "Went North!");
             }
         } else if (ch == '9' || ch == 'u') {
             result = movePlayer(player->y - 1, player->x + 1, world->board[world->currY][world->currX], player);
@@ -340,7 +374,40 @@ void runGame(gameBoard_t *world, cell_t *player)
             } else if (result == 1) {
                 sprintf(message, "Place occupied, cannot move there!");
             } else if (result == 2) {
-                sprintf(message, "GO TO NEXT SCREEN SOMEHOW");
+                /// Move to the screen west one
+
+                // A check to see if the space is occupied, if so, then we will stay put and tell the user their path is blocked
+                if (world->board[world->currY][world->currX - 1] != NULL) {
+                    if (world->board[world->currY][world->currX - 1]->eMap[player->y][78] != NULL) {
+                        sprintf(message, "The exit is blocked, you need another path!");
+                        continue;
+                    }
+                }
+
+                // Grab the player from the current screen
+                cell_t *temp = world->board[world->currY][world->currX]->eMap[player->y][player->x];
+
+                // Nullify the old location of the player, since they're no longer there
+                world->board[world->currY][world->currX]->eMap[player->y][player->x] = NULL;
+
+                // Remove the player from the heap
+                mhDeleteElement(&world->board[world->currY][world->currX]->mh, player);
+
+                // Move boards
+                goToLoc(world, world->currX - 1, world->currY);
+
+                // Add the player into the end of the new map
+                world->board[world->currY][world->currX]->eMap[player->y][78] = temp;
+                player->x = 78;
+
+                // Set the player's distance to be the first place in the heap TODO: might want this to be different
+                player->dist = peek(&world->board[world->currY][world->currX]->mh)->dist - 1;
+
+                // Add the player to the heap and buzz off
+                mhAdd(&world->board[world->currY][world->currX]->mh, player);
+
+                // Add a message to let the player know what happened
+                sprintf(message, "Went East!");
             }
         } else if (ch == '5' || ch == ' ') {
             sprintf(message, "Stood still...");
@@ -352,7 +419,40 @@ void runGame(gameBoard_t *world, cell_t *player)
             } else if (result == 1) {
                 sprintf(message, "Place occupied, cannot move there!");
             } else if (result == 2) {
-                sprintf(message, "GO TO NEXT SCREEN SOMEHOW");
+                /// Move to the screen east one
+
+                // A check to see if the space is occupied, if so, then we will stay put and tell the user their path is blocked
+                if (world->board[world->currY][world->currX + 1] != NULL) {
+                    if (world->board[world->currY][world->currX + 1]->eMap[player->y][1] != NULL) {
+                        sprintf(message, "The exit is blocked, you need another path!");
+                        continue;
+                    }
+                }
+
+                // Grab the player from the current screen
+                cell_t *temp = world->board[world->currY][world->currX]->eMap[player->y][player->x];
+
+                // Nullify the old location of the player, since they're no longer there
+                world->board[world->currY][world->currX]->eMap[player->y][player->x] = NULL;
+
+                // Remove the player from the heap
+                mhDeleteElement(&world->board[world->currY][world->currX]->mh, player);
+
+                // Move boards
+                goToLoc(world, world->currX + 1, world->currY);
+
+                // Add the player into the end of the new map
+                world->board[world->currY][world->currX]->eMap[player->y][1] = temp;
+                player->x = 1;
+
+                // Set the player's distance to be the first place in the heap TODO: might want this to be different
+                player->dist = peek(&world->board[world->currY][world->currX]->mh)->dist - 1;
+
+                // Add the player to the heap and buzz off
+                mhAdd(&world->board[world->currY][world->currX]->mh, player);
+
+                // Add a message to let the player know what happened
+                sprintf(message, "Went East!");
             }
         } else if (ch == '1' || ch == 'b') {
             result = movePlayer(player->y + 1, player->x - 1, world->board[world->currY][world->currX], player);
@@ -372,7 +472,40 @@ void runGame(gameBoard_t *world, cell_t *player)
             } else if (result == 1) {
                 sprintf(message, "Place occupied, cannot move there!");
             } else if (result == 2) {
-                sprintf(message, "GO TO NEXT SCREEN SOMEHOW");
+                /// Move to the screen south one
+
+                // A check to see if the space is occupied, if so, then we will stay put and tell the user their path is blocked
+                if (world->board[world->currY + 1][world->currX] != NULL) {
+                    if (world->board[world->currY + 1][world->currX]->eMap[1][player->x] != NULL) {
+                        sprintf(message, "The exit is blocked, you need another path!");
+                        continue;
+                    }
+                }
+
+                // Grab the player from the current screen
+                cell_t *temp = world->board[world->currY][world->currX]->eMap[player->y][player->x];
+
+                // Nullify the old location of the player, since they're no longer there
+                world->board[world->currY][world->currX]->eMap[player->y][player->x] = NULL;
+
+                // Remove the player from the heap
+                mhDeleteElement(&world->board[world->currY][world->currX]->mh, player);
+
+                // Move boards
+                goToLoc(world, world->currX, world->currY + 1);
+
+                // Add the player into the end of the new map
+                world->board[world->currY][world->currX]->eMap[1][player->x] = temp;
+                player->y = 1;
+
+                // Set the player's distance to be the first place in the heap TODO: might want this to be different
+                player->dist = peek(&world->board[world->currY][world->currX]->mh)->dist - 1;
+
+                // Add the player to the heap and buzz off
+                mhAdd(&world->board[world->currY][world->currX]->mh, player);
+
+                // Add a message to let the player know what happened
+                sprintf(message, "Went South!");
             }
         } else if (ch == '3' || ch == 'n') {
             result = movePlayer(player->y + 1, player->x + 1, world->board[world->currY][world->currX], player);
