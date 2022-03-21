@@ -14,3 +14,12 @@ Mar 18, 2022
 Mar 19, 2022
     Added between screen movement for the cardinal directions
     Took a mental health day since thinking about doing the diagonals made me sad
+
+Mar 20, 2022
+    Added diagonal map movement support and a check to see if the exits are blocked
+    Redid all of map movement since it was too clunky
+    Redid pacers to update the buffer so we can save ourselves the trouble of redoing the screen each time
+        did the same for wanderers
+        did the same for random walkers, and fixed a bug w/ getting stuck in front of exits I hadn't noticed before
+        did the same for hikers to finish it off
+    Fixed bug where rivals and hikers don't seek you when you are in the shops/marts
