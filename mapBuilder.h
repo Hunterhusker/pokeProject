@@ -58,6 +58,6 @@ int placeEntities(int entityCount, map_t *screen, minHeap_t *mh);
 cell_t* placeEntity(map_t *screen, minHeap_t *mh, char type);
 void delEntity(map_t *screen, minHeap_t *mh, cell_t *entity);
 int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity, cell_t *player);
-int movePlayer(int y, int x, map_t *screen, cell_t *player);
+//int movePlayer(int y, int x, map_t *screen, cell_t *player);
 
 #endif
