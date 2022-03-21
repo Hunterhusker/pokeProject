@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <limits.h>
+#include <curses.h>
 #include "mapBuilder.h"
 #include "heatMap.h"
 #include "minHeap.h"
@@ -121,7 +122,7 @@ void delEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
 
 int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity, cell_t *player)
 {
-    int iters;
+    int iters, nX = entity->x, nY = entity->y;
     heatMap_t hm;
     bool valid;
 
@@ -136,29 +137,12 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity, cell_t *player)
 
                         // If the next space is valid, then we can go, if not, do nothing
                         if (entity->y + 1 < 20 && screen->eMap[entity->y + 1][entity->x] == NULL && determineCost(screen->map[entity->y + 1][entity->x].type, entity->type) != INT_MAX) {
-                            // Increment the time of the next move in the heap
-                            entity->dist += determineCost(screen->map[entity->y + 1][entity->x].type, entity->type);
-
-                            screen->eMap[entity->y + 1][entity->x] = screen->eMap[entity->y][entity->x]; // Move up
-                            screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
-
-                            entity->y++;
-                        } else {
-                            // If the poor thing get's stuck put him further into the gametime heap and hope a space opens for him
-                            entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
+                            nY++;
                         }
                     } else if (entity->y - 1 > 0 && screen->eMap[entity->y - 1][entity->x] == NULL && determineCost(screen->map[entity->y - 1][entity->x].type, entity->type) != INT_MAX) {
-                        // Increment the time of the next move in the heap
-                        entity->dist += determineCost(screen->map[entity->y - 1][entity->x].type, entity->type);
-
-                        screen->eMap[entity->y - 1][entity->x] = screen->eMap[entity->y][entity->x]; // Move up
-                        screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
-
-                        entity->y--;
+                        nY--;
                     } else {
                         entity->weight = 2;
-
-                        entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
                     }
                     break;
 
@@ -170,29 +154,12 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity, cell_t *player)
 
                         // If the next space is valid, then we can go, if not, do nothing
                         if (entity->x - 1 > 0 && screen->eMap[entity->y][entity->x - 1] == NULL && determineCost(screen->map[entity->y][entity->x - 1].type, entity->type) != INT_MAX) {
-                            // Increment the time of the next move in the heap
-                            entity->dist += determineCost(screen->map[entity->y][entity->x - 1].type, entity->type);
-
-                            screen->eMap[entity->y][entity->x - 1] = screen->eMap[entity->y][entity->x]; // Move up
-                            screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
-
-                            entity->x--;
-                        } else {
-                            // If the poor thing get's stuck put him further into the gametime heap and hope a space opens for him
-                            entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
+                            nX--;
                         }
                     } else if (entity->x + 1 < 79 && screen->eMap[entity->y][entity->x + 1] == NULL && determineCost(screen->map[entity->y][entity->x + 1].type, entity->type) != INT_MAX) {
-                        // Increment the time of the next move in the heap
-                        entity->dist += determineCost(screen->map[entity->y][entity->x + 1].type, entity->type);
-
-                        screen->eMap[entity->y][entity->x + 1] = screen->eMap[entity->y][entity->x]; // Move up
-                        screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
-
-                        entity->x++;
+                        nX++;
                     } else {
                         entity->weight = 3;
-
-                        entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
                     }
                     break;
 
@@ -204,29 +171,12 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity, cell_t *player)
 
                         // If the next space is valid, then we can go, if not, do nothing
                         if (entity->y - 1 > 0 && screen->eMap[entity->y - 1][entity->x] == NULL && determineCost(screen->map[entity->y - 1][entity->x].type, entity->type) != INT_MAX) {
-                            // Increment the time of the next move in the heap
-                            entity->dist += determineCost(screen->map[entity->y - 1][entity->x].type, entity->type);
-
-                            screen->eMap[entity->y - 1][entity->x] = screen->eMap[entity->y][entity->x]; // Move up
-                            screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
-
-                            entity->y--;
-                        } else {
-                            // If the poor thing get's stuck put him further into the gametime heap and hope a space opens for him
-                            entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
+                            nY--;
                         }
                     } else if (entity->y + 1 < 20 && screen->eMap[entity->y + 1][entity->x] == NULL && determineCost(screen->map[entity->y + 1][entity->x].type, entity->type) != INT_MAX) {
-                        // Increment the time of the next move in the heap
-                        entity->dist += determineCost(screen->map[entity->y + 1][entity->x].type, entity->type);
-
-                        screen->eMap[entity->y + 1][entity->x] = screen->eMap[entity->y][entity->x]; // Move up
-                        screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
-
-                        entity->y++;
+                        nY++;
                     } else {
                         entity->weight = 0;
-
-                        entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
                     }
                     break;
 
@@ -238,29 +188,12 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity, cell_t *player)
 
                         // If the next space is valid, then we can go, if not, do nothing
                         if (entity->x + 1 < 79 && screen->eMap[entity->y][entity->x + 1] == NULL && determineCost(screen->map[entity->y][entity->x + 1].type, entity->type) != INT_MAX) {
-                            // Increment the time of the next move in the heap
-                            entity->dist += determineCost(screen->map[entity->y][entity->x + 1].type, entity->type);
-
-                            screen->eMap[entity->y][entity->x + 1] = screen->eMap[entity->y][entity->x]; // Move up
-                            screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
-
-                            entity->x++;
-                        } else {
-                            // If the poor thing get's stuck put him further into the gametime heap and hope a space opens for him
-                            entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
+                            nX++;
                         }
                     } else if (entity->x - 1 > 0 && screen->eMap[entity->y][entity->x - 1] == NULL && determineCost(screen->map[entity->y][entity->x - 1].type, entity->type) != INT_MAX) {
-                        // Increment the time of the next move in the heap
-                        entity->dist += determineCost(screen->map[entity->y][entity->x - 1].type, entity->type);
-
-                        screen->eMap[entity->y][entity->x - 1] = screen->eMap[entity->y][entity->x]; // Move up
-                        screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
-
-                        entity->x--;
+                        nX--;
                     } else {
                         entity->weight = 1;
-
-                        entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
                     }
                     break;
 
@@ -281,15 +214,8 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity, cell_t *player)
                             // Update the direction of the entity, so it doesn't keep going straight
                             entity->weight = rand() % 4;
                         } else if (entity->y - 1 > 0 && screen->eMap[entity->y - 1][entity->x] == NULL && screen->map[entity->y][entity->x].type == screen->map[entity->y - 1][entity->x].type) {
-                            // Increment the time of the next move in the heap
-                            entity->dist += determineCost(screen->map[entity->y - 1][entity->x].type, entity->type);
-
-                            screen->eMap[entity->y - 1][entity->x] = screen->eMap[entity->y][entity->x]; // Move up
-                            screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
-
-                            entity->y--;
-
                             valid = true;
+                            nY--;
                         }
                         break;
 
@@ -299,15 +225,8 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity, cell_t *player)
                             // Update the direction of the entity, so it doesn't keep going straight
                             entity->weight = rand() % 4;
                         } else if (entity->x + 1 < 79 && screen->eMap[entity->y][entity->x + 1] == NULL && screen->map[entity->y][entity->x].type == screen->map[entity->y][entity->x + 1].type) {
-                            // Increment the time of the next move in the heap
-                            entity->dist += determineCost(screen->map[entity->y][entity->x + 1].type, entity->type);
-
-                            screen->eMap[entity->y][entity->x + 1] = screen->eMap[entity->y][entity->x]; // Move up
-                            screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
-
-                            entity->x++;
-
                             valid = true;
+                            nX++;
                         }
                         break;
 
@@ -317,15 +236,8 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity, cell_t *player)
                             // Update the direction of the entity, so it doesn't keep going straight
                             entity->weight = rand() % 4;
                         } else if (entity->y + 1 < 20 && screen->eMap[entity->y + 1][entity->x] == NULL && screen->map[entity->y][entity->x].type == screen->map[entity->y + 1][entity->x].type) {
-                            // Increment the time of the next move in the heap
-                            entity->dist += determineCost(screen->map[entity->y + 1][entity->x].type, entity->type);
-
-                            screen->eMap[entity->y + 1][entity->x] = screen->eMap[entity->y][entity->x]; // Move up
-                            screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
-
-                            entity->y++;
-
                             valid = true;
+                            nY++;
                         }
                         break;
 
@@ -335,28 +247,16 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity, cell_t *player)
                             // Update the direction of the entity, so it doesn't keep going straight
                             entity->weight = rand() % 4;
                         } else if (entity->x - 1 > 0 && screen->eMap[entity->y][entity->x - 1] == NULL && screen->map[entity->y][entity->x].type == screen->map[entity->y][entity->x - 1].type) {
-                            // Increment the time of the next move in the heap
-                            entity->dist += determineCost(screen->map[entity->y][entity->x - 1].type, entity->type);
-
-                            screen->eMap[entity->y][entity->x - 1] = screen->eMap[entity->y][entity->x]; // Move up
-                            screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
-
-                            entity->x--;
-
                             valid = true;
+                            nX--;
                         }
                         break;
-
-                    default:
-                        return -1;
                 }
 
                 iters++;
 
                 if (iters == 5) {
-                    // If the poor thing get's stuck put him further into the gametime heap and hope a space opens for him
-                    entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
-
+                    valid = true;
                     break;
                 }
             }
@@ -376,15 +276,10 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity, cell_t *player)
                             // Update the direction of the entity, so it doesn't keep going straight
                             entity->weight = rand() % 4;
                         } else if (entity->y - 1 > 0 && screen->eMap[entity->y - 1][entity->x] == NULL && determineCost(screen->map[entity->y - 1][entity->x].type, entity->type) != INT_MAX) {
-                            // Increment the time of the next move in the heap
-                            entity->dist += determineCost(screen->map[entity->y - 1][entity->x].type, entity->type);
-
-                            screen->eMap[entity->y - 1][entity->x] = screen->eMap[entity->y][entity->x]; // Move up
-                            screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
-
-                            entity->y--;
-
                             valid = true;
+                            nY--;
+                        } else {
+                            entity->weight = rand() % 4;
                         }
                         break;
 
@@ -394,15 +289,10 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity, cell_t *player)
                             // Update the direction of the entity, so it doesn't keep going straight
                             entity->weight = rand() % 4;
                         } else if (entity->x + 1 < 79 && screen->eMap[entity->y][entity->x + 1] == NULL && determineCost(screen->map[entity->y][entity->x + 1].type, entity->type) != INT_MAX) {
-                            // Increment the time of the next move in the heap
-                            entity->dist += determineCost(screen->map[entity->y][entity->x + 1].type, entity->type);
-
-                            screen->eMap[entity->y][entity->x + 1] = screen->eMap[entity->y][entity->x]; // Move up
-                            screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
-
-                            entity->x++;
-
                             valid = true;
+                            nX++;
+                        } else {
+                            entity->weight = rand() % 4;
                         }
                         break;
 
@@ -412,15 +302,10 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity, cell_t *player)
                             // Update the direction of the entity, so it doesn't keep going straight
                             entity->weight = rand() % 4;
                         } else if (entity->y + 1 < 20 && screen->eMap[entity->y + 1][entity->x] == NULL && determineCost(screen->map[entity->y + 1][entity->x].type, entity->type) != INT_MAX) {
-                            // Increment the time of the next move in the heap
-                            entity->dist += determineCost(screen->map[entity->y + 1][entity->x].type, entity->type);
-
-                            screen->eMap[entity->y + 1][entity->x] = screen->eMap[entity->y][entity->x]; // Move up
-                            screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
-
-                            entity->y++;
-
                             valid = true;
+                            nY++;
+                        } else {
+                            entity->weight = rand() % 4;
                         }
                         break;
 
@@ -430,28 +315,18 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity, cell_t *player)
                             // Update the direction of the entity, so it doesn't keep going straight
                             entity->weight = rand() % 4;
                         } else if (entity->x - 1 > 0 && screen->eMap[entity->y][entity->x - 1] == NULL && determineCost(screen->map[entity->y][entity->x - 1].type, entity->type) != INT_MAX) {
-                            // Increment the time of the next move in the heap
-                            entity->dist += determineCost(screen->map[entity->y][entity->x - 1].type, entity->type);
-
-                            screen->eMap[entity->y][entity->x - 1] = screen->eMap[entity->y][entity->x]; // Move up
-                            screen->eMap[entity->y][entity->x] = NULL; // Nullify the old spot
-
-                            entity->x--;
-
                             valid = true;
+                            nX--;
+                        } else {
+                            entity->weight = rand() % 4;
                         }
                         break;
-
-                    default:
-                        return -1;
                 }
 
                 iters++;
 
                 if (iters == 5) {
-                    // If the poor thing get's stuck put him further into the gametime heap and hope a space opens for him
-                    entity->dist += determineCost(screen->map[entity->y][entity->x].type, entity->type);
-
+                    valid = true;
                     break;
                 }
             }
@@ -516,13 +391,8 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity, cell_t *player)
                 if (screen->eMap[y][x] == NULL && determineCost(screen->map[y][x].type, entity->type) != INT_MAX) {
                     found = true; // Stop the loop, and go there
 
-                    entity->dist += determineCost(screen->map[y][x].type, entity->type);
-
-                    screen->eMap[y][x] = screen->eMap[entity->y][entity->x];
-                    screen->eMap[entity->y][entity->x] = NULL;
-
-                    entity->x = x;
-                    entity->y = y;
+                    nX = x;
+                    nY = y;
 
                     break;
                 }
@@ -538,6 +408,30 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity, cell_t *player)
             return -1;
     }
 
+    /// Actually move the entity now that we have found their new location
+
+    // Grab the pointer to the entity
+    cell_t *tmp = screen->eMap[entity->y][entity->x];
+
+    // Nullify the old place of the entity
+    screen->eMap[entity->y][entity->x] = NULL;
+
+    // Move the entity to the new place we found for them
+    screen->eMap[nY][nX] = tmp;
+
+    // Set the new game time for the entity
+    entity->dist += determineCost(screen->map[nY][nX].type, entity->type);
+
+    // Update the old location in the screen buffer to not have the entity
+    mvaddch(entity->y, entity->x, screen->map[entity->y][entity->x].type);
+
+    // Move the entity to the new location in the screen buffer
+    mvaddch(nY, nX, entity->type);
+
+    // Update the entity to know its new location
+    entity->y = nY;
+    entity->x = nX;
+
     // Since we are only going to move the first thing in the heap, and we update its distance accordingly,
     //     we can just heapify down on the head of the heap to restore the heap property
     heapifyDown(mh, 0);
@@ -545,35 +439,3 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity, cell_t *player)
     return 0;
 }
 
-int movePlayer(int y, int x, map_t *screen, cell_t *player) {
-    // if the location is invalid, then return -1 to denote the error
-    if (y > 20 || y < 0 || x > 79 || x < 0) {
-        return -1;
-    }
-
-    // Check the map to see if the location is non-traversable, return 1 to denote a non-error non move
-    if (screen->map[y][x].type == '%' || screen->eMap[y][x] != NULL) {
-        return 1;
-    }
-
-    // Check for the exit case, aka if on a border and the space is a #, return a 2 to say we hit an exit
-    if ((y == 0 || y == 20 || x == 0 || x == 79) && screen->map[y][x].type == '#') {
-        return 2;
-    }
-
-    // If we have passed those tests, then we can probably just move there
-    int cost = determineCost(screen->map[y][x].type, '@');
-    player->dist += cost;
-
-    screen->eMap[y][x] = screen->eMap[player->y][player->x];
-
-    screen->eMap[player->y][player->x] = NULL;
-
-    player->y = y;
-    player->x = x;
-
-    // Since the player has moved and their gameTime has updated, then we need to send them further into the heap
-    heapifyDown(&screen->mh, 0);
-
-    return 0;
-}
