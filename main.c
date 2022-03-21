@@ -154,125 +154,6 @@ int goToLoc(gameBoard_t *world, int x, int y)
     return 0;
 }
 
-//void userInput(gameBoard_t *world, cell_t *player, heatMap_t *heatMap)
-//{
-//    char in = ' ', enemyType;
-//    char message[50] = "Welcome! Check the readme for commands";
-//    int x = 0, y = 0, success;
-//    bool printHM = false;
-//
-//    minHeap_t mh;
-//
-//    while (in != 'q')
-//    {
-//        //placePlayer(world->board[world->currY][world->currX], player);
-////        placeEntity(world->board[world->currY][world->currX], &mh, '@');
-////        placeEntity(world->board[world->currY][world->currX], &mh, 'h');
-//
-//        if (printHM) {
-//            printHeatMap(heatMap);
-//
-//            printHM = false;
-//        }
-//
-//        printCurr(world, message);
-//
-//        //unplacePlayer(world->board[world->currY][world->currX], player);
-//
-//        printf("> ");
-//
-//        scanf(" %c", &in);
-//
-//        if (in == 'n') {
-//            // go north
-//            success = goToLoc(world, world->currX, world->currY-1);
-//
-//            if (success != -1) {
-//                strcpy(message, "Went north!");
-//            } else {
-//                strcpy(message, "Invalid, too far north!");
-//            }
-//        } else if (in == 's') {
-//            // go south
-//            success = goToLoc(world, world->currX, world->currY+1);
-//
-//            if (success != -1) {
-//                strcpy(message, "Went south!");
-//            } else {
-//                strcpy(message, "Invalid, too far south!");
-//            }
-//        } else if (in == 'e') {
-//            // go east
-//            success = goToLoc(world, world->currX+1, world->currY);
-//
-//            if (success != -1) {
-//                strcpy(message, "Went east!");
-//            } else {
-//                strcpy(message, "Invalid, too far east!");
-//            }
-//        } else if (in == 'w') {
-//            // go west
-//            success = goToLoc(world, world->currX-1, world->currY);
-//
-//            if (success != -1) {
-//                strcpy(message, "Went west!");
-//            } else {
-//                strcpy(message, "Invalid, too far west!");
-//            }
-//        } else if (in == 'f') {
-//            // fly away!
-//            scanf(" %d %d", &x, &y);
-//
-//            success = goToLoc(world, x, y);
-//
-//            if (success != -1) {
-//                sprintf(message, "Flew to (%d, %d)", x, y);
-//            } else {
-//                sprintf(message, "Can't fly to (%d, %d)", x, y);
-//            }
-//        } else if (in == 'h') {
-//            scanf(" %c", &enemyType);
-//
-//            if (enemyType == 'H') {
-//                fillHeatMap(world->board[world->currY][world->currX], heatMap, player, 'H');
-//
-//                printHM = true;
-//
-//                sprintf(message, "Printed the map for the hiker!");
-//            } else if (enemyType == 'R') {
-//                fillHeatMap(world->board[world->currY][world->currX], heatMap, player, 'R');
-//
-//                printHM = true;
-//
-//                sprintf(message, "Printed the map for the rival!");
-//            } else {
-//                sprintf(message, "Unknown enemy \"%c\", staying put!", enemyType);
-//            }
-//        } else if (in == 'q') {
-//                printf("Goodbye!\n");
-//        } else {
-//            // Prints a custom error message (apparently sprintf is sketchy, so I will avoid it as much as I can)
-//            sprintf(message, "Unknown input \"%c\", staying put!", in);
-//        }
-//    }
-//}
-
-void runSimulation(map_t *screen, minHeap_t *mh, gameBoard_t *world, cell_t *player)
-{
-    while (mh->currLen != 0) {
-
-        while (peek(mh) != player) {
-            moveEntity(screen, mh, peek(mh), player);
-        }
-
-        printCurr(world, "simulation running");
-
-        moveEntity(screen, mh, peek(mh), player);
-
-        usleep(250000);
-    }
-}
-
 void cursesInit()
 {
     initscr();
@@ -282,10 +163,126 @@ void cursesInit()
     curs_set(0);
 }
 
+int movePlayer(int y, int x, gameBoard_t *world, cell_t *player, char message[]) {
+    // if the location is invalid, then return -1 to denote the error
+    if (y > 20 || y < 0 || x > 79 || x < 0) {
+        return -1;
+    }
+
+    // Check the map to see if the location is non-traversable, return 1 to denote a non-error non move
+    if (world->board[world->currY][world->currX]->map[y][x].type == '%' || world->board[world->currY][world->currX]->eMap[y][x] != NULL) {
+        return 1;
+    }
+
+    // Check for the exit case, aka if on a border and the space is a #, return a 2 to say we hit an exit
+    if ((y == 0 || y == 20 || x == 0 || x == 79) && world->board[world->currY][world->currX]->map[y][x].type == '#') {
+        int nX, nY, pX, pY;
+
+        if (y == 0) {
+            nX = world->currX;
+            nY = world->currY - 1;
+
+            pX = x;
+            pY = 19;
+
+
+            // Add a message to let the player know what happened
+            sprintf(message, "Went North");
+        } else if (y == 20) {
+            nX = world->currX;
+            nY = world->currY + 1;
+
+            pX = x;
+            pY = 1;
+
+
+            // Add a message to let the player know what happened
+            sprintf(message, "Went South");
+        } else if (x == 0) {
+            nX = world->currX - 1;
+            nY = world->currY;
+
+            pX = 78;
+            pY = y;
+
+
+            // Add a message to let the player know what happened
+            sprintf(message, "Went West");
+        } else if (x == 79) {
+            nX = world->currX + 1;
+            nY = world->currY;
+
+            pX = 1;
+            pY = y;
+
+
+            // Add a message to let the player know what happened
+            sprintf(message, "Went East");
+        }
+
+        // A check to see if the space is occupied, if so, then we will stay put and tell the user their path is blocked
+        if (world->board[nY][nX] != NULL) {
+            if (world->board[nY][nX]->eMap[pY][pX] != NULL) {
+                return 2;
+            }
+        }
+
+        // Grab the player from the current screen
+        cell_t *temp = world->board[world->currY][world->currX]->eMap[player->y][player->x];
+
+        // Nullify the old location of the player, since they're no longer there
+        world->board[world->currY][world->currX]->eMap[player->y][player->x] = NULL;
+
+        // Remove the player from the heap
+        mhDeleteElement(&world->board[world->currY][world->currX]->mh, player);
+
+        // Move boards
+        goToLoc(world, nX, nY);
+
+        // Add the player into the end of the new map
+        world->board[world->currY][world->currX]->eMap[pY][pX] = temp;
+        player->y = pY;
+        player->x = pX;
+
+        // Set the player's distance to be the first place in the heap TODO: might want this to be different
+        player->dist = peek(&world->board[world->currY][world->currX]->mh)->dist - 1;
+
+        // Add the player to the heap and buzz off
+        mhAdd(&world->board[world->currY][world->currX]->mh, player);
+
+        // Update the buffer
+        printCurr(world, message);
+
+        // return 0 since we were successful in moving
+        return 0;
+    }
+
+    // If we have passed those tests, then we can probably just move there
+    int cost = determineCost(world->board[world->currY][world->currX]->map[y][x].type, '@');
+    player->dist += cost;
+
+    world->board[world->currY][world->currX]->eMap[y][x] = world->board[world->currY][world->currX]->eMap[player->y][player->x];
+
+    world->board[world->currY][world->currX]->eMap[player->y][player->x] = NULL;
+
+    mvaddch(player->y, player->x, world->board[world->currY][world->currX]->map[player->y][player->x].type);
+    mvaddch(y, x, '@');
+
+    player->y = y;
+    player->x = x;
+
+    // Since the player has moved and their gameTime has updated, then we need to send them further into the heap
+    heapifyDown(&world->board[world->currY][world->currX]->mh, 0);
+
+    return 0;
+}
+
 void runGame(gameBoard_t *world, cell_t *player)
 {
     char message[50] = "Your move!";
     int result;
+
+    printCurr(world, message);
 
     bool alive = true;
     while (alive) {
@@ -294,228 +291,97 @@ void runGame(gameBoard_t *world, cell_t *player)
         }
 
         // TODO: make the entities update the buffer as they move so that we don't waste power/time redoing the whole board each time
-        printCurr(world, message);
+        //printCurr(world, message);
+
+        refresh();
 
         // reset the message
         strcpy(message, "Your move!");
 
         char ch = getch();
 
+        /// Quit command
         if (ch == 'q') {
             alive = false;
+
+        /// Trainer menu key
+        } else if (ch == 't') {
+            for (int i = 0; i < 21; i++) {
+                for (int j = 20; j < 60; j++) {
+                    mvaddch(i, j, ' ');
+                }
+            }
+
+        /// Movement control below
         } else if (ch == '7' || ch == 'y') {
-            result = movePlayer(player->y - 1, player->x - 1, world->board[world->currY][world->currX], player);
+            result = movePlayer(player->y - 1, player->x - 1, world, player, message);
 
             if (result == -1) {
                 sprintf(message, "Invalid move to (%d, %d)", player->y - 1, player->x - 1);
             } else if (result == 1) {
                 sprintf(message, "Place occupied, cannot move there!");
-            } else if (result == 2) {
-                sprintf(message, "GO TO NEXT SCREEN SOMEHOW");
             }
         } else if (ch == '8' || ch == 'k') {
-            result = movePlayer(player->y - 1, player->x, world->board[world->currY][world->currX], player);
+            result = movePlayer(player->y - 1, player->x, world, player, message);
 
             if (result == -1) {
                 sprintf(message, "Invalid move to (%d, %d)", player->y - 1, player->x);
             } else if (result == 1) {
                 sprintf(message, "Place occupied, cannot move there!");
-            } else if (result == 2) {
-                /// Move to the screen north one
-
-                // A check to see if the space is occupied, if so, then we will stay put and tell the user their path is blocked
-                if (world->board[world->currY - 1][world->currX] != NULL) {
-                    if (world->board[world->currY - 1][world->currX]->eMap[19][player->x] != NULL) {
-                        sprintf(message, "The exit is blocked, you need another path!");
-                        continue;
-                    }
-                }
-
-                // Grab the player from the current screen
-                cell_t *temp = world->board[world->currY][world->currX]->eMap[player->y][player->x];
-
-                // Nullify the old location of the player, since they're no longer there
-                world->board[world->currY][world->currX]->eMap[player->y][player->x] = NULL;
-
-                // Remove the player from the heap
-                mhDeleteElement(&world->board[world->currY][world->currX]->mh, player);
-
-                // Move boards
-                goToLoc(world, world->currX, world->currY - 1);
-
-                // Add the player into the end of the new map
-                world->board[world->currY][world->currX]->eMap[19][player->x] = temp;
-                player->y = 19;
-
-                // Set the player's distance to be the first place in the heap TODO: might want this to be different
-                player->dist = peek(&world->board[world->currY][world->currX]->mh)->dist - 1;
-
-                // Add the player to the heap and buzz off
-                mhAdd(&world->board[world->currY][world->currX]->mh, player);
-
-                // Add a message to let the player know what happened
-                sprintf(message, "Went North!");
             }
         } else if (ch == '9' || ch == 'u') {
-            result = movePlayer(player->y - 1, player->x + 1, world->board[world->currY][world->currX], player);
+            result = movePlayer(player->y - 1, player->x + 1, world, player, message);
 
             if (result == -1) {
                 sprintf(message, "Invalid move to (%d, %d)", player->y - 1, player->x + 1);
             } else if (result == 1) {
                 sprintf(message, "Place occupied, cannot move there!");
-            } else if (result == 2) {
-                sprintf(message, "GO TO NEXT SCREEN SOMEHOW");
             }
         } else if (ch == '4' || ch == 'h') {
-            result = movePlayer(player->y, player->x - 1, world->board[world->currY][world->currX], player);
+            result = movePlayer(player->y, player->x - 1, world, player, message);
 
             if (result == -1) {
                 sprintf(message, "Invalid move to (%d, %d)", player->y, player->x - 1);
             } else if (result == 1) {
                 sprintf(message, "Place occupied, cannot move there!");
-            } else if (result == 2) {
-                /// Move to the screen west one
-
-                // A check to see if the space is occupied, if so, then we will stay put and tell the user their path is blocked
-                if (world->board[world->currY][world->currX - 1] != NULL) {
-                    if (world->board[world->currY][world->currX - 1]->eMap[player->y][78] != NULL) {
-                        sprintf(message, "The exit is blocked, you need another path!");
-                        continue;
-                    }
-                }
-
-                // Grab the player from the current screen
-                cell_t *temp = world->board[world->currY][world->currX]->eMap[player->y][player->x];
-
-                // Nullify the old location of the player, since they're no longer there
-                world->board[world->currY][world->currX]->eMap[player->y][player->x] = NULL;
-
-                // Remove the player from the heap
-                mhDeleteElement(&world->board[world->currY][world->currX]->mh, player);
-
-                // Move boards
-                goToLoc(world, world->currX - 1, world->currY);
-
-                // Add the player into the end of the new map
-                world->board[world->currY][world->currX]->eMap[player->y][78] = temp;
-                player->x = 78;
-
-                // Set the player's distance to be the first place in the heap TODO: might want this to be different
-                player->dist = peek(&world->board[world->currY][world->currX]->mh)->dist - 1;
-
-                // Add the player to the heap and buzz off
-                mhAdd(&world->board[world->currY][world->currX]->mh, player);
-
-                // Add a message to let the player know what happened
-                sprintf(message, "Went East!");
             }
         } else if (ch == '5' || ch == ' ') {
+            player->dist += determineCost(world->board[world->currY][world->currX]->map[player->y][player->x].type, '@');
+
+            heapifyDown(&world->board[world->currY][world->currX]->mh, 0);
+
             sprintf(message, "Stood still...");
         } else if (ch == '6' || ch == 'l') {
-            result = movePlayer(player->y, player->x + 1, world->board[world->currY][world->currX], player);
+            result = movePlayer(player->y, player->x + 1, world, player, message);
 
             if (result == -1) {
                 sprintf(message, "Invalid move to (%d, %d)", player->y, player->x + 1);
             } else if (result == 1) {
                 sprintf(message, "Place occupied, cannot move there!");
-            } else if (result == 2) {
-                /// Move to the screen east one
-
-                // A check to see if the space is occupied, if so, then we will stay put and tell the user their path is blocked
-                if (world->board[world->currY][world->currX + 1] != NULL) {
-                    if (world->board[world->currY][world->currX + 1]->eMap[player->y][1] != NULL) {
-                        sprintf(message, "The exit is blocked, you need another path!");
-                        continue;
-                    }
-                }
-
-                // Grab the player from the current screen
-                cell_t *temp = world->board[world->currY][world->currX]->eMap[player->y][player->x];
-
-                // Nullify the old location of the player, since they're no longer there
-                world->board[world->currY][world->currX]->eMap[player->y][player->x] = NULL;
-
-                // Remove the player from the heap
-                mhDeleteElement(&world->board[world->currY][world->currX]->mh, player);
-
-                // Move boards
-                goToLoc(world, world->currX + 1, world->currY);
-
-                // Add the player into the end of the new map
-                world->board[world->currY][world->currX]->eMap[player->y][1] = temp;
-                player->x = 1;
-
-                // Set the player's distance to be the first place in the heap TODO: might want this to be different
-                player->dist = peek(&world->board[world->currY][world->currX]->mh)->dist - 1;
-
-                // Add the player to the heap and buzz off
-                mhAdd(&world->board[world->currY][world->currX]->mh, player);
-
-                // Add a message to let the player know what happened
-                sprintf(message, "Went East!");
             }
         } else if (ch == '1' || ch == 'b') {
-            result = movePlayer(player->y + 1, player->x - 1, world->board[world->currY][world->currX], player);
+            result = movePlayer(player->y + 1, player->x - 1, world, player, message);
 
             if (result == -1) {
                 sprintf(message, "Invalid move to (%d, %d)", player->y + 1, player->x - 1);
             } else if (result == 1) {
                 sprintf(message, "Place occupied, cannot move there!");
-            } else if (result == 2) {
-                sprintf(message, "GO TO NEXT SCREEN SOMEHOW");
             }
         } else if (ch == '2' || ch == 'j') {
-            result = movePlayer(player->y + 1, player->x, world->board[world->currY][world->currX], player);
+            result = movePlayer(player->y + 1, player->x, world, player, message);
 
             if (result == -1) {
                 sprintf(message, "Invalid move to (%d, %d)", player->y + 1, player->x);
             } else if (result == 1) {
-                sprintf(message, "Place occupied, cannot move there!");
-            } else if (result == 2) {
-                /// Move to the screen south one
-
-                // A check to see if the space is occupied, if so, then we will stay put and tell the user their path is blocked
-                if (world->board[world->currY + 1][world->currX] != NULL) {
-                    if (world->board[world->currY + 1][world->currX]->eMap[1][player->x] != NULL) {
-                        sprintf(message, "The exit is blocked, you need another path!");
-                        continue;
-                    }
-                }
-
-                // Grab the player from the current screen
-                cell_t *temp = world->board[world->currY][world->currX]->eMap[player->y][player->x];
-
-                // Nullify the old location of the player, since they're no longer there
-                world->board[world->currY][world->currX]->eMap[player->y][player->x] = NULL;
-
-                // Remove the player from the heap
-                mhDeleteElement(&world->board[world->currY][world->currX]->mh, player);
-
-                // Move boards
-                goToLoc(world, world->currX, world->currY + 1);
-
-                // Add the player into the end of the new map
-                world->board[world->currY][world->currX]->eMap[1][player->x] = temp;
-                player->y = 1;
-
-                // Set the player's distance to be the first place in the heap TODO: might want this to be different
-                player->dist = peek(&world->board[world->currY][world->currX]->mh)->dist - 1;
-
-                // Add the player to the heap and buzz off
-                mhAdd(&world->board[world->currY][world->currX]->mh, player);
-
-                // Add a message to let the player know what happened
-                sprintf(message, "Went South!");
+                sprintf(message, "Your path is blocked, cannot move there!");
             }
         } else if (ch == '3' || ch == 'n') {
-            result = movePlayer(player->y + 1, player->x + 1, world->board[world->currY][world->currX], player);
+            result = movePlayer(player->y + 1, player->x + 1, world, player, message);
 
             if (result == -1) {
                 sprintf(message, "Invalid move to (%d, %d)", player->y + 1, player->x + 1);
             } else if (result == 1) {
                 sprintf(message, "Place occupied, cannot move there!");
-            } else if (result == 2) {
-                sprintf(message, "GO TO NEXT SCREEN SOMEHOW");
             }
         } else if (ch == 'p') {
             sprintf(message, "player loc x: %d, y: %d", player->x, player->y);
