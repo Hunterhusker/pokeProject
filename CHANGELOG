@@ -23,3 +23,7 @@ Mar 20, 2022
         did the same for random walkers, and fixed a bug w/ getting stuck in front of exits I hadn't noticed before
         did the same for hikers to finish it off
     Fixed bug where rivals and hikers don't seek you when you are in the shops/marts
+
+Mar 21, 2022
+    Added stationary entities back to the game clock so that they can check for players in the area to battle
+    Started to work on a trainer listing function, but am stuck on reading Esc right now, did get arrow keys to work I think
