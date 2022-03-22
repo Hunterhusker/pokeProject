@@ -161,6 +161,8 @@ void cursesInit()
     raw();
     noecho();
     curs_set(0);
+
+    keypad(stdscr, TRUE);
 }
 
 int movePlayer(int y, int x, gameBoard_t *world, cell_t *player, char message[]) {
@@ -277,6 +279,47 @@ int movePlayer(int y, int x, gameBoard_t *world, cell_t *player, char message[])
     return 0;
 }
 
+// Makes the black box so that our menus are all the same size
+void menuInit() {
+    for (int i = 0; i < 21; i++) {
+        for (int j = 20; j < 60; j++) {
+            mvaddch(i, j, ' ');
+        }
+    }
+}
+
+int trainerMenu(gameBoard_t *world)
+{
+    set_escdelay(10);
+
+    bool inMenu = true;
+    menuInit();
+
+    for (int i = 0; i <= world->board[world->currY][world->currX]->mh.currLen; i++) {
+        mvprintw(i, 25, "trainer:");
+    }
+
+    while (inMenu) {
+        refresh();
+
+        int ch = getch();
+
+        if (ch == 27) {
+            mvprintw(23, 0, "moooooooo");
+            return 0;
+        } else if (ch == 'w') {
+            return 0;
+        } else if (ch == KEY_UP) {
+            mvprintw(23, 0, "woooooooo");
+            return 0;
+        }
+    }
+
+    set_escdelay(1000);
+
+    return 0;
+}
+
 void runGame(gameBoard_t *world, cell_t *player)
 {
     char message[50] = "Your move!";
@@ -293,6 +336,7 @@ void runGame(gameBoard_t *world, cell_t *player)
         // TODO: make the entities update the buffer as they move so that we don't waste power/time redoing the whole board each time
         //printCurr(world, message);
 
+        mvprintw(21, 0, "Current Location: (%d, %d): %s\n", world->currX, world->currY, message);
         refresh();
 
         // reset the message
@@ -306,11 +350,10 @@ void runGame(gameBoard_t *world, cell_t *player)
 
         /// Trainer menu key
         } else if (ch == 't') {
-            for (int i = 0; i < 21; i++) {
-                for (int j = 20; j < 60; j++) {
-                    mvaddch(i, j, ' ');
-                }
-            }
+            trainerMenu(world);
+
+            printCurr(world, "bruh");
+            sprintf(message, "Left the trainer menu!");
 
         /// Movement control below
         } else if (ch == '7' || ch == 'y') {
