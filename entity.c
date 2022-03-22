@@ -95,11 +95,15 @@ cell_t* placeEntity(map_t *screen, minHeap_t *mh, char type)
             // Get the cost of the cell we were plopped down on for a good start time
             screen->eMap[y][x]->dist = determineCost(screen->map[y][x].type, type);
 
+            // Add them to the heap
+            mhAdd(mh, screen->eMap[y][x]);
+            screen->eMap[y][x]->inHeap = true;
+
             // add this mf to the game time heap if it is not a stationary
-            if (type != 's') {
-                mhAdd(mh, screen->eMap[y][x]);
-                screen->eMap[y][x]->inHeap = true;
-            }
+//            if (type != 's') {
+//                mhAdd(mh, screen->eMap[y][x]);
+//                screen->eMap[y][x]->inHeap = true;
+//            }
 
             in = true;
         }
@@ -402,6 +406,10 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity, cell_t *player)
                 entity->dist += 40;
             }
 
+            break;
+
+        case 's':
+            // Add a check to see if the player is in the neighborhoodadde
             break;
 
         default:
