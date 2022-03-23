@@ -288,16 +288,71 @@ void menuInit() {
     }
 }
 
-int trainerMenu(gameBoard_t *world)
+void entityString(gameBoard_t *world, cell_t *entity, cell_t *player, char str[])
+{
+    int x, y;
+
+    x = player->x - entity->x;
+    y = player->y - entity->y;
+
+    if (x < 0) {
+        if (y < 0) {
+            sprintf(str, "%c: %d south and %d east", entity->type, -1 * y, -1 * x);
+        } else if (y > 0) {
+            sprintf(str, "%c: %d north and %d east", entity->type, y, -1 * x);
+        } else {
+            sprintf(str, "%c: %d straight east", entity->type, -1 * x);
+        }
+    } else if (x > 0) {
+        if (y < 0) {
+            sprintf(str, "%c: %d south and %d west", entity->type, -1 * y, x);
+        } else if (y > 0) {
+            sprintf(str, "%c: %d north and %d west", entity->type, y, x);
+        } else {
+            sprintf(str, "%c: %d straight west", entity->type, x);
+        }
+    } else {
+        if (y < 0) {
+            sprintf(str, "%c: %d stright south", entity->type, -1 * y);
+        } else if (y > 0) {
+            sprintf(str, "%c: %d straight north", entity->type, y);
+        }
+    }
+}
+
+int trainerMenu(gameBoard_t *world, cell_t *player)
 {
     set_escdelay(10);
+
+    int start = 0, end = 10, cursorLoc = 0, numTrainers = world->board[world->currY][world->currX]->mh.currLen - 2, lineLoc = 0, trnrIdx = 0;
+    char entityStrs[30];
+
+    if (end > numTrainers) {
+        end = numTrainers;
+    }
 
     bool inMenu = true;
     menuInit();
 
-    for (int i = 0; i <= world->board[world->currY][world->currX]->mh.currLen; i++) {
-        mvprintw(i, 25, "trainer:");
+    cell_t *trainers[world->board[world->currY][world->currX]->mh.currLen];
+
+    for (int i = 0; i < world->board[world->currY][world->currX]->mh.currLen; i++) {
+        if (world->board[world->currY][world->currX]->mh.heap[i].data->type != '@') {
+            trainers[trnrIdx] = world->board[world->currY][world->currX]->mh.heap[i].data;
+
+            trnrIdx++;
+        }
     }
+
+    for (int i = start; i <= end; i++) {
+        entityString(world, trainers[i], player, entityStrs);
+
+        mvprintw(lineLoc, 25, entityStrs);
+
+        lineLoc+=2;
+    }
+
+    mvaddch(cursorLoc, 21, '>');
 
     while (inMenu) {
         refresh();
@@ -305,13 +360,77 @@ int trainerMenu(gameBoard_t *world)
         int ch = getch();
 
         if (ch == 27) {
-            mvprintw(23, 0, "moooooooo");
-            return 0;
-        } else if (ch == 'w') {
-            return 0;
+            inMenu = false;
         } else if (ch == KEY_UP) {
-            mvprintw(23, 0, "woooooooo");
-            return 0;
+            if (cursorLoc == 0) {
+                if (start > 0) {
+                    cursorLoc = 20; // move cursor back to the top
+
+                    end = start - 1;
+
+                    start = end - 10;
+
+                    if (end > numTrainers) {
+                        end = numTrainers;
+                    }
+
+                    menuInit();
+
+                    lineLoc = 0;
+
+                    for (int i = start; i <= end; i++) {
+                        entityString(world, trainers[i], player, entityStrs);
+
+                        mvprintw(lineLoc, 25, entityStrs);
+
+                        lineLoc+=2;
+                    }
+
+                    mvaddch(cursorLoc, 21, '>');
+                }
+            } else {
+                mvaddch(cursorLoc, 21, ' ');
+
+                cursorLoc -= 2;
+
+                mvaddch(cursorLoc, 21, '>');
+            }
+        } else if (ch == KEY_DOWN) {
+            if (cursorLoc == 20) {
+                if (end < numTrainers) {
+                    cursorLoc = 0; // move cursor back to the top
+
+                    start = end + 1;
+
+                    end += 11;
+
+                    if (end > numTrainers) {
+                        end = numTrainers;
+                    }
+
+                    menuInit();
+
+                    lineLoc = 0;
+
+                    for (int i = start; i <= end; i++) {
+                        entityString(world, trainers[i], player, entityStrs);
+
+                        mvprintw(lineLoc, 25, entityStrs);
+
+                        lineLoc+=2;
+                    }
+
+                    mvaddch(cursorLoc, 21, '>');
+                }
+            } else {
+                if (mvinch(cursorLoc + 2, 25) != ' ') {
+                    mvaddch(cursorLoc, 21, ' ');
+
+                    cursorLoc += 2;
+
+                    mvaddch(cursorLoc, 21, '>');
+                }
+            }
         }
     }
 
@@ -342,7 +461,7 @@ void runGame(gameBoard_t *world, cell_t *player)
         // reset the message
         strcpy(message, "Your move!");
 
-        char ch = getch();
+        int ch = getch();
 
         /// Quit command
         if (ch == 'q') {
@@ -350,7 +469,7 @@ void runGame(gameBoard_t *world, cell_t *player)
 
         /// Trainer menu key
         } else if (ch == 't') {
-            trainerMenu(world);
+            trainerMenu(world, player);
 
             printCurr(world, "bruh");
             sprintf(message, "Left the trainer menu!");
