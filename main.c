@@ -313,7 +313,7 @@ void entityString(gameBoard_t *world, cell_t *entity, cell_t *player, char str[]
         }
     } else {
         if (y < 0) {
-            sprintf(str, "%c: %d stright south", entity->type, -1 * y);
+            sprintf(str, "%c: %d straight south", entity->type, -1 * y);
         } else if (y > 0) {
             sprintf(str, "%c: %d straight north", entity->type, y);
         }
