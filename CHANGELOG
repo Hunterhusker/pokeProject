@@ -27,3 +27,6 @@ Mar 20, 2022
 Mar 21, 2022
     Added stationary entities back to the game clock so that they can check for players in the area to battle
     Started to work on a trainer listing function, but am stuck on reading Esc right now, did get arrow keys to work I think
+
+Mar 22, 2022
+    Finished the trainer menu w/ scrolling for more than 11 entities and even a cursor for which is currently selected and such
