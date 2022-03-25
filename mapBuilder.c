@@ -598,7 +598,7 @@ int placeEntities(int entityCount, map_t *screen, minHeap_t *mh)
                 placeEntity(screen, mh, 'n');
                 break;
 
-            case 5: // make a random walker
+            case 5: // make a rival walker
                 placeEntity(screen, mh, 'r');
                 break;
 
