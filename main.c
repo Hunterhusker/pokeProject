@@ -38,15 +38,15 @@ void printCurr(gameBoard_t *world, char str[])
     for (int i = 0; i < 21; i++) {
         for (int j = 0; j < 80; j++) {
             if (world->board[world->currY][world->currX]->eMap[i][j] != NULL) {
-                mvaddch(i, j, world->board[world->currY][world->currX]->eMap[i][j]->type);
+                mvaddch(i + 1, j, world->board[world->currY][world->currX]->eMap[i][j]->type);
             } else {
-                mvaddch(i, j, world->board[world->currY][world->currX]->map[i][j].type);
+                mvaddch(i + 1, j, world->board[world->currY][world->currX]->map[i][j].type);
             }
         }
     }
 
-    mvprintw(21, 0, "Current Location: (%d, %d): %s\n", world->currX, world->currY, str);
-    mvprintw(22, 0, "Use 10-key for movement; q to quit; check readme more controls");
+    mvprintw(0, 0, "Current Location: (%d, %d): %s\n", world->currX, world->currY, str);
+    //mvprintw(22, 0, "Use 10-key for movement; q to quit; check readme more controls");
 
     refresh(); // actually displays the board
 }
@@ -173,6 +173,14 @@ int movePlayer(int y, int x, gameBoard_t *world, cell_t *player, char message[])
 
     // Check the map to see if the location is non-traversable, return 1 to denote a non-error non move
     if (world->board[world->currY][world->currX]->map[y][x].type == '%' || world->board[world->currY][world->currX]->eMap[y][x] != NULL) {
+        if (world->board[world->currY][world->currX]->eMap[y][x] != NULL && world->board[world->currY][world->currX]->eMap[y][x]->inHeap == false) {
+            return 3;
+        } else if (world->board[world->currY][world->currX]->eMap[y][x] != NULL && world->board[world->currY][world->currX]->eMap[y][x]->inHeap == true) {
+            fightPLayer(world->board[world->currY][world->currX], world->board[world->currY][world->currX]->eMap[y][x], player);
+
+            return 0;
+        }
+
         return 1;
     }
 
@@ -267,8 +275,8 @@ int movePlayer(int y, int x, gameBoard_t *world, cell_t *player, char message[])
 
     world->board[world->currY][world->currX]->eMap[player->y][player->x] = NULL;
 
-    mvaddch(player->y, player->x, world->board[world->currY][world->currX]->map[player->y][player->x].type);
-    mvaddch(y, x, '@');
+    mvaddch(player->y + 1, player->x, world->board[world->currY][world->currX]->map[player->y][player->x].type);
+    mvaddch(y + 1, x, '@');
 
     player->y = y;
     player->x = x;
@@ -281,7 +289,7 @@ int movePlayer(int y, int x, gameBoard_t *world, cell_t *player, char message[])
 
 // Makes the black box so that our menus are all the same size
 void menuInit() {
-    for (int i = 0; i < 21; i++) {
+    for (int i = 2; i < 21; i++) {
         for (int j = 20; j < 60; j++) {
             mvaddch(i, j, ' ');
         }
@@ -320,11 +328,30 @@ void entityString(gameBoard_t *world, cell_t *entity, cell_t *player, char str[]
     }
 }
 
+int shopMenu(char shopType)
+{
+    printAmogus();
+
+    mvprintw(18, 26, "Press < to leave!");
+
+    refresh();
+
+    int ch;
+
+    while (true) {
+        ch = getch();
+
+        if (ch == '<') {
+            return 0;
+        }
+    }
+}
+
 int trainerMenu(gameBoard_t *world, cell_t *player)
 {
     set_escdelay(10);
 
-    int start = 0, end = 10, cursorLoc = 0, numTrainers = world->board[world->currY][world->currX]->mh.currLen - 2, lineLoc = 0, trnrIdx = 0;
+    int start = 0, end = 9, cursorLoc = 2, numTrainers = world->board[world->currY][world->currX]->mh.currLen - 2, lineLoc = 0, trnrIdx = 0;
     char entityStrs[30];
 
     if (end > numTrainers) {
@@ -347,7 +374,7 @@ int trainerMenu(gameBoard_t *world, cell_t *player)
     for (int i = start; i <= end; i++) {
         entityString(world, trainers[i], player, entityStrs);
 
-        mvprintw(lineLoc, 25, entityStrs);
+        mvprintw(lineLoc + 2, 25, entityStrs);
 
         lineLoc+=2;
     }
@@ -362,13 +389,13 @@ int trainerMenu(gameBoard_t *world, cell_t *player)
         if (ch == 27) {
             inMenu = false;
         } else if (ch == KEY_UP) {
-            if (cursorLoc == 0) {
+            if (cursorLoc == 2) {
                 if (start > 0) {
-                    cursorLoc = 20; // move cursor back to the top
+                    cursorLoc = 20; // move cursor back to the bottom
 
                     end = start - 1;
 
-                    start = end - 10;
+                    start = end - 9;
 
                     if (end > numTrainers) {
                         end = numTrainers;
@@ -381,7 +408,7 @@ int trainerMenu(gameBoard_t *world, cell_t *player)
                     for (int i = start; i <= end; i++) {
                         entityString(world, trainers[i], player, entityStrs);
 
-                        mvprintw(lineLoc, 25, entityStrs);
+                        mvprintw(lineLoc + 2, 25, entityStrs);
 
                         lineLoc+=2;
                     }
@@ -398,11 +425,11 @@ int trainerMenu(gameBoard_t *world, cell_t *player)
         } else if (ch == KEY_DOWN) {
             if (cursorLoc == 20) {
                 if (end < numTrainers) {
-                    cursorLoc = 0; // move cursor back to the top
+                    cursorLoc = 2; // move cursor back to the top
 
                     start = end + 1;
 
-                    end += 11;
+                    end += 10;
 
                     if (end > numTrainers) {
                         end = numTrainers;
@@ -415,7 +442,7 @@ int trainerMenu(gameBoard_t *world, cell_t *player)
                     for (int i = start; i <= end; i++) {
                         entityString(world, trainers[i], player, entityStrs);
 
-                        mvprintw(lineLoc, 25, entityStrs);
+                        mvprintw(lineLoc + 2, 25, entityStrs);
 
                         lineLoc+=2;
                     }
@@ -455,7 +482,7 @@ void runGame(gameBoard_t *world, cell_t *player)
         // TODO: make the entities update the buffer as they move so that we don't waste power/time redoing the whole board each time
         //printCurr(world, message);
 
-        mvprintw(21, 0, "Current Location: (%d, %d): %s\n", world->currX, world->currY, message);
+        mvprintw(0, 0, "Current Location: (%d, %d): %s\n", world->currX, world->currY, message);
         refresh();
 
         // reset the message
@@ -474,6 +501,16 @@ void runGame(gameBoard_t *world, cell_t *player)
             printCurr(world, "bruh");
             sprintf(message, "Left the trainer menu!");
 
+        } else if (ch == '>') {
+            if (world->board[world->currY][world->currX]->map[player->y][player->x].type == 'M' || world->board[world->currY][world->currX]->map[player->y][player->x].type == 'C') {
+                shopMenu(world->board[world->currY][world->currX]->map[player->y][player->x].type);
+            }
+
+            printCurr(world, "You leave the shop!");
+            sprintf(message, "You leave the shop!");
+
+            refresh();
+
         /// Movement control below
         } else if (ch == '7' || ch == 'y') {
             result = movePlayer(player->y - 1, player->x - 1, world, player, message);
@@ -482,6 +519,8 @@ void runGame(gameBoard_t *world, cell_t *player)
                 sprintf(message, "Invalid move to (%d, %d)", player->y - 1, player->x - 1);
             } else if (result == 1) {
                 sprintf(message, "Place occupied, cannot move there!");
+            } else if (result == 3) {
+                sprintf(message, "You have already defeated this trainer!");
             }
         } else if (ch == '8' || ch == 'k') {
             result = movePlayer(player->y - 1, player->x, world, player, message);
@@ -490,6 +529,8 @@ void runGame(gameBoard_t *world, cell_t *player)
                 sprintf(message, "Invalid move to (%d, %d)", player->y - 1, player->x);
             } else if (result == 1) {
                 sprintf(message, "Place occupied, cannot move there!");
+            } else if (result == 3) {
+                sprintf(message, "You have already defeated this trainer!");
             }
         } else if (ch == '9' || ch == 'u') {
             result = movePlayer(player->y - 1, player->x + 1, world, player, message);
@@ -498,6 +539,8 @@ void runGame(gameBoard_t *world, cell_t *player)
                 sprintf(message, "Invalid move to (%d, %d)", player->y - 1, player->x + 1);
             } else if (result == 1) {
                 sprintf(message, "Place occupied, cannot move there!");
+            } else if (result == 3) {
+                sprintf(message, "You have already defeated this trainer!");
             }
         } else if (ch == '4' || ch == 'h') {
             result = movePlayer(player->y, player->x - 1, world, player, message);
@@ -506,6 +549,8 @@ void runGame(gameBoard_t *world, cell_t *player)
                 sprintf(message, "Invalid move to (%d, %d)", player->y, player->x - 1);
             } else if (result == 1) {
                 sprintf(message, "Place occupied, cannot move there!");
+            } else if (result == 3) {
+                sprintf(message, "You have already defeated this trainer!");
             }
         } else if (ch == '5' || ch == ' ') {
             player->dist += determineCost(world->board[world->currY][world->currX]->map[player->y][player->x].type, '@');
@@ -520,6 +565,8 @@ void runGame(gameBoard_t *world, cell_t *player)
                 sprintf(message, "Invalid move to (%d, %d)", player->y, player->x + 1);
             } else if (result == 1) {
                 sprintf(message, "Place occupied, cannot move there!");
+            } else if (result == 3) {
+                sprintf(message, "You have already defeated this trainer!");
             }
         } else if (ch == '1' || ch == 'b') {
             result = movePlayer(player->y + 1, player->x - 1, world, player, message);
@@ -528,6 +575,8 @@ void runGame(gameBoard_t *world, cell_t *player)
                 sprintf(message, "Invalid move to (%d, %d)", player->y + 1, player->x - 1);
             } else if (result == 1) {
                 sprintf(message, "Place occupied, cannot move there!");
+            } else if (result == 3) {
+                sprintf(message, "You have already defeated this trainer!");
             }
         } else if (ch == '2' || ch == 'j') {
             result = movePlayer(player->y + 1, player->x, world, player, message);
@@ -536,6 +585,8 @@ void runGame(gameBoard_t *world, cell_t *player)
                 sprintf(message, "Invalid move to (%d, %d)", player->y + 1, player->x);
             } else if (result == 1) {
                 sprintf(message, "Your path is blocked, cannot move there!");
+            } else if (result == 3) {
+                sprintf(message, "You have already defeated this trainer!");
             }
         } else if (ch == '3' || ch == 'n') {
             result = movePlayer(player->y + 1, player->x + 1, world, player, message);
@@ -544,9 +595,9 @@ void runGame(gameBoard_t *world, cell_t *player)
                 sprintf(message, "Invalid move to (%d, %d)", player->y + 1, player->x + 1);
             } else if (result == 1) {
                 sprintf(message, "Place occupied, cannot move there!");
+            } else if (result == 3) {
+                sprintf(message, "You have already defeated this trainer!");
             }
-        } else if (ch == 'p') {
-            sprintf(message, "player loc x: %d, y: %d", player->x, player->y);
         }
     }
 }
