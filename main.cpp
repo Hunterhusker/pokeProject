@@ -55,7 +55,7 @@ void worldInit(gameBoard_t *world)
 {
     gameBoardInit(world);
     
-    world->board[world->currY][world->currX] = malloc(sizeof (map_t));
+    world->board[world->currY][world->currX] = (map_t *) malloc(sizeof (map_t));
     
     generate(-1, -1, -1, -1, world->board[world->currY][world->currX], 100, world->entityCount);
 }
@@ -144,7 +144,7 @@ int goToLoc(gameBoard_t *world, int x, int y)
         exits[0] = 0;
     }
 
-    world->board[y][x] = malloc(sizeof (map_t));
+    world->board[y][x] = (map_t *) malloc(sizeof (map_t));
 
     generate(exits[0], exits[1], exits[2], exits[3], world->board[y][x], buildingChance(x, y), world->entityCount);
 
@@ -498,7 +498,7 @@ void runGame(gameBoard_t *world, cell_t *player)
         } else if (ch == 't') {
             trainerMenu(world, player);
 
-            printCurr(world, "bruh");
+            printCurr(world, (char *) "bruh");
             sprintf(message, "Left the trainer menu!");
 
         } else if (ch == '>') {
@@ -506,7 +506,7 @@ void runGame(gameBoard_t *world, cell_t *player)
                 shopMenu(world->board[world->currY][world->currX]->map[player->y][player->x].type);
             }
 
-            printCurr(world, "You leave the shop!");
+            printCurr(world, (char *) "You leave the shop!");
             sprintf(message, "You leave the shop!");
 
             refresh();

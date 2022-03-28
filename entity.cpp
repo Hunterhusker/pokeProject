@@ -26,7 +26,7 @@ cell_t* placeEntity(map_t *screen, minHeap_t *mh, char type)
 
                 for (int i = 3; i < 21; i++) {
                     if (screen->map[i][loc].type == '#' && screen->eMap[i][loc] == NULL) {
-                        screen->eMap[i][loc] = malloc(sizeof (cell_t));
+                        screen->eMap[i][loc] = (cell_t *) malloc(sizeof (cell_t));
 
                         screen->eMap[i][loc]->type = type;
                         screen->eMap[i][loc]->y = i;
@@ -51,7 +51,7 @@ cell_t* placeEntity(map_t *screen, minHeap_t *mh, char type)
 
                 for (int i = 3; i < 80; i++) {
                     if (screen->map[loc][i].type == '#' && screen->eMap[loc][i] == NULL) {
-                        screen->eMap[loc][i] = malloc(sizeof (cell_t));
+                        screen->eMap[loc][i] = (cell_t *) malloc(sizeof (cell_t));
 
                         screen->eMap[loc][i]->type = type;
                         screen->eMap[loc][i]->y = loc;
@@ -84,7 +84,7 @@ cell_t* placeEntity(map_t *screen, minHeap_t *mh, char type)
 
         if (screen->eMap[y][x] == NULL && screen->map[y][x].type != 'M' && screen->map[y][x].type != 'C' && screen->map[y][x].type != '%' && screen->map[y][x].type != '#') {
             // Malloc some space for our entity
-            screen->eMap[y][x] = malloc(sizeof (cell_t));
+            screen->eMap[y][x] = (cell_t *) malloc(sizeof (cell_t));
 
             // Set up our entity with its required values
             screen->eMap[y][x]->type = type;
@@ -637,7 +637,7 @@ int fightPLayer(map_t *screen, cell_t *entity, cell_t *player)
         ch = getch();
 
         if (ch == 27) {
-            printScreen(screen, "enemy!");
+            printScreen(screen, (char *) "enemy!");
 
             set_escdelay(1000);
             return 0;
