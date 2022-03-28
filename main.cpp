@@ -504,10 +504,10 @@ void runGame(gameBoard_t *world, cell_t *player)
         } else if (ch == '>') {
             if (world->board[world->currY][world->currX]->map[player->y][player->x].type == 'M' || world->board[world->currY][world->currX]->map[player->y][player->x].type == 'C') {
                 shopMenu(world->board[world->currY][world->currX]->map[player->y][player->x].type);
-            }
 
-            printCurr(world, (char *) "You leave the shop!");
-            sprintf(message, "You leave the shop!");
+                printCurr(world, (char *) "You leave the shop!");
+                sprintf(message, "You leave the shop!");
+            }
 
             refresh();
 
