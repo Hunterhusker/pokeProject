@@ -1,22 +1,35 @@
-This is my implementation of the gameplay simulation code for 1.04
+This is my implementation of the 1.05 curses code for the game.
 
-    Sadly there is no more UI for now, and since the loop is unstoppable in its current state, I added in a little
-message that lets the player know it is just a sim and to use ctl + c to exit the loop.
+To use, use the following controls
+
+8: up
+4: left
+6: right
+2: down
+
+7: up left
+9: up right
+1: down left
+3: down right
+
+5: stay still
+
+t: open the trainer menu
+Esc: to exit trainer/fight menus
+>: to enter a center or mart
+<: to exit the center/mart menu
+
+q: quit the game
 
 How to use:
 1. Make the executable w/ `make` in terminal
 2. Run it w/ ./runMe
 3. Optionally run it w/ `./runMe --numtrainers <int>` to have <int> number of trainers
-4. Press ctl + c to quit the simulation, since we don't have a good way to take commands from this
+4. Use the controls to play the game
+4. Press q to quit the game
 5. Success
 
 Any known bugs:
-    I got it to stall once that I honestly couldn't explain or replicate. I looked at the position of every single
-entity in the game, and I never found anything that I thought could be stalling it. I have also run numerous tests
-and found nothing that stalls anymore. Even with over 700 entities, I do not get a stall right now. So I assume it
-must either be a perfect storm situation, so I missed something and have since fixed it unknowingly. I just thought
-I would mention it, just in case you guys test something and get a crazy 1 in a million thing.
-
-    Only other "bug" is non players don't spawn on roads, but I did that on purpose to avoid wanderers being stuck
-inside a road forever, so if you notice that the spawns aren't happening on the road, that is why. Not really a bug
-I guess, but I thought it would be a worthwhile mention as well.
+    So like one time it said stack smashing error? I have looked into and I know it means I accessed something wrong,
+but I get no warnings or errors, and I can't find it. It also happened like once or twice and I haven't got it since.
+Like not in the last three days so maybe fixed???

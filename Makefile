@@ -1,5 +1,5 @@
 runMe: mapBuilder.o minHeap.o main.o heatMap.o entity.o
-	gcc mapBuilder.o minHeap.o main.o heatMap.o entity.o -o runMe
+	gcc mapBuilder.o minHeap.o main.o heatMap.o entity.o -o runMe -lcurses
 
 mapBuilder.o: mapBuilder.c
 	gcc mapBuilder.c -c -ggdb -Wall

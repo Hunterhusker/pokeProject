@@ -30,6 +30,9 @@ void fillHeatMap(map_t *screen, heatMap_t *heatMap, cell_t *player, char enemyTy
             if (screen->map[i][j].type != '%' && screen->map[i][j].type != 'C' && screen->map[i][j].type != 'M') {
                 heatMap->heatMap[i][j].inHeap = true;
                 mhAdd(&mh, &heatMap->heatMap[i][j]);
+            } else if (player->y == i && player->x == j) {
+                heatMap->heatMap[i][j].inHeap = true;
+                mhAdd(&mh, &heatMap->heatMap[i][j]);
             }
         }
     }
@@ -114,15 +117,37 @@ int determineCost(char biomeType, char npcType)
 
                 case 'M':
                 case 'C':
+                    return 10;
+
                 case '%':
-                    return INT_MAX; // -1 is infinity for me because lazy
+                    return INT_MAX;
 
                 default:
                     return 0; // 0 is an uh oh for this function since anything should have a cost
             }
 
-        // Rival costs are the same as the others, so I added them here for cost calculation
+        // Rival costs
         case 'r':
+            switch (biomeType) {
+                case '#':
+                case '.':
+                    return 10;
+
+                case ':':
+                    return 20;
+
+                case 'M':
+                case 'C':
+                    return 10;
+
+                case '%':
+                    return INT_MAX;
+
+                default:
+                    return 0; // 0 is an uh oh for this function since anything should have a cost
+            }
+
+        // Cost for everyone else
         case 'p':
         case 's':
         case 'w':
@@ -138,7 +163,7 @@ int determineCost(char biomeType, char npcType)
                 case 'M':
                 case 'C':
                 case '%':
-                    return INT_MAX; // -1 is infinity for me because lazy
+                    return INT_MAX;
 
                 default:
                     return 0; // 0 is an uh oh for this function since anything should have a cost
@@ -149,15 +174,15 @@ int determineCost(char biomeType, char npcType)
             switch (biomeType) {
                 case '#':
                 case '.':
+                case 'M':
+                case 'C':
                     return 10;
 
                 case ':':
                     return 20;
 
                 case '%':
-                case 'M': //TODO PUT THESE BACK ON 10 WHEN WE CAN USE THEM
-                case 'C':
-                    return INT_MAX; // -1 is infinity for me because lazy
+                    return INT_MAX;
 
                 default:
                     return 0; // 0 is an uh oh for this function since anything should have a cost
