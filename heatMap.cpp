@@ -14,8 +14,10 @@
  */
 void fillHeatMap(map_t *screen, heatMap_t *heatMap, cell_t *player, char enemyType)
 {
-    minHeap_t mh;
-    mh.currLen = 0;
+    //minHeap_t mh;
+    //mh.currLen = 0;
+
+    minHeap mh;
 
     for (int i = 0; i < 21; i++)
     {
@@ -28,68 +30,68 @@ void fillHeatMap(map_t *screen, heatMap_t *heatMap, cell_t *player, char enemyTy
 
             if (screen->map[i][j].type != '%' && screen->map[i][j].type != 'C' && screen->map[i][j].type != 'M') {
                 heatMap->heatMap[i][j].inHeap = true;
-                mhAdd(&mh, &heatMap->heatMap[i][j]);
+                mh.mhAdd(&heatMap->heatMap[i][j]);
             } else if (player->y == i && player->x == j) {
                 heatMap->heatMap[i][j].inHeap = true;
-                mhAdd(&mh, &heatMap->heatMap[i][j]);
+                mh.mhAdd(&heatMap->heatMap[i][j]);
             }
         }
     }
 
     heatMap->heatMap[player->y][player->x].dist = 0;
 
-    heapifyUpCell(&mh, &screen->map[player->y][player->x]);
+    mh.heapifyUpCell(&screen->map[player->y][player->x]);
 
-    while (mh.currLen > 0) {
-        cell_t u = mhExtract(&mh);
+    while (mh.len() > 0) {
+        cell_t u = mh.mhExtract();
         u.inHeap = false;
 
         if (u.x - 1 >= 0 && heatMap->heatMap[u.y][u.x - 1].inHeap == true && heatMap->heatMap[u.y][u.x - 1].dist > heatMap->heatMap[u.y][u.x].dist + determineCost(screen->map[u.y][u.x].type, enemyType)) {
             heatMap->heatMap[u.y][u.x - 1].dist = heatMap->heatMap[u.y][u.x].dist + determineCost(screen->map[u.y][u.x].type, enemyType);
 
-            heapifyUpCell(&mh, &heatMap->heatMap[u.y][u.x - 1]);
+            mh.heapifyUpCell(&heatMap->heatMap[u.y][u.x - 1]);
 
             if (u.y - 1 >= 0 && heatMap->heatMap[u.y - 1][u.x - 1].inHeap == true && heatMap->heatMap[u.y - 1][u.x - 1].dist > heatMap->heatMap[u.y][u.x].dist + determineCost(screen->map[u.y][u.x].type, enemyType)) {
                 heatMap->heatMap[u.y - 1][u.x - 1].dist = heatMap->heatMap[u.y][u.x].dist + determineCost(screen->map[u.y][u.x].type, enemyType);
 
-                heapifyUpCell(&mh, &heatMap->heatMap[u.y - 1][u.x - 1]);
+                mh.heapifyUpCell(&heatMap->heatMap[u.y - 1][u.x - 1]);
             }
 
             if (u.y + 1 < 21 && heatMap->heatMap[u.y + 1][u.x - 1].inHeap == true && heatMap->heatMap[u.y + 1][u.x - 1].dist > heatMap->heatMap[u.y][u.x].dist + determineCost(screen->map[u.y][u.x].type, enemyType)) {
                 heatMap->heatMap[u.y + 1][u.x - 1].dist = heatMap->heatMap[u.y][u.x].dist + determineCost(screen->map[u.y][u.x].type, enemyType);
 
-                heapifyUpCell(&mh, &heatMap->heatMap[u.y + 1][u.x - 1]);
+                mh.heapifyUpCell(&heatMap->heatMap[u.y + 1][u.x - 1]);
             }
         }
 
         if (u.x + 1 < 80 && heatMap->heatMap[u.y][u.x + 1].inHeap == true && heatMap->heatMap[u.y][u.x + 1].dist > heatMap->heatMap[u.y][u.x].dist + determineCost(screen->map[u.y][u.x].type, enemyType)) {
             heatMap->heatMap[u.y][u.x + 1].dist = heatMap->heatMap[u.y][u.x].dist + determineCost(screen->map[u.y][u.x].type, enemyType);
 
-            heapifyUpCell(&mh, &heatMap->heatMap[u.y][u.x + 1]);
+            mh.heapifyUpCell(&heatMap->heatMap[u.y][u.x + 1]);
 
             if (u.y - 1 >= 0 && heatMap->heatMap[u.y - 1][u.x + 1].inHeap == true && heatMap->heatMap[u.y - 1][u.x + 1].dist > heatMap->heatMap[u.y][u.x].dist + determineCost(screen->map[u.y][u.x].type, enemyType)) {
                 heatMap->heatMap[u.y - 1][u.x + 1].dist = heatMap->heatMap[u.y][u.x].dist + determineCost(screen->map[u.y][u.x].type, enemyType);
 
-                heapifyUpCell(&mh, &heatMap->heatMap[u.y - 1][u.x + 1]);
+                mh.heapifyUpCell(&heatMap->heatMap[u.y - 1][u.x + 1]);
             }
 
             if (u.y + 1 < 21 && heatMap->heatMap[u.y + 1][u.x + 1].inHeap == true && heatMap->heatMap[u.y + 1][u.x + 1].dist > heatMap->heatMap[u.y][u.x].dist + determineCost(screen->map[u.y][u.x].type, enemyType)) {
                 heatMap->heatMap[u.y + 1][u.x + 1].dist = heatMap->heatMap[u.y][u.x].dist + determineCost(screen->map[u.y][u.x].type, enemyType);
 
-                heapifyUpCell(&mh, &heatMap->heatMap[u.y + 1][u.x + 1]);
+                mh.heapifyUpCell(&heatMap->heatMap[u.y + 1][u.x + 1]);
             }
         }
 
         if (u.y - 1 >= 0 && heatMap->heatMap[u.y - 1][u.x].inHeap == true && heatMap->heatMap[u.y - 1][u.x].dist > heatMap->heatMap[u.y][u.x].dist + determineCost(screen->map[u.y][u.x].type, enemyType)) {
             heatMap->heatMap[u.y - 1][u.x].dist = heatMap->heatMap[u.y][u.x].dist + determineCost(screen->map[u.y][u.x].type, enemyType);
 
-            heapifyUpCell(&mh, &heatMap->heatMap[u.y - 1][u.x]);
+            mh.heapifyUpCell(&heatMap->heatMap[u.y - 1][u.x]);
         }
 
         if (u.y + 1 < 21 && heatMap->heatMap[u.y + 1][u.x].inHeap == true && heatMap->heatMap[u.y + 1][u.x].dist > heatMap->heatMap[u.y][u.x].dist + determineCost(screen->map[u.y][u.x].type, enemyType)) {
             heatMap->heatMap[u.y + 1][u.x].dist = heatMap->heatMap[u.y][u.x].dist + determineCost(screen->map[u.y][u.x].type, enemyType);
 
-            heapifyUpCell(&mh, &heatMap->heatMap[u.y + 1][u.x]);
+            mh.heapifyUpCell(&heatMap->heatMap[u.y + 1][u.x]);
         }
     }
 }

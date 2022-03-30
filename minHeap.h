@@ -1,8 +1,10 @@
 #ifndef MINHEAP_H
 #define MINHEAP_H
 
-#include "mapBuilder.h" // allows us to return cell_t and take it as inputs
+//#include "mapBuilder.h" // allows us to return cell_t and take it as inputs
 #include <vector>
+
+typedef struct cell cell_t; // forward declaration so we can use those here
 
 /// Heap structs so that they can be used in here
 typedef struct heapNode
@@ -20,6 +22,8 @@ private:
 
 public:
     minHeap();
+
+    int len();
 
     void mhSwap(int idx1, int idx2);
     void heapifyUpCell(cell_t *cell);

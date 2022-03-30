@@ -330,10 +330,12 @@ void findNeighbors(cell_t map[21][80], cell_t *cell, int neighbors[4][2])
 
 void dijkstra(int x1, int y1, int x2, int y2, cell_t map[21][80])
 {
-    mhResetMap(map);
+    //mhResetMap(map);
 
-    minHeap_t mh;
-    mh.currLen = 0;
+    //minHeap_t mh;
+    minHeap mh;
+
+    //mh.currLen = 0;
 
     int found = 0;
     int neighbors[4][2];
@@ -350,11 +352,11 @@ void dijkstra(int x1, int y1, int x2, int y2, cell_t map[21][80])
 
     findNeighbors(map, &map[y2][x2], neighbors);
 
-    mhAddAll(&mh, map);
+    mh.mhAddAll(map);
 
     while (found == 0)
     {
-        cell_t u = mhExtract(&mh);
+        cell_t u = mh.mhExtract();
         u.inHeap = false;
 
         if (u.y == y2 && u.x == x2) {
@@ -379,7 +381,7 @@ void dijkstra(int x1, int y1, int x2, int y2, cell_t map[21][80])
                         map[ny][nx].parentLoc[0] = u.y;
                         map[ny][nx].parentLoc[1] = u.x;
 
-                        heapifyUpCell(&mh, &map[ny][nx]);
+                        mh.heapifyUpCell(&map[ny][nx]);
                     }
                 }
             }
@@ -569,7 +571,7 @@ void addShop(cell_t map[21][80], char shopIcon)
     }
 }
 
-int placeEntities(int entityCount, map_t *screen, minHeap_t *mh)
+int placeEntities(int entityCount, map_t *screen, minHeap *mh)
 {
     int type;
 
@@ -617,7 +619,7 @@ void generate(int e1, int e2, int e3, int e4, map_t *board, int shopChance, int 
     int mChance = 1, cChance = 1; // just anything not 0 so if we don't want to do it we don't
 
     // Set the current length of the internal minHeap to be 0
-    board->mh.currLen = 0;
+    //board->mh.currLen = 0;
 
     emptyGrid(board->map);
     emptyEntityMap(board->eMap);
