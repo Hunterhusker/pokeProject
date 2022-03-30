@@ -1,7 +1,7 @@
 #ifndef MAPBUILDER_H
 #define MAPBUILDER_H
 
-#include <stdbool.h>
+//#include <stdbool.h>
 
 // The map struct to represent each individual spot on the map
 typedef struct cell
@@ -16,19 +16,11 @@ typedef struct cell
     bool inHeap;
 } cell_t;
 
-/// Heap structs so that they can be used in here
-typedef struct heapNode
-{
-    cell_t  *data;
-    int *value;
-    //int x, y;
-} heapNode_t;
-
-typedef struct minHeap
-{
-    heapNode_t heap[1860];
-    int currLen;
-} minHeap_t;
+//typedef struct minHeap
+//{
+//    heapNode_t heap[1860];
+//    int currLen;
+//} minHeap_t;
 
 typedef struct map
 {
