@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <time.h>
 #include <limits.h>
-#include <stdbool.h>
 #include "minHeap.h"
 #include "mapBuilder.h"
 

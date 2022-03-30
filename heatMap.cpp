@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdbool.h>
 #include <limits.h>
 #include "heatMap.h"
 #include "minHeap.h"
