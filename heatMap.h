@@ -3,10 +3,6 @@
 
 #include "mapBuilder.h"
 
-//typedef struct heatMap {
-//    cell heatMap[21][80];
-//} heatMap_t;
-
 class heatMap {
 public:
     cell heatMap[21][80];

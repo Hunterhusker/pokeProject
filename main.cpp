@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <unistd.h>
 #include <curses.h>
 #include "mapBuilder.h"
 #include "heatMap.h"
@@ -14,7 +13,6 @@
 #include "type_names.h"
 #include "pokemon_moves.h"
 #include "moves.h"
-#include <fstream>
 #include <vector>
 
 typedef struct gameBoard

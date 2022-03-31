@@ -2,27 +2,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include <limits.h>
-#include <stdbool.h>
 #include "minHeap.h"
 #include "mapBuilder.h"
-
-void printMap(map *screen)
-{
-    for (int i = 0; i < 21; i++)
-    {
-        for (int j = 0; j < 80; j++)
-        {
-            if (screen->eMap[i][j] == NULL) {
-                printf("%c", screen->map[i][j].type);
-            } else {
-                printf("%c", screen->eMap[i][j]->type);
-            }
-
-        }
-
-        printf("\n");
-    }
-}
 
 void emptyEntityMap(cell *eMap[21][80])
 {

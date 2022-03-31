@@ -1,7 +1,6 @@
 //
 // Created by hunter on 3/30/22.
 //
-#include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -25,11 +24,6 @@ int readAllPokemon(std::vector<pokemon> &list) {
         std::string path = home + "/.poke327/pokedex/pokedex/data/csv/pokemon.csv";
 
         myFile.open(path);
-    }
-
-    // The fall back
-    if (!myFile.is_open()) {
-        myFile.open("pokedex/pokedex/data/csv/pokemon.csv");
     }
 
     // The big wuh oh
@@ -82,11 +76,6 @@ int readAllPokemonSpecies(std::vector<pokemon_species> &list) {
         std::string path = home + "/.poke327/pokedex/pokedex/data/csv/pokemon_species.csv";
 
         myFile.open(path);
-    }
-
-    // The fall back
-    if (!myFile.is_open()) {
-        myFile.open("pokedex/pokedex/data/csv/pokemon_species.csv");
     }
 
     // The big wuh oh
@@ -169,11 +158,6 @@ int readAllExperience(std::vector<experience> &list) {
         myFile.open(path);
     }
 
-    // The fall back
-    if (!myFile.is_open()) {
-        myFile.open("pokedex/pokedex/data/csv/experience.csv");
-    }
-
     // The big wuh oh
     if (!myFile.is_open()) {
         return -1;
@@ -214,11 +198,6 @@ int readAllTypes(std::vector<type_names> &list) {
         std::string path = home + "/.poke327/pokedex/pokedex/data/csv/type_names.csv";
 
         myFile.open(path);
-    }
-
-    // The fall back
-    if (!myFile.is_open()) {
-        myFile.open("pokedex/pokedex/data/csv/type_names.csv");
     }
 
     // The big wuh oh
@@ -263,11 +242,6 @@ int readAllPokemonMoves(std::vector<pokemon_moves> &list) {
         std::string path = home + "/.poke327/pokedex/pokedex/data/csv/pokemon_moves.csv";
 
         myFile.open(path);
-    }
-
-    // The fall back
-    if (!myFile.is_open()) {
-        myFile.open("/home/hunter/code/C/pokeProject/pokedex/pokedex/data/csv/pokemon_moves.csv");
     }
 
     // The big wuh oh
@@ -321,11 +295,6 @@ int readAllMoves(std::vector<moves> &list) {
         std::string path = home + "/.poke327/pokedex/pokedex/data/csv/moves.csv";
 
         myFile.open(path);
-    }
-
-    // The fall back
-    if (!myFile.is_open()) {
-        myFile.open("/home/hunter/code/C/pokeProject/pokedex/pokedex/data/csv/moves.csv");
     }
 
     // The big wuh oh
