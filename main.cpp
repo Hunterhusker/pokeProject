@@ -7,6 +7,13 @@
 #include "mapBuilder.h"
 #include "heatMap.h"
 #include "minHeap.h"
+#include "fileReader.h"
+#include "pokemon.h"
+#include "pokemon_species.h"
+#include "experience.h"
+#include "type_names.h"
+#include <fstream>
+#include <vector>
 
 typedef struct gameBoard
 {
@@ -610,7 +617,70 @@ int main(int argc, char *argv[])
 
     // Handle the switches
     if (argc >= 2) {
-        if (!strcmp("--numtrainers", argv[1]) && argv[2] != NULL) {
+        if (!strcmp("pokemon", argv[1])) {
+            std::vector<pokemon> pokeList;
+
+            // Here for the file reading
+            int x = readAllPokemon(pokeList);
+
+            if (x == -1) {
+                fprintf(stderr, "Error: Problem finding pokemon.csv\n");
+                return -1;
+            }
+
+            for (int i = 0; i < (int) pokeList.size(); i++) {
+                std::cout << pokeList[i] << std::endl;
+            }
+
+            return 0; // end the game before it starts
+
+        } else if (!strcmp("pokemon_species", argv[1])) {
+            std::vector<pokemon_species> pokeList;
+
+            // Here for the file reading
+            int x = readAllPokemonSpecies(pokeList);
+
+            if (x == -1) {
+                fprintf(stderr, "Error: Problem finding pokemon_species.csv\n");
+                return -1;
+            }
+
+            for (int i = 0; i < (int) pokeList.size(); i++) {
+                std::cout << pokeList[i] << std::endl;
+            }
+
+            return 0; // end the game before it starts
+        } else if (!strcmp("experience", argv[1])) {
+            std::vector<experience> expList;
+
+            int x = readAllExperience(expList);
+
+            if (x == -1) {
+                fprintf(stderr, "Error: Problem finding experience.csv\n");
+                return -1;
+            }
+
+            for (int i = 0; i < (int) expList.size(); i++) {
+                std::cout << expList[i] << std::endl;
+            }
+
+            return 0;
+        } else if (!strcmp("type_names", argv[1])) {
+            std::vector<type_names> typList;
+
+            int x = readAllTypes(typList);
+
+            if (x == -1) {
+                fprintf(stderr, "Error: Problem finding type_names.csv\n");
+                return -1;
+            }
+
+            for (int i = 0; i < (int) typList.size(); i++) {
+                std::cout << typList[i] << std::endl;
+            }
+
+            return 0;
+        } else if (!strcmp("--numtrainers", argv[1]) && argv[2] != NULL) {
             // Checks to make sure that the numbers after the switch are valid
             for (char *i = &argv[2][0]; *i != '\0'; i++) {
                 if (isdigit(*i) == 0) {
