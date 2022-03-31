@@ -686,7 +686,7 @@ int main(int argc, char *argv[])
             int x = readAllPokemonMoves(mvList);
 
             if (x == -1) {
-                fprintf(stderr, "Error: Problem finding type_names.csv\n");
+                fprintf(stderr, "Error: Problem finding pokemon_moves.csv\n");
                 return -1;
             }
 
@@ -701,7 +701,7 @@ int main(int argc, char *argv[])
             int x = readAllMoves(mvList);
 
             if (x == -1) {
-                fprintf(stderr, "Error: Problem finding type_names.csv\n");
+                fprintf(stderr, "Error: Problem finding moves.csv\n");
                 return -1;
             }
 
