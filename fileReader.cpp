@@ -10,6 +10,8 @@
 #include "pokemon_species.h"
 #include "experience.h"
 #include "type_names.h"
+#include "pokemon_moves.h"
+#include "moves.h"
 
 int readAllPokemon(std::vector<pokemon> &list) {
     std::ifstream myFile;
@@ -20,7 +22,7 @@ int readAllPokemon(std::vector<pokemon> &list) {
     if (!myFile.is_open()) {
         std::string home = getenv("HOME");
 
-        std::string path = home + "/pokedex/pokedex/data/csv/pokemon.csv";
+        std::string path = home + "/.poke327/pokedex/pokedex/data/csv/pokemon.csv";
 
         myFile.open(path);
     }
@@ -77,7 +79,7 @@ int readAllPokemonSpecies(std::vector<pokemon_species> &list) {
     if (!myFile.is_open()) {
         std::string home = getenv("HOME");
 
-        std::string path = home + "/pokedex/pokedex/data/csv/pokemon_species.csv";
+        std::string path = home + "/.poke327/pokedex/pokedex/data/csv/pokemon_species.csv";
 
         myFile.open(path);
     }
@@ -162,7 +164,7 @@ int readAllExperience(std::vector<experience> &list) {
     if (!myFile.is_open()) {
         std::string home = getenv("HOME");
 
-        std::string path = home + "/pokedex/pokedex/data/csv/experience.csv";
+        std::string path = home + "/.poke327/pokedex/pokedex/data/csv/experience.csv";
 
         myFile.open(path);
     }
@@ -209,7 +211,7 @@ int readAllTypes(std::vector<type_names> &list) {
     if (!myFile.is_open()) {
         std::string home = getenv("HOME");
 
-        std::string path = home + "/pokedex/pokedex/data/csv/type_names.csv";
+        std::string path = home + "/.poke327/pokedex/pokedex/data/csv/type_names.csv";
 
         myFile.open(path);
     }
@@ -244,6 +246,127 @@ int readAllTypes(std::vector<type_names> &list) {
 
             list.push_back(t);
         }
+    }
+
+    return 0;
+}
+
+int readAllPokemonMoves(std::vector<pokemon_moves> &list) {
+    std::ifstream myFile;
+
+    myFile.open("/local/share/pokedex/pokedex/data/csv/pokemon_moves.csv");
+
+    // Try to open the home path
+    if (!myFile.is_open()) {
+        std::string home = getenv("HOME");
+
+        std::string path = home + "/.poke327/pokedex/pokedex/data/csv/pokemon_moves.csv";
+
+        myFile.open(path);
+    }
+
+    // The fall back
+    if (!myFile.is_open()) {
+        myFile.open("/home/hunter/code/C/pokeProject/pokedex/pokedex/data/csv/pokemon_moves.csv");
+    }
+
+    // The big wuh oh
+    if (!myFile.is_open()) {
+        return -1;
+    }
+
+    std::string str;
+
+    getline(myFile, str); // throw away the first line
+
+    while (myFile.peek() != std::ifstream::traits_type::eof()) {
+        std::vector<int> params;
+
+        for (int i = 0; i < 5; i++) {
+            getline(myFile, str, ',');
+
+            if (str != "") {
+                params.push_back(std::stoi(str));
+            } else {
+                params.push_back(-1);
+            }
+        }
+
+        if (myFile.peek() != '\n') {
+            getline(myFile, str, '\n');
+
+            params.push_back(std::stoi(str));
+        } else {
+            getline(myFile, str, '\n'); // get rid of the \n
+            params.push_back(-1);
+        }
+
+        pokemon_moves pm(params[0], params[1], params[2], params[3], params[4], params[5]);
+
+        list.push_back(pm);
+    }
+
+    return 0;
+}
+
+int readAllMoves(std::vector<moves> &list) {
+    std::ifstream myFile;
+
+    myFile.open("/local/share/pokedex/pokedex/data/csv/moves.csv");
+
+    // Try to open the home path
+    if (!myFile.is_open()) {
+        std::string home = getenv("HOME");
+
+        std::string path = home + "/.poke327/pokedex/pokedex/data/csv/moves.csv";
+
+        myFile.open(path);
+    }
+
+    // The fall back
+    if (!myFile.is_open()) {
+        myFile.open("/home/hunter/code/C/pokeProject/pokedex/pokedex/data/csv/moves.csv");
+    }
+
+    // The big wuh oh
+    if (!myFile.is_open()) {
+        return -1;
+    }
+
+    std::string str, identifier;
+
+    getline(myFile, str); // throw away the first line
+
+    while (myFile.peek() != std::ifstream::traits_type::eof()) {
+        std::vector<int> params;
+
+        for (int i = 0; i < 14; i++) {
+            if (i != 1) {
+                getline(myFile, str, ',');
+
+                if (str != "") {
+                    params.push_back(std::stoi(str));
+                } else {
+                    params.push_back(-1);
+                }
+            } else {
+                getline(myFile, identifier, ',');
+            }
+        }
+
+        if (myFile.peek() != '\n' && myFile.peek() != std::ifstream::traits_type::eof()) {
+            getline(myFile, str, '\n');
+
+            params.push_back(std::stoi(str));
+        } else {
+            getline(myFile, str, '\n');
+            params.push_back(-1);
+        }
+
+        moves m(params[0], identifier, params[1], params[2], params[3], params[4], params[5], params[6], params[7],
+                params[8], params[9], params[10], params[11], params[12], params[13]);
+
+        list.push_back(m);
     }
 
     return 0;

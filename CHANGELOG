@@ -19,3 +19,4 @@ Mar 31, 2022 // im working until file reading is done, pray for me I have an exa
     ffw 2hours pokemon_species is read and implemented into the game
     Experience file parsing is now all set up
     type_names.csv parsing is all done and it is 4 am so I go to bed now
+    added pokemon_moves and moves reading, which finishes file reading

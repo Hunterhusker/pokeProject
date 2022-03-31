@@ -12,6 +12,8 @@
 #include "pokemon_species.h"
 #include "experience.h"
 #include "type_names.h"
+#include "pokemon_moves.h"
+#include "moves.h"
 #include <fstream>
 #include <vector>
 
@@ -677,6 +679,36 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < (int) typList.size(); i++) {
                 std::cout << typList[i] << std::endl;
+            }
+
+            return 0;
+        } else if (!strcmp("pokemon_moves", argv[1])) {
+            std::vector<pokemon_moves> mvList;
+
+            int x = readAllPokemonMoves(mvList);
+
+            if (x == -1) {
+                fprintf(stderr, "Error: Problem finding type_names.csv\n");
+                return -1;
+            }
+
+            for (int i = 0; i < (int) mvList.size(); i++) {
+                std::cout << mvList[i] << std::endl;
+            }
+
+            return 0;
+        } else if (!strcmp("moves", argv[1])) {
+            std::vector<moves> mvList;
+
+            int x = readAllMoves(mvList);
+
+            if (x == -1) {
+                fprintf(stderr, "Error: Problem finding type_names.csv\n");
+                return -1;
+            }
+
+            for (int i = 0; i < (int) mvList.size(); i++) {
+                std::cout << mvList[i] << std::endl;
             }
 
             return 0;
