@@ -6,7 +6,7 @@
 #include "minHeap.h"
 #include "mapBuilder.h"
 
-void printMap(map_t *screen)
+void printMap(map *screen)
 {
     for (int i = 0; i < 21; i++)
     {
@@ -24,7 +24,7 @@ void printMap(map_t *screen)
     }
 }
 
-void emptyEntityMap(cell_t *eMap[21][80])
+void emptyEntityMap(cell *eMap[21][80])
 {
     for (int i = 0; i < 21; i++) {
         for (int j = 0; j < 80; j++) {
@@ -37,7 +37,7 @@ void emptyEntityMap(cell_t *eMap[21][80])
  * Free all of the declared entities
  * @param eMap ~ the entity map
  */
-void deleteAllEntities(cell_t *eMap[21][80])
+void deleteAllEntities(cell *eMap[21][80])
 {
     for (int i = 0; i < 21; i++) {
         for (int j = 0; j < 80; j++) {
@@ -48,7 +48,7 @@ void deleteAllEntities(cell_t *eMap[21][80])
     }
 }
 
-void emptyGrid(cell_t map[21][80])
+void emptyGrid(cell map[21][80])
 {
     for (int i = 0; i < 21; i++)
     {
@@ -70,7 +70,7 @@ void emptyGrid(cell_t map[21][80])
     }
 }
 
-void placeExits(cell_t map[21][80], int exits[4][2], int e1, int e2, int e3, int e4)
+void placeExits(cell map[21][80], int exits[4][2], int e1, int e2, int e3, int e4)
 {
     srand(time(NULL));
     
@@ -127,7 +127,7 @@ void placeExits(cell_t map[21][80], int exits[4][2], int e1, int e2, int e3, int
     exits[3][1] = 79;
 }
 
-int placeBiomes(cell_t map[21][80], int filledTiles[][2])
+int placeBiomes(cell map[21][80], int filledTiles[][2])
 {
     int grassAmt, clearingAmt, tmp_x, tmp_y, biomeCnt;
     biomeCnt = 0;
@@ -175,14 +175,14 @@ int placeBiomes(cell_t map[21][80], int filledTiles[][2])
     return biomeCnt;
 }
 
-void copyCell(cell_t *a, cell_t *b)
+void copyCell(cell *a, cell *b)
 {
     b->type = a->type;
     b->weight = a->weight;
     b->instance = a->instance;
 }
 
-void grow(cell_t map[21][80], int filledTiles[1482][2], int curr)
+void grow(cell map[21][80], int filledTiles[1482][2], int curr)
 {
     // Control the loop by checking to see if there is more to grow into
     int cursor = 0;
@@ -283,7 +283,7 @@ void grow(cell_t map[21][80], int filledTiles[1482][2], int curr)
     }
 }
 
-void findNeighbors(cell_t map[21][80], cell_t *cell, int neighbors[4][2])
+void findNeighbors(cell map[21][80], cell *cell, int neighbors[4][2])
 {
     int x, y, curr = 0;
 
@@ -329,11 +329,11 @@ void findNeighbors(cell_t map[21][80], cell_t *cell, int neighbors[4][2])
     }
 }
 
-void dijkstra(int x1, int y1, int x2, int y2, cell_t map[21][80])
+void dijkstra(int x1, int y1, int x2, int y2, cell map[21][80])
 {
     mhResetMap(map);
 
-    minHeap_t mh;
+    minHeap mh;
     mh.currLen = 0;
 
     int found = 0;
@@ -355,7 +355,7 @@ void dijkstra(int x1, int y1, int x2, int y2, cell_t map[21][80])
 
     while (found == 0)
     {
-        cell_t u = mhExtract(&mh);
+        cell u = mhExtract(&mh);
         u.inHeap = false;
 
         if (u.y == y2 && u.x == x2) {
@@ -387,7 +387,7 @@ void dijkstra(int x1, int y1, int x2, int y2, cell_t map[21][80])
         }
     }
 
-    cell_t *n = &map[y2][x2];
+    cell *n = &map[y2][x2];
     int px, py;
     
     px = n->parentLoc[1];
@@ -403,7 +403,7 @@ void dijkstra(int x1, int y1, int x2, int y2, cell_t map[21][80])
     }
 }
 
-void layPath(cell_t map[21][80], int exits[4][2])
+void layPath(cell map[21][80], int exits[4][2])
 {
 
     if (exits[0][1] == 0) {
@@ -458,7 +458,7 @@ void layPath(cell_t map[21][80], int exits[4][2])
     dijkstra(exits[2][1], exits[2][0], exits[3][1], exits[3][0], map);
 }
 
-void addShop(cell_t map[21][80], char shopIcon)
+void addShop(cell map[21][80], char shopIcon)
 {
     int dir, pos, loopCond = 1;
 
@@ -570,7 +570,7 @@ void addShop(cell_t map[21][80], char shopIcon)
     }
 }
 
-int placeEntities(int entityCount, map_t *screen, minHeap_t *mh)
+int placeEntities(int entityCount, map *screen, minHeap *mh)
 {
     int type;
 
@@ -610,7 +610,7 @@ int placeEntities(int entityCount, map_t *screen, minHeap_t *mh)
     return 0;
 }
 
-void generate(int e1, int e2, int e3, int e4, map_t *board, int shopChance, int entityCount) {
+void generate(int e1, int e2, int e3, int e4, map *board, int shopChance, int entityCount) {
     srand(time(NULL));
 
     int filledTiles[1482][2];

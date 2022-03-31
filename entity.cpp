@@ -7,7 +7,7 @@
 #include "heatMap.h"
 #include "minHeap.h"
 
-cell_t* placeEntity(map_t *screen, minHeap_t *mh, char type)
+cell* placeEntity(map *screen, minHeap *mh, char type)
 {
     srand(time(NULL));
 
@@ -26,7 +26,7 @@ cell_t* placeEntity(map_t *screen, minHeap_t *mh, char type)
 
                 for (int i = 3; i < 21; i++) {
                     if (screen->map[i][loc].type == '#' && screen->eMap[i][loc] == NULL) {
-                        screen->eMap[i][loc] = (cell_t *) malloc(sizeof (cell_t));
+                        screen->eMap[i][loc] = (cell *) malloc(sizeof (cell));
 
                         screen->eMap[i][loc]->type = type;
                         screen->eMap[i][loc]->y = i;
@@ -51,7 +51,7 @@ cell_t* placeEntity(map_t *screen, minHeap_t *mh, char type)
 
                 for (int i = 3; i < 80; i++) {
                     if (screen->map[loc][i].type == '#' && screen->eMap[loc][i] == NULL) {
-                        screen->eMap[loc][i] = (cell_t *) malloc(sizeof (cell_t));
+                        screen->eMap[loc][i] = (cell *) malloc(sizeof (cell));
 
                         screen->eMap[loc][i]->type = type;
                         screen->eMap[loc][i]->y = loc;
@@ -84,7 +84,7 @@ cell_t* placeEntity(map_t *screen, minHeap_t *mh, char type)
 
         if (screen->eMap[y][x] == NULL && screen->map[y][x].type != 'M' && screen->map[y][x].type != 'C' && screen->map[y][x].type != '%' && screen->map[y][x].type != '#') {
             // Malloc some space for our entity
-            screen->eMap[y][x] = (cell_t *) malloc(sizeof (cell_t));
+            screen->eMap[y][x] = (cell *) malloc(sizeof (cell));
 
             // Set up our entity with its required values
             screen->eMap[y][x]->type = type;
@@ -107,7 +107,7 @@ cell_t* placeEntity(map_t *screen, minHeap_t *mh, char type)
     return screen->eMap[y][x];
 }
 
-void delEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
+void delEntity(map *screen, minHeap *mh, cell *entity)
 {
     // Remove it from the heap
     mhDeleteElement(mh, entity);
@@ -119,10 +119,10 @@ void delEntity(map_t *screen, minHeap_t *mh, cell_t *entity)
     free(entity);
 }
 
-int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity, cell_t *player)
+int moveEntity(map *screen, minHeap *mh, cell *entity, cell *player)
 {
     int iters, nX = entity->x, nY = entity->y;
-    heatMap_t hm;
+    heatMap hm;
     bool valid;
 
     switch (entity->type) {
@@ -398,10 +398,10 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity, cell_t *player)
 
                 int x, y;
 
-                minHeap_t neighbors;
+                minHeap neighbors;
                 neighbors.currLen = 0;
 
-                cell_t curr;
+                cell curr;
 
                 // Add all neighbors to a local minHeap
                 if (entity->y + 1 < 20) {
@@ -574,7 +574,7 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity, cell_t *player)
     /// Actually move the entity now that we have found their new location
 
     // Grab the pointer to the entity
-    cell_t *tmp = screen->eMap[entity->y][entity->x];
+    cell *tmp = screen->eMap[entity->y][entity->x];
 
     // Nullify the old place of the entity
     screen->eMap[entity->y][entity->x] = NULL;
@@ -602,7 +602,7 @@ int moveEntity(map_t *screen, minHeap_t *mh, cell_t *entity, cell_t *player)
     return 0;
 }
 
-void printScreen(map_t *screen, char str[])
+void printScreen(map *screen, char str[])
 {
     for (int i = 0; i < 21; i++) {
         for (int j = 0; j < 80; j++) {
@@ -619,7 +619,7 @@ void printScreen(map_t *screen, char str[])
     refresh(); // actually displays the board
 }
 
-int fightPLayer(map_t *screen, cell_t *entity, cell_t *player)
+int fightPLayer(map *screen, cell *entity, cell *player)
 {
     set_escdelay(10);
 

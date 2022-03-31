@@ -1,8 +1,9 @@
 #include "minHeap.h"
 #include <math.h>
 #include <limits.h>
+#include "mapBuilder.h"
 
-void mhSwap(minHeap_t *mh, int idx1, int idx2)
+void mhSwap(minHeap *mh, int idx1, int idx2)
 {
     heapNode_t tmp = mh->heap[idx1];
 
@@ -10,7 +11,7 @@ void mhSwap(minHeap_t *mh, int idx1, int idx2)
     mh->heap[idx2] = tmp;
 }
 
-void heapifyUp(minHeap_t *mh, int srcIdx)
+void heapifyUp(minHeap *mh, int srcIdx)
 {
     if (srcIdx <= 0)
     {
@@ -31,7 +32,7 @@ void heapifyUp(minHeap_t *mh, int srcIdx)
     }
 }
 
-void heapifyUpCell(minHeap_t *mh, cell_t *cell)
+void heapifyUpCell(minHeap *mh, cell *cell)
 {
     int srcIdx = mhFind(mh, cell);
 
@@ -54,7 +55,7 @@ void heapifyUpCell(minHeap_t *mh, cell_t *cell)
     }
 }
 
-void heapifyDown(minHeap_t *mh, int srcIdx)
+void heapifyDown(minHeap *mh, int srcIdx)
 {
     if ((srcIdx * 2) + 1 < mh->currLen && *mh->heap[(2 * srcIdx) + 1].value < *mh->heap[srcIdx].value)
     {
@@ -69,7 +70,7 @@ void heapifyDown(minHeap_t *mh, int srcIdx)
     }
 }
 
-void mhAdd(minHeap_t *mh, cell_t *cell)
+void mhAdd(minHeap *mh, cell *cell)
 {
     heapNode_t hN;
 
@@ -84,7 +85,7 @@ void mhAdd(minHeap_t *mh, cell_t *cell)
     mh->currLen++;
 }
 
-cell_t mhExtract(minHeap_t *mh)
+cell mhExtract(minHeap *mh)
 {
     heapNode_t tmp = mh->heap[0];
 
@@ -97,7 +98,7 @@ cell_t mhExtract(minHeap_t *mh)
     return *tmp.data;
 }
 
-int mhFind(minHeap_t *mh, cell_t *cell)
+int mhFind(minHeap *mh, cell *cell)
 {
     for (int i = 0; i < mh->currLen; i++)
     {
@@ -110,7 +111,7 @@ int mhFind(minHeap_t *mh, cell_t *cell)
     return -1;
 }
 
-void mhResetMap(cell_t map[21][80])
+void mhResetMap(cell map[21][80])
 {
     for (int i = 0; i < 21; i++)
     {
@@ -124,7 +125,7 @@ void mhResetMap(cell_t map[21][80])
     }
 }
 
-void mhAddAll(minHeap_t *mh, cell_t map[21][80])
+void mhAddAll(minHeap *mh, cell map[21][80])
 {
     for (int i = 0; i < 21; i++)
     {
@@ -135,7 +136,7 @@ void mhAddAll(minHeap_t *mh, cell_t map[21][80])
     }
 }
 
-void mhDeleteElement(minHeap_t *mh, cell_t *theDoomed)
+void mhDeleteElement(minHeap *mh, cell *theDoomed)
 {
     int i = mhFind(mh, theDoomed); // Find our cell in the list
 
@@ -147,6 +148,6 @@ void mhDeleteElement(minHeap_t *mh, cell_t *theDoomed)
 }
 
 // Just peek at the cell in the front of the list w/o removing it
-cell_t *peek(minHeap_t *mh) {
+cell *peek(minHeap *mh) {
     return mh->heap[0].data;
 }

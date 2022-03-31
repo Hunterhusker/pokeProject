@@ -20,3 +20,6 @@ Mar 31, 2022 // im working until file reading is done, pray for me I have an exa
     Experience file parsing is now all set up
     type_names.csv parsing is all done and it is 4 am so I go to bed now
     added pokemon_moves and moves reading, which finishes file reading
+    Converted the cell struct to a class (cells are map tiles and entites no inheritance yet since im running low on time, but I plan on it)
+    Converted maps to a class
+    Converted heatMaps to a class
