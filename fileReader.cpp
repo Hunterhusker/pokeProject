@@ -15,7 +15,7 @@
 int readAllPokemon(std::vector<pokemon> &list) {
     std::ifstream myFile;
 
-    myFile.open("/local/share/cs327/pokedex/pokedex/data/csv/pokemon.csv");
+    myFile.open("/share/cs327/pokedex/pokedex/data/csv/pokemon.csv");
 
     // Try to open the home path
     if (!myFile.is_open()) {
@@ -67,7 +67,7 @@ int readAllPokemon(std::vector<pokemon> &list) {
 int readAllPokemonSpecies(std::vector<pokemon_species> &list) {
     std::ifstream myFile;
 
-    myFile.open("/local/share/pokedex/pokedex/data/csv/pokemon_species.csv");
+    myFile.open("/share/cs327/pokedex/pokedex/data/csv/pokemon_species.csv");
 
     // Try to open the home path
     if (!myFile.is_open()) {
@@ -104,7 +104,7 @@ int readAllPokemonSpecies(std::vector<pokemon_species> &list) {
         getline(myFile, str, '\n'); // grab the last one
         params.push_back(str);
 
-        for (int i = 0; i < params.size(); i++) {
+        for (int i = 0; i < (int) params.size(); i++) {
             if (params[i] == "") {
                 params[i] = "-1";
             }
@@ -147,7 +147,7 @@ int readAllPokemonSpecies(std::vector<pokemon_species> &list) {
 int readAllExperience(std::vector<experience> &list) {
     std::ifstream myFile;
 
-    myFile.open("/local/share/pokedex/pokedex/data/csv/experience.csv");
+    myFile.open("/share/cs327/pokedex/pokedex/data/csv/experience.csv");
 
     // Try to open the home path
     if (!myFile.is_open()) {
@@ -189,7 +189,7 @@ int readAllExperience(std::vector<experience> &list) {
 int readAllTypes(std::vector<type_names> &list) {
     std::ifstream myFile;
 
-    myFile.open("/local/share/pokedex/pokedex/data/csv/type_names.csv");
+    myFile.open("/share/cs327/pokedex/pokedex/data/csv/type_names.csv");
 
     // Try to open the home path
     if (!myFile.is_open()) {
@@ -233,7 +233,7 @@ int readAllTypes(std::vector<type_names> &list) {
 int readAllPokemonMoves(std::vector<pokemon_moves> &list) {
     std::ifstream myFile;
 
-    myFile.open("/local/share/pokedex/pokedex/data/csv/pokemon_moves.csv");
+    myFile.open("/share/cs327/pokedex/pokedex/data/csv/pokemon_moves.csv");
 
     // Try to open the home path
     if (!myFile.is_open()) {
@@ -286,7 +286,7 @@ int readAllPokemonMoves(std::vector<pokemon_moves> &list) {
 int readAllMoves(std::vector<moves> &list) {
     std::ifstream myFile;
 
-    myFile.open("/local/share/pokedex/pokedex/data/csv/moves.csv");
+    myFile.open("/share/cs327/pokedex/pokedex/data/csv/moves.csv");
 
     // Try to open the home path
     if (!myFile.is_open()) {
