@@ -1,6 +1,6 @@
-This is my implementation of the 1.05 curses code for the game.
+This is my implementation of the 1.06 file reading code.
 
-To use, use the following controls
+Game Controls:
 
 8: up
 4: left
@@ -25,11 +25,10 @@ How to use:
 1. Make the executable w/ `make` in terminal
 2. Run it w/ ./runMe
 3. Optionally run it w/ `./runMe --numtrainers <int>` to have <int> number of trainers
+    - or use any of the csv files names w/o ".csv" to parse them and read them ex `./runMe pokemon` to read pokemon.csv
 4. Use the controls to play the game
 4. Press q to quit the game
 5. Success
 
 Any known bugs:
-    So like one time it said stack smashing error? I have looked into and I know it means I accessed something wrong,
-but I get no warnings or errors, and I can't find it. It also happened like once or twice and I haven't got it since.
-Like not in the last three days so maybe fixed???
+    As of right now I haven't noticed any bugs, I think it should be fully functional
