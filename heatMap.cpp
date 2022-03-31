@@ -13,9 +13,9 @@
  * @param player ~ the player so we can find it's location and deal with the edge cases
  * @param enemyType ~ the type of enemy we have, so we can have custom weights for custom enemies
  */
-void fillHeatMap(map_t *screen, heatMap_t *heatMap, cell_t *player, char enemyType)
+void fillHeatMap(map *screen, heatMap *heatMap, cell *player, char enemyType)
 {
-    minHeap_t mh;
+    minHeap mh;
     mh.currLen = 0;
 
     for (int i = 0; i < 21; i++)
@@ -42,7 +42,7 @@ void fillHeatMap(map_t *screen, heatMap_t *heatMap, cell_t *player, char enemyTy
     heapifyUpCell(&mh, &screen->map[player->y][player->x]);
 
     while (mh.currLen > 0) {
-        cell_t u = mhExtract(&mh);
+        cell u = mhExtract(&mh);
         u.inHeap = false;
 
         if (u.x - 1 >= 0 && heatMap->heatMap[u.y][u.x - 1].inHeap == true && heatMap->heatMap[u.y][u.x - 1].dist > heatMap->heatMap[u.y][u.x].dist + determineCost(screen->map[u.y][u.x].type, enemyType)) {
@@ -198,7 +198,7 @@ int determineCost(char biomeType, char npcType)
  *
  * @param heatMap ~ the heat map struct that holds all the information for the heatmap
  */
-void printHeatMap(heatMap_t *heatMap)
+void printHeatMap(heatMap *heatMap)
 {
     for (int i = 0; i < 21; i++) {
         for (int j = 0; j < 80; j++) {

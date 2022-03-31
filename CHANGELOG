@@ -1,39 +1,25 @@
-Mar 17, 2022
-    Came back early to get this stuff working, so I am gonna start now
-    Got curses to work with my IDE so I can use it to run and debug my code
-    Reformatted the printCurr() function in main to work w/ curses instead
-    tried out some basic io reading, and am going to bed so tomorrow I will work harder on IO
+Mar 27, 2022
+    Converted the entire project over to C++ and fixed the bugs so that it runs
 
-Mar 18, 2022
-    Moved the entity placement to mapBuilder.c to be called upon screen generation
-        Now the entities are added during screen creation, not later
-    Moved the endwin() de-init to the destroy world so that it is always called before the program ends
-    Added a runGame() function that moves anything in the heap and then when it sees the player, it stops and asks for input
-    Got full player movement added and it cannot leave the map, interact with entities, or anything else, just move on input
+Mar 28, 2022
+    started class conversion
+        Gave up for now since file reading is more important
+    Tested using a priority queue as a minHeap to shorten my code and use a better heap
 
-Mar 19, 2022
-    Added between screen movement for the cardinal directions
-    Took a mental health day since thinking about doing the diagonals made me sad
+Mar 30, 2022
+    Setup the pokemon class
+    Got reading from the pokemon.csv working
+    Population of the pokemon classes though file input works
+    Added the command line flag to just do the pokemon file reading
+    Added the attempts at other file reads
+    Added functionality to actually run the game if the new flags arent used upon running
+        Now it is past midnight so I guess I move into a new date
 
-Mar 20, 2022
-    Added diagonal map movement support and a check to see if the exits are blocked
-    Redid all of map movement since it was too clunky
-    Redid pacers to update the buffer so we can save ourselves the trouble of redoing the screen each time
-        did the same for wanderers
-        did the same for random walkers, and fixed a bug w/ getting stuck in front of exits I hadn't noticed before
-        did the same for hikers to finish it off
-    Fixed bug where rivals and hikers don't seek you when you are in the shops/marts
-
-Mar 21, 2022
-    Added stationary entities back to the game clock so that they can check for players in the area to battle
-    Started to work on a trainer listing function, but am stuck on reading Esc right now, did get arrow keys to work I think
-
-Mar 22, 2022
-    Finished the trainer menu w/ scrolling for more than 11 entities and even a cursor for which is currently selected and such
-
-Mar 24, 2022
-    Added a line above for messages, since I had it below bc I can't read I guess
-        Fixed the menu and movement display issues that comes with this change\
-    Added the shop menus and handled the IO for it
-    Added entity to player fight menus
-    Added player to entity fight menus
+Mar 31, 2022 // im working until file reading is done, pray for me I have an exam tomorrow (oh yeah I make bad decisions professionally)
+    ffw 2hours pokemon_species is read and implemented into the game
+    Experience file parsing is now all set up
+    type_names.csv parsing is all done and it is 4 am so I go to bed now
+    added pokemon_moves and moves reading, which finishes file reading
+    Converted the cell struct to a class (cells are map tiles and entites no inheritance yet since im running low on time, but I plan on it)
+    Converted maps to a class
+    Converted heatMaps to a class

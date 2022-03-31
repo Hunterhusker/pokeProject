@@ -3,16 +3,17 @@
 
 #include "mapBuilder.h"
 
-typedef struct heatMap {
-    cell_t heatMap[21][80];
-} heatMap_t;
+//typedef struct heatMap {
+//    cell heatMap[21][80];
+//} heatMap_t;
 
-typedef struct heatMapInt {
-    int heatMap[21][80];
-} heatMapInt_t;
+class heatMap {
+public:
+    cell heatMap[21][80];
+};
 
-void fillHeatMap(map_t *map, heatMap_t *heatMap, cell_t *player, char enemyType);
+void fillHeatMap(map *map, heatMap *heatMap, cell *player, char enemyType);
 int determineCost(char biomeType, char npcType);
-void printHeatMap(heatMap_t *heatMap);
+void printHeatMap(heatMap *heatMap);
 
 #endif

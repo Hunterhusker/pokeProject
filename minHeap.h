@@ -1,18 +1,31 @@
 #ifndef MINHEAP_H
 #define MINHEAP_H
 
-#include "mapBuilder.h" // allows us to return cell_t and take it as inputs
+class cell;
 
-void mhSwap(minHeap_t *mh, int idx1, int idx2);
-void heapifyUpCell(minHeap_t *mh, cell_t *cell);
-void heapifyUp(minHeap_t *mh, int srcIdx);
-void heapifyDown(minHeap_t *mh, int srcIdx);
-void mhAdd(minHeap_t *mh, cell_t *cell);
-cell_t mhExtract(minHeap_t *mh);
-int mhFind(minHeap_t *mh, cell_t *cell);
-void mhResetMap(cell_t map[21][80]);
-void mhAddAll(minHeap_t *mh, cell_t map[21][80]);
-void mhDeleteElement(minHeap_t *mh, cell_t *theDoomed);
-cell_t *peek(minHeap_t *mh);
+typedef struct heapNode
+{
+    cell  *data;
+    int *value;
+    //int x, y;
+} heapNode_t;
+
+class minHeap {
+public:
+    heapNode_t heap[1860];
+    int currLen;
+};
+
+void mhSwap(minHeap *mh, int idx1, int idx2);
+void heapifyUpCell(minHeap *mh, cell *cell);
+void heapifyUp(minHeap *mh, int srcIdx);
+void heapifyDown(minHeap *mh, int srcIdx);
+void mhAdd(minHeap *mh, cell *cell);
+cell mhExtract(minHeap *mh);
+int mhFind(minHeap *mh, cell *cell);
+void mhResetMap(cell map[21][80]);
+void mhAddAll(minHeap *mh, cell map[21][80]);
+void mhDeleteElement(minHeap *mh, cell *theDoomed);
+cell *peek(minHeap *mh);
 
 #endif
