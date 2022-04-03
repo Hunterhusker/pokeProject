@@ -8,11 +8,6 @@
 #include "minHeap.h"
 #include "fileReader.h"
 #include "pokemon.h"
-#include "pokemon_species.h"
-#include "experience.h"
-#include "type_names.h"
-#include "pokemon_moves.h"
-#include "moves.h"
 #include <vector>
 
 typedef struct gameBoard
