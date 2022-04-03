@@ -1,25 +1,5 @@
-Mar 27, 2022
-    Converted the entire project over to C++ and fixed the bugs so that it runs
-
-Mar 28, 2022
-    started class conversion
-        Gave up for now since file reading is more important
-    Tested using a priority queue as a minHeap to shorten my code and use a better heap
-
-Mar 30, 2022
-    Setup the pokemon class
-    Got reading from the pokemon.csv working
-    Population of the pokemon classes though file input works
-    Added the command line flag to just do the pokemon file reading
-    Added the attempts at other file reads
-    Added functionality to actually run the game if the new flags arent used upon running
-        Now it is past midnight so I guess I move into a new date
-
-Mar 31, 2022 // im working until file reading is done, pray for me I have an exam tomorrow (oh yeah I make bad decisions professionally)
-    ffw 2hours pokemon_species is read and implemented into the game
-    Experience file parsing is now all set up
-    type_names.csv parsing is all done and it is 4 am so I go to bed now
-    added pokemon_moves and moves reading, which finishes file reading
-    Converted the cell struct to a class (cells are map tiles and entites no inheritance yet since im running low on time, but I plan on it)
-    Converted maps to a class
-    Converted heatMaps to a class
+Apr 3, 2022
+    Combined all of the pokemon parts into one file, since they're really constructing one weird object
+    Added a generic file opening function after I remembered how cool references are in C++
+        This abstracts behavior, and makes adding new paths to check easier
+    Fixed issues with the make file so that it runs again
