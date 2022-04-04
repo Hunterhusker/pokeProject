@@ -604,108 +604,72 @@ void runGame(gameBoard_t *world, cell *player)
     }
 }
 
+int readPokeDB(std::vector<pokemon> &pokeList, std::vector<pokemon_species> &speciesList, std::vector<experience> &expList,
+               std::vector<type_names> &typeList, std::vector<pokemon_moves> &pkmMovesList, std::vector<moves> &mvList,
+               std::vector<pokemon_stats> &pkmStatList, std::vector<stats> &statList) {
+    int success;
+
+    success = readAllPokemon(pokeList);
+
+    if (success == -1) {return -1;}
+
+    success = readAllPokemonSpecies(speciesList);
+
+    if (success == -1) {return -1;}
+
+    success = readAllExperience(expList);
+
+    if (success == -1) {return -1;}
+
+    success = readAllTypes(typeList);
+
+    if (success == -1) {return -1;}
+
+    success = readAllPokemonMoves(pkmMovesList);
+
+    if (success == -1) {return -1;}
+
+    success = readAllMoves(mvList);
+
+    if (success == -1) {return -1;}
+
+    success = readAllPokemonStats(pkmStatList);
+
+    if (success == -1) {return -1;}
+
+    success = readAllStats(statList);
+
+    if (success == -1) {return -1;}
+
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
     gameBoard_t world;
     cell *player; // a pointer to the player for better access
     int trainerCnt = 10;
 
+    std::vector<pokemon> pokeList;
+    std::vector<pokemon_species> species;
+    std::vector<experience> expList;
+    std::vector<type_names> types;
+    std::vector<pokemon_moves> pkmnMoves;
+    std::vector<moves> mvList;
+    std::vector<pokemon_stats> pkmnStats;
+    std::vector<stats> statList;
+
+    // Read the DB into this mess
+    int s = readPokeDB(pokeList, species, expList, types, pkmnMoves, mvList, pkmnStats, statList);
+
+    if (s == -1) {
+        fprintf(stderr, "Error finding the required csv files\n");
+        return -1;
+    }
+
     // Handle the switches
     if (argc >= 2) {
-        if (!strcmp("pokemon", argv[1])) {
-            std::vector<pokemon> pokeList;
-
-            // Here for the file reading
-            int x = readAllPokemon(pokeList);
-
-            if (x == -1) {
-                fprintf(stderr, "Error: Problem finding pokemon.csv\n");
-                return -1;
-            }
-
-            for (int i = 0; i < (int) pokeList.size(); i++) {
-                std::cout << pokeList[i] << std::endl;
-            }
-
-            return 0; // end the game before it starts
-
-        } else if (!strcmp("pokemon_species", argv[1])) {
-            std::vector<pokemon_species> pokeList;
-
-            // Here for the file reading
-            int x = readAllPokemonSpecies(pokeList);
-
-            if (x == -1) {
-                fprintf(stderr, "Error: Problem finding pokemon_species.csv\n");
-                return -1;
-            }
-
-            for (int i = 0; i < (int) pokeList.size(); i++) {
-                std::cout << pokeList[i] << std::endl;
-            }
-
-            return 0; // end the game before it starts
-        } else if (!strcmp("experience", argv[1])) {
-            std::vector<experience> expList;
-
-            int x = readAllExperience(expList);
-
-            if (x == -1) {
-                fprintf(stderr, "Error: Problem finding experience.csv\n");
-                return -1;
-            }
-
-            for (int i = 0; i < (int) expList.size(); i++) {
-                std::cout << expList[i] << std::endl;
-            }
-
-            return 0;
-        } else if (!strcmp("type_names", argv[1])) {
-            std::vector<type_names> typList;
-
-            int x = readAllTypes(typList);
-
-            if (x == -1) {
-                fprintf(stderr, "Error: Problem finding type_names.csv\n");
-                return -1;
-            }
-
-            for (int i = 0; i < (int) typList.size(); i++) {
-                std::cout << typList[i] << std::endl;
-            }
-
-            return 0;
-        } else if (!strcmp("pokemon_moves", argv[1])) {
-            std::vector<pokemon_moves> mvList;
-
-            int x = readAllPokemonMoves(mvList);
-
-            if (x == -1) {
-                fprintf(stderr, "Error: Problem finding pokemon_moves.csv\n");
-                return -1;
-            }
-
-            for (int i = 0; i < (int) mvList.size(); i++) {
-                std::cout << mvList[i] << std::endl;
-            }
-
-            return 0;
-        } else if (!strcmp("moves", argv[1])) {
-            std::vector<moves> mvList;
-
-            int x = readAllMoves(mvList);
-
-            if (x == -1) {
-                fprintf(stderr, "Error: Problem finding moves.csv\n");
-                return -1;
-            }
-
-            for (int i = 0; i < (int) mvList.size(); i++) {
-                std::cout << mvList[i] << std::endl;
-            }
-
-            return 0;
-        } else if (!strcmp("--numtrainers", argv[1]) && argv[2] != NULL) {
+        if (!strcmp("--numtrainers", argv[1]) && argv[2] != NULL) {
             // Checks to make sure that the numbers after the switch are valid
             for (char *i = &argv[2][0]; *i != '\0'; i++) {
                 if (isdigit(*i) == 0) {
