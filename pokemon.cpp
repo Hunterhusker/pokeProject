@@ -116,6 +116,23 @@ type_names::type_names(int type_id, int local_language_id, std::string name) {
     this->name = name;
 }
 
+// Pokemon_stats parsing
+pokemon_stats::pokemon_stats(int pokemon_id, int stat_id, int base_stat, int effort) {
+    this->pokemon_id = pokemon_id;
+    this->base_stat = base_stat;
+    this->effort = effort;
+    this->stat_id = stat_id;
+}
+
+// Stats parsing
+stats::stats(int id, int damage_class_id, std::string identifier, int is_battle_only, int game_index) {
+    this->id = id;
+    this->damage_class_id = damage_class_id;
+    this->identifier = identifier;
+    this->is_battle_only = is_battle_only;
+    this->game_index = game_index;
+}
+
 std::ostream &operator<< (std::ostream &o, type_names t) {
     return o << "Type: " << t.name << " typeID: " << t.type_id << " languageID: " << t.local_language_id;
 }

@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 class pokemon {
 public:
@@ -68,8 +69,10 @@ public:
     int order;
     int conquest_order;
 
-    pokemon_species(int id, std::string identifier, int generation_id, int evolves_from_species_id, int evolution_chain_id, int color_id, int shape_id, int habitat_id, int gender_rate, int capture_rate,
-                    int base_happiness, int is_baby, int hatch_counter, int has_gender_differences, int growth_rate_id, int forms_switchable, int is_legendary, int is_mythical, int order, int conquest_order);
+    pokemon_species(int id, std::string identifier, int generation_id, int evolves_from_species_id, int evolution_chain_id,
+                    int color_id, int shape_id, int habitat_id, int gender_rate, int capture_rate, int base_happiness,
+                    int is_baby, int hatch_counter, int has_gender_differences, int growth_rate_id, int forms_switchable,
+                    int is_legendary, int is_mythical, int order, int conquest_order);
 };
 
 class type_names {
@@ -78,6 +81,37 @@ public:
     std::string name;
 
     type_names(int type_id, int local_language_id, std::string name);
+};
+
+class pokemon_stats {
+public:
+    int pokemon_id, stat_id, base_stat, effort;
+
+    pokemon_stats(int pokemon_id, int stat_id, int base_stat, int effort);
+};
+
+class stats {
+public:
+    int id, damage_class_id, is_battle_only, game_index;
+    std::string identifier;
+
+    stats(int id, int damage_class_id, std::string identifier, int is_battle_only, int game_index);
+};
+
+class pokemon_entity {
+public:
+    pokemon pkm;
+    pokemon_species species;
+    std::vector<pokemon_moves> moveSet;
+    std::vector<pokemon_stats> baseStats;
+    experience experience;
+    type_names type;
+    int exp;
+    int hpIV, attackIV, defenseIV, special_attackIV, special_defenseIV, speedIV, accuracyIV, evasionIV;
+    int hp, attack, defense, special_attack, special_defense, speed, accuracy, evasion;
+    bool shiny;
+    bool male;
+
 };
 
 std::ostream &operator<< (std::ostream &o, pokemon p);
