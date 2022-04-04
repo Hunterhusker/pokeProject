@@ -37,7 +37,11 @@ int openFile(std::string fileName, std::ifstream &f) {
 int readAllPokemon(std::vector<pokemon> &list) {
     std::ifstream myFile;
 
-    openFile("pokemon.csv", myFile);
+    int s = openFile("pokemon.csv", myFile);
+
+    if (s == -1) {
+        return -1;
+    }
 
     std::string id_str, identifier, species_id_str, height_str, weight_str, base_experience_str, order_str, is_default_str;
     int id, species_id, height, weight, base_experience, order, is_default;
@@ -75,7 +79,11 @@ int readAllPokemon(std::vector<pokemon> &list) {
 int readAllPokemonSpecies(std::vector<pokemon_species> &list) {
     std::ifstream myFile;
 
-    openFile("pokemon_species.csv", myFile);
+    int s = openFile("pokemon_species.csv", myFile);
+
+    if (s == -1) {
+        return -1;
+    }
 
     std::string identifier;
 
@@ -141,7 +149,11 @@ int readAllPokemonSpecies(std::vector<pokemon_species> &list) {
 int readAllExperience(std::vector<experience> &list) {
     std::ifstream myFile;
 
-    openFile("experience.csv", myFile);
+    int s = openFile("experience.csv", myFile);
+
+    if (s == -1) {
+        return -1;
+    }
 
     std::string growth_rate_id_str, level_str, experience_str;
 
@@ -169,7 +181,11 @@ int readAllExperience(std::vector<experience> &list) {
 int readAllTypes(std::vector<type_names> &list) {
     std::ifstream myFile;
 
-    openFile("type_names.csv", myFile);
+    int s = openFile("type_names.csv", myFile);
+
+    if (s == -1) {
+        return -1;
+    }
 
     std::string type_id_str, local_language_id_str, name;
 
@@ -199,7 +215,11 @@ int readAllTypes(std::vector<type_names> &list) {
 int readAllPokemonMoves(std::vector<pokemon_moves> &list) {
     std::ifstream myFile;
 
-    openFile("pokemon_moves.csv", myFile);
+    int s = openFile("pokemon_moves.csv", myFile);
+
+    if (s == -1) {
+        return -1;
+    }
 
     std::string str;
 
@@ -227,9 +247,12 @@ int readAllPokemonMoves(std::vector<pokemon_moves> &list) {
             params.push_back(-1);
         }
 
-        pokemon_moves pm(params[0], params[1], params[2], params[3], params[4], params[5]);
+        // Only save the moves we will use
+        if (params[1] == 19) {
+            pokemon_moves pm(params[0], params[1], params[2], params[3], params[4], params[5]);
 
-        list.push_back(pm);
+            list.push_back(pm);
+        }
     }
 
     return 0;
@@ -238,7 +261,11 @@ int readAllPokemonMoves(std::vector<pokemon_moves> &list) {
 int readAllMoves(std::vector<moves> &list) {
     std::ifstream myFile;
 
-    openFile("moves.csv", myFile);
+    int s = openFile("moves.csv", myFile);
+
+    if (s == -1) {
+        return -1;
+    }
 
     std::string str, identifier;
 
@@ -274,6 +301,98 @@ int readAllMoves(std::vector<moves> &list) {
                 params[8], params[9], params[10], params[11], params[12], params[13]);
 
         list.push_back(m);
+    }
+
+    return 0;
+}
+
+int readAllStats(std::vector<stats> &list) {
+    std::ifstream myFile;
+
+    int s = openFile("stats.csv", myFile);
+
+    if (s == -1) {
+        return -1;
+    }
+
+    std::string identifier, str;
+
+    getline(myFile, identifier); // throw away the first line
+
+    while (myFile.peek() != std::ifstream::traits_type::eof()) {
+        std::vector<int> params;
+
+        for (int i = 0; i < 4; i++) {
+            if (i != 2) {
+                getline(myFile, str, ',');
+
+                if (str != "") {
+                    params.push_back(std::stoi(str));
+                } else {
+                    params.push_back(-1);
+                }
+            } else {
+                getline(myFile, identifier, ',');
+            }
+        }
+
+        if (myFile.peek() != '\n' && myFile.peek() != std::ifstream::traits_type::eof()) {
+            getline(myFile, str, '\n');
+
+            params.push_back(std::stoi(str));
+        } else {
+            getline(myFile, str, '\n');
+            params.push_back(-1);
+        }
+
+        stats s(params[0], params[1], identifier, params[2], params[3]);
+
+        list.push_back(s);
+    }
+
+    return 0;
+}
+
+int readAllPokemonStats(std::vector<pokemon_stats> &list) {
+    std::ifstream myFile;
+
+    int s = openFile("pokemon_stats.csv", myFile);
+
+    if (s == -1) {
+        return -1;
+    }
+
+    std::string str;
+
+    getline(myFile, str);
+
+    while (myFile.peek() != std::ifstream::traits_type::eof()) {
+        std::vector<int> params;
+
+        for (int i = 0; i < 3; i++) {
+            if (i != 2) {
+                getline(myFile, str, ',');
+
+                if (str != "") {
+                    params.push_back(std::stoi(str));
+                } else {
+                    params.push_back(-1);
+                }
+            }
+        }
+
+        if (myFile.peek() != '\n' && myFile.peek() != std::ifstream::traits_type::eof()) {
+            getline(myFile, str, '\n');
+
+            params.push_back(std::stoi(str));
+        } else {
+            getline(myFile, str, '\n');
+            params.push_back(-1);
+        }
+
+        pokemon_stats s(params[0], params[1], params[2], params[3]);
+
+        list.push_back(s);
     }
 
     return 0;

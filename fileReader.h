@@ -14,6 +14,8 @@ class experience;
 class type_names;
 class pokemon_moves;
 class moves;
+class stats;
+class pokemon_stats;
 
 int readAllPokemon(std::vector<pokemon> &list);
 int readAllPokemonSpecies(std::vector<pokemon_species> &list);
@@ -21,5 +23,7 @@ int readAllExperience(std::vector<experience> &list);
 int readAllTypes(std::vector<type_names> &list);
 int readAllPokemonMoves(std::vector<pokemon_moves> &list);
 int readAllMoves(std::vector<moves> &list);
+int readAllStats(std::vector<stats> &list);
+int readAllPokemonStats(std::vector<pokemon_stats> &list);
 
 #endif //POKEPROJECT_FILEREADER_H
