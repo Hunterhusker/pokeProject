@@ -3,3 +3,7 @@ Apr 3, 2022
     Added a generic file opening function after I remembered how cool references are in C++
         This abstracts behavior, and makes adding new paths to check easier
     Fixed issues with the make file so that it runs again
+    Added functionality to read the new stats CSVs into the game
+    Stopped parsing anything in pokemon_moves that doesn't have a version_group_id of 19 to save memory
+    Creating a pokemon_entity class to combine all the different pieces into one entity to fight
+        Stopped bc midnight, and I think it has all the data in theory (not tested)
