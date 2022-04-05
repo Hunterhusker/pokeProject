@@ -1,4 +1,5 @@
 #include "pokemon.h"
+#include <stdio.h>
 
 /// Pokemon Class stuff
 pokemon::pokemon(int id, std::string identifier, int species_id, int height, int weight, int base_experience, int order, int isDefault) {
@@ -135,4 +136,58 @@ stats::stats(int id, int damage_class_id, std::string identifier, int is_battle_
 
 std::ostream &operator<< (std::ostream &o, type_names t) {
     return o << "Type: " << t.name << " typeID: " << t.type_id << " languageID: " << t.local_language_id;
+}
+
+/// Make an instance of a random pokemon entity
+int pkmnLevel(int distance) {
+    if (distance <= 200) {
+        return (rand() % (distance / 2)) + 1;
+    } else {
+        int min = (distance - 200) / 2;
+
+        return (rand() % (100 - min)) + min;
+    }
+}
+
+pokemon_entity::pokemon_entity(std::vector<pokemon> &pokeList, std::vector<pokemon_species> &speciesList,
+                               std::vector<experience> &expList, std::vector<type_names> &typeList,
+                               std::vector<pokemon_moves> &pkmnMovesList, std::vector<moves> &mvList,
+                               std::vector<pokemon_stats> &pkmnStatList, std::vector<stats> &statList, int distance, int pkmnID) {
+    // Figure out the level based on the distance
+    this->level = pkmnLevel(distance);
+    this->male = rand() % 2;
+
+    // See if it is a shiny or not
+    if (rand() % 8192 == 0) {
+        this->shiny = true;
+    } else {
+        this->shiny = false;
+    }
+
+    // Gen the IVs
+    for (int i = 0; i < 8; i++) {
+        this->IVs.push_back(rand() % 15); // Give the IV a random value from 0 to 15
+    }
+
+    this->pkm = &pokeList[pkmnID];
+    this->species = &speciesList[pkmnID];
+
+    // Find our exp based on level and growth rate id
+    for (int i = 0; i < expList.size(); i++) {
+        // find our xp level
+        if (expList[i].growth_rate_id == this->species->growth_rate_id && expList[i].level == this->level) {
+            this->exp = &expList[i];
+            this->xp = exp->experienceAmt;
+
+            break; // No need to check for more once we have it
+        }
+    }
+
+    // Search the vector for the move set
+    for (int i = 0; i < pkmnMovesList.size(); i++) {
+        if (pkmnMovesList[i].pokemon_id == pkmnID && pkmnMovesList[i].version_group_id == 19 && pkmnMovesList[i].move_id == 1) {
+            this->moveSet.push_back(&pkmnMovesList[i]);
+        }
+    }
+
 }

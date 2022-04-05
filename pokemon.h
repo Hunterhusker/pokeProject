@@ -100,18 +100,20 @@ public:
 
 class pokemon_entity {
 public:
-    pokemon pkm;
-    pokemon_species species;
-    std::vector<pokemon_moves> moveSet;
-    std::vector<pokemon_stats> baseStats;
-    experience experience;
-    type_names type;
-    int exp;
-    int hpIV, attackIV, defenseIV, special_attackIV, special_defenseIV, speedIV, accuracyIV, evasionIV;
-    int hp, attack, defense, special_attack, special_defense, speed, accuracy, evasion;
+    pokemon *pkm;
+    pokemon_species *species;
+    std::vector<pokemon_moves *> moveSet;
+    std::vector<moves *> currMoves;
+    experience *exp;
+    //type_names *type;
+    int xp, level;
+    std::vector<int> IVs, pkmnStats, pkmnBaseStats;
     bool shiny;
     bool male;
 
+    pokemon_entity(std::vector<pokemon> &pokeList, std::vector<pokemon_species> &speciesList, std::vector<experience> &expList,
+                   std::vector<type_names> &typeList, std::vector<pokemon_moves> &pkmMovesList, std::vector<moves> &mvList,
+                   std::vector<pokemon_stats> &pkmStatList, std::vector<stats> &statList, int distance, int id);
 };
 
 std::ostream &operator<< (std::ostream &o, pokemon p);

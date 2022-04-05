@@ -7,3 +7,8 @@ Apr 3, 2022
     Stopped parsing anything in pokemon_moves that doesn't have a version_group_id of 19 to save memory
     Creating a pokemon_entity class to combine all the different pieces into one entity to fight
         Stopped bc midnight, and I think it has all the data in theory (not tested)
+
+Apr 4, 2022
+    Working on a constructor for the pokemon_entity so that I can encounter a random pokemon based on an id
+
+Apr 5, 2022
