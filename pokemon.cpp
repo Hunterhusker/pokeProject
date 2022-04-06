@@ -1,5 +1,6 @@
 #include "pokemon.h"
 #include <stdio.h>
+#include <cmath>
 
 /// Pokemon Class stuff
 pokemon::pokemon(int id, std::string identifier, int species_id, int height, int weight, int base_experience, int order, int isDefault) {
@@ -140,6 +141,10 @@ std::ostream &operator<< (std::ostream &o, type_names t) {
 
 /// Make an instance of a random pokemon entity
 int pkmnLevel(int distance) {
+    if (distance <= 1) {
+        return 1; // If we are in the origin just have lvl1s
+    }
+
     if (distance <= 200) {
         return (rand() % (distance / 2)) + 1;
     } else {
@@ -147,6 +152,14 @@ int pkmnLevel(int distance) {
 
         return (rand() % (100 - min)) + min;
     }
+}
+
+int setPkmnHP(int hpIV, int base, int level) {
+    return (floor((((hpIV + base) * 2) * level) / 100) + level + 10);
+}
+
+int setOtherPkmnStat(int IV, int base, int level) {
+    return floor((((IV + base) * 2) * level) / 100) + 5;
 }
 
 pokemon_entity::pokemon_entity(std::vector<pokemon> &pokeList, std::vector<pokemon_species> &speciesList,
@@ -169,11 +182,11 @@ pokemon_entity::pokemon_entity(std::vector<pokemon> &pokeList, std::vector<pokem
         this->IVs.push_back(rand() % 15); // Give the IV a random value from 0 to 15
     }
 
-    this->pkm = &pokeList[pkmnID];
-    this->species = &speciesList[pkmnID];
+    this->pkm = &pokeList[pkmnID - 1];
+    this->species = &speciesList[pkmnID - 1];
 
     // Find our exp based on level and growth rate id
-    for (int i = 0; i < expList.size(); i++) {
+    for (int i = 0; i < (int) expList.size(); i++) {
         // find our xp level
         if (expList[i].growth_rate_id == this->species->growth_rate_id && expList[i].level == this->level) {
             this->exp = &expList[i];
@@ -184,10 +197,53 @@ pokemon_entity::pokemon_entity(std::vector<pokemon> &pokeList, std::vector<pokem
     }
 
     // Search the vector for the move set
-    for (int i = 0; i < pkmnMovesList.size(); i++) {
-        if (pkmnMovesList[i].pokemon_id == pkmnID && pkmnMovesList[i].version_group_id == 19 && pkmnMovesList[i].move_id == 1) {
+    for (int i = 0; i < (int) pkmnMovesList.size(); i++) {
+        if (pkmnMovesList[i].pokemon_id == pkmnID && pkmnMovesList[i].version_group_id == 19 && pkmnMovesList[i].pokemon_move_method_id == 1) {
             this->moveSet.push_back(&pkmnMovesList[i]);
         }
     }
 
+    // randomly pick at most two moves for this pokemon
+    if (this->moveSet.size() >= 2) {
+        int mv1 = rand() % moveSet.size(), mv2 = rand() % moveSet.size();
+
+        // Make sure they are different moves
+        while (moveSet[mv1]->move_id == moveSet[mv2]->move_id) {
+            mv2 = rand() % moveSet.size();
+        }
+
+        for (int i = 0; i < (int) mvList.size(); i++) { // TODO: Add level checking for adding moves
+            if (moveSet[mv1]->move_id == mvList[i].id || moveSet[mv2]->move_id == mvList[i].id) {
+                currMoves.push_back(&mvList[i]); // if the id matches, then add it to the move list
+            }
+        }
+
+    } else if (this->moveSet.size() == 1) { // if there is only one available move, then find it and use it
+        for (int i = 0; i < (int) mvList.size(); i++) {
+            if (moveSet[0]->move_id == mvList[i].id) {
+                currMoves.push_back(&mvList[i]); // if the id matches, then add it to the move list
+            }
+        }
+    } // If there are no moves in the set, then don't have any I guess
+
+    // Populate the base stat fields
+    for (int i = 0; i < (int) pkmnStatList.size(); i++) {
+        if (pkmnStatList[i].pokemon_id == pkmnID) {
+            this->pkmnBaseStats.push_back(pkmnStatList[i].base_stat);
+        } else if (pkmnStatList[i].pokemon_id > pkmnID) {
+            break; // If we have moved past the stat field for the given pokemon, stop looping
+        }
+    }
+
+    // Set the hp stat with the given formula
+    this->pkmnStats.push_back(setPkmnHP(this->IVs[0], this->pkmnBaseStats[0], this->level));
+
+    // Set the rest of the stats
+    for (int i = 1; i < 6; i++) {
+        this->pkmnStats.push_back(setOtherPkmnStat(this->IVs[i], this->pkmnBaseStats[i], this->level));
+    }
+}
+
+std::ostream &operator<< (std::ostream &o, pokemon_entity pe) {
+    return o << pe.pkm->identifier << " lvl: " << pe.level << " Move1: " << pe.currMoves[0]->identifier << " Move2: " << pe.currMoves[1]->identifier;
 }

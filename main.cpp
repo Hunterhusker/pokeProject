@@ -10,6 +10,16 @@
 #include "pokemon.h"
 #include <vector>
 
+// Some global values to use here in main
+std::vector<pokemon> pokeList;
+std::vector<pokemon_species> species;
+std::vector<experience> expList;
+std::vector<type_names> types;
+std::vector<pokemon_moves> pkmnMoves;
+std::vector<moves> mvList;
+std::vector<pokemon_stats> pkmnStats;
+std::vector<stats> statList;
+
 typedef struct gameBoard
 {
     map *board[399][399];
@@ -604,16 +614,15 @@ void runGame(gameBoard_t *world, cell *player)
     }
 }
 
-int readPokeDB(std::vector<pokemon> &pokeList, std::vector<pokemon_species> &speciesList, std::vector<experience> &expList,
-               std::vector<type_names> &typeList, std::vector<pokemon_moves> &pkmMovesList, std::vector<moves> &mvList,
-               std::vector<pokemon_stats> &pkmStatList, std::vector<stats> &statList) {
+// Populate the globals with the DB info
+int readPokeDB() {
     int success;
 
     success = readAllPokemon(pokeList);
 
     if (success == -1) {return -1;}
 
-    success = readAllPokemonSpecies(speciesList);
+    success = readAllPokemonSpecies(species);
 
     if (success == -1) {return -1;}
 
@@ -621,11 +630,11 @@ int readPokeDB(std::vector<pokemon> &pokeList, std::vector<pokemon_species> &spe
 
     if (success == -1) {return -1;}
 
-    success = readAllTypes(typeList);
+    success = readAllTypes(types);
 
     if (success == -1) {return -1;}
 
-    success = readAllPokemonMoves(pkmMovesList);
+    success = readAllPokemonMoves(pkmnMoves);
 
     if (success == -1) {return -1;}
 
@@ -633,7 +642,7 @@ int readPokeDB(std::vector<pokemon> &pokeList, std::vector<pokemon_species> &spe
 
     if (success == -1) {return -1;}
 
-    success = readAllPokemonStats(pkmStatList);
+    success = readAllPokemonStats(pkmnStats);
 
     if (success == -1) {return -1;}
 
@@ -650,17 +659,8 @@ int main(int argc, char *argv[])
     cell *player; // a pointer to the player for better access
     int trainerCnt = 10;
 
-    std::vector<pokemon> pokeList;
-    std::vector<pokemon_species> species;
-    std::vector<experience> expList;
-    std::vector<type_names> types;
-    std::vector<pokemon_moves> pkmnMoves;
-    std::vector<moves> mvList;
-    std::vector<pokemon_stats> pkmnStats;
-    std::vector<stats> statList;
-
     // Read the DB into this mess
-    int s = readPokeDB(pokeList, species, expList, types, pkmnMoves, mvList, pkmnStats, statList);
+    int s = readPokeDB();
 
     if (s == -1) {
         fprintf(stderr, "Error finding the required csv files\n");
@@ -692,12 +692,20 @@ int main(int argc, char *argv[])
 
     worldInit(&world);
 
-    cursesInit();
+    //cursesInit();
 
     // Put the player into it's starting location
-    player = placeEntity(world.board[world.currY][world.currX], &world.board[world.currY][world.currX]->mh,'@');
+    //player = placeEntity(world.board[world.currY][world.currX], &world.board[world.currY][world.currX]->mh,'@');
 
-    runGame(&world, player);
+    //runGame(&world, player);
+
+
+
+    while (true) {
+        pokemon_entity pokemonEntity(pokeList, species, expList, types, pkmnMoves, mvList, pkmnStats, statList, 1, 2);
+
+        std::cout << pokemonEntity << std::endl;
+    }
 
     destroyWorld(&world); // must be run to collect garbage at the end
 

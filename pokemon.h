@@ -122,5 +122,6 @@ std::ostream &operator<< (std::ostream &o, moves m);
 std::ostream &operator<< (std::ostream &o, pokemon_moves pm);
 std::ostream &operator<< (std::ostream &o, pokemon_species p);
 std::ostream &operator<< (std::ostream &o, type_names t);
+std::ostream &operator<< (std::ostream &o, pokemon_entity pe);
 
 #endif //POKEPROJECT_POKEMON_H
