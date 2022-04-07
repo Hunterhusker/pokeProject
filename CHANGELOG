@@ -14,3 +14,14 @@ Apr 4, 2022
 Apr 5, 2022
     Got the constructor working
         Debugged issues with creation, and a weird sigsev I seemed to have fixed accidentally
+
+Apr 6, 2022
+    Time to scramble XD
+    Set the pokemon.csv reading to ignore pokemon with ids > 898 since those are regional difference pokemon, and I don't care about them, necessary complexity
+    Officially finished the pokemon since I have generated one for each possibility successfully
+    Opened the file reading up to not only do version 19 moves so that more pokemon have moves
+    Fixed bugs with pokemon that only have one learnable move like mf metapod, no need to have two hardens if you choose a dogshit pokemon like that
+    Made a menu for the pokemon attack, no ASCII art, but I might try and add some later (MIGHT)
+    Added in a chance to be attacked when walking in tall grass only
+    Made it so that pokemon can only have moves that are of a lower or equal min level requirement, since it would be busted to have a level 100 move on a lvl 1
+    Going to call it there since I don't have much time left, and the game is mostly functional for these requirements
