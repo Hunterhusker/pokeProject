@@ -66,9 +66,11 @@ int readAllPokemon(std::vector<pokemon> &list) {
         order = std::stoi(order_str);
         is_default = std::stoi(is_default_str);
 
-        pokemon p(id, identifier, species_id, height, weight, base_experience, order, is_default);
+        if (id < 899) { // don't grab regional pokemon
+            pokemon p(id, identifier, species_id, height, weight, base_experience, order, is_default);
 
-        list.push_back(p);
+            list.push_back(p);
+        }
     }
 
     myFile.close();
@@ -247,12 +249,9 @@ int readAllPokemonMoves(std::vector<pokemon_moves> &list) {
             params.push_back(-1);
         }
 
-        // Only save the moves we will use
-        if (params[1] == 19) {
-            pokemon_moves pm(params[0], params[1], params[2], params[3], params[4], params[5]);
+        pokemon_moves pm(params[0], params[1], params[2], params[3], params[4], params[5]);
 
-            list.push_back(pm);
-        }
+        list.push_back(pm);
     }
 
     return 0;
