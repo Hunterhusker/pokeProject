@@ -177,6 +177,50 @@ void cursesInit()
     keypad(stdscr, TRUE);
 }
 
+int fightRandomPokemon(int dist)
+{
+    set_escdelay(10);
+
+    for (int i = 4; i < 19; i++) {
+        for (int j = 15; j < 65; j++) {
+            mvaddch(i, j, ' ');
+        }
+    }
+
+    int pID = rand() % pokeList.size() + 1;
+
+    pokemon_entity pe(pokeList, species, expList, types, pkmnMoves, mvList, pkmnStats, statList, dist, pID);
+
+    if (pe.shiny) {
+        mvprintw(5, 16, "A shiny level %d wild %s appears!", pe.level, pe.pkm->identifier.c_str());
+    } else {
+        mvprintw(5, 16, "A level %d wild %s appears!", pe.level, pe.pkm->identifier.c_str());
+    }
+
+    mvprintw(6, 16, "It has %d hp, and %d total xp", pe.pkmnStats[0], pe.xp);
+
+    mvprintw(7, 16, "It can attack with: ");
+
+    for (int i = 0; i < (int) pe.currMoves.size(); i++) {
+        mvprintw(i+8, 19, "%s", pe.currMoves[i]->identifier.c_str());
+    }
+
+    mvprintw(18, 16, "Press Esc to win!");
+
+    refresh();
+
+    int ch;
+
+    while (true) {
+        ch = getch();
+
+        if (ch == 27) {
+            set_escdelay(1000);
+            return 0;
+        }
+    }
+}
+
 int movePlayer(int y, int x, gameBoard_t *world, cell *player, char message[]) {
     // if the location is invalid, then return -1 to denote the error
     if (y > 20 || y < 0 || x > 79 || x < 0) {
@@ -292,6 +336,17 @@ int movePlayer(int y, int x, gameBoard_t *world, cell *player, char message[]) {
 
     player->y = y;
     player->x = x;
+
+    if (world->board[world->currY][world->currX]->map[y][x].type == ':') {
+        int fight = rand() % 10;
+
+        if (fight == 0) {
+            fightRandomPokemon(abs(world->currX - 199) + abs(world->currY - 199));
+
+            printCurr(world, message);
+            sprintf(message, "You beat the pokemon!");
+        }
+    }
 
     // Since the player has moved and their gameTime has updated, then we need to send them further into the heap
     heapifyDown(&world->board[world->currY][world->currX]->mh, 0);
@@ -569,6 +624,17 @@ void runGame(gameBoard_t *world, cell *player)
 
             heapifyDown(&world->board[world->currY][world->currX]->mh, 0);
 
+            if (world->board[world->currY][world->currX]->map[player->y][player->x].type == ':') {
+                int fight = rand() % 10;
+
+                if (fight == 0) {
+                    fightRandomPokemon(abs(world->currX - 199) + abs(world->currY - 199));
+
+                    printCurr(world, message);
+                    sprintf(message, "You beat the pokemon!");
+                }
+            }
+
             sprintf(message, "Stood still...");
         } else if (ch == '6' || ch == 'l') {
             result = movePlayer(player->y, player->x + 1, world, player, message);
@@ -692,20 +758,12 @@ int main(int argc, char *argv[])
 
     worldInit(&world);
 
-    //cursesInit();
+    cursesInit();
 
     // Put the player into it's starting location
-    //player = placeEntity(world.board[world.currY][world.currX], &world.board[world.currY][world.currX]->mh,'@');
+    player = placeEntity(world.board[world.currY][world.currX], &world.board[world.currY][world.currX]->mh,'@');
 
-    //runGame(&world, player);
-
-
-
-    while (true) {
-        pokemon_entity pokemonEntity(pokeList, species, expList, types, pkmnMoves, mvList, pkmnStats, statList, 1, 2);
-
-        std::cout << pokemonEntity << std::endl;
-    }
+    runGame(&world, player);
 
     destroyWorld(&world); // must be run to collect garbage at the end
 
