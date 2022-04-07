@@ -148,9 +148,9 @@ int pkmnLevel(int distance) {
     if (distance <= 200) {
         return (rand() % (distance / 2)) + 1;
     } else {
-        int min = (distance - 200) / 2;
+        int min = std::min((distance - 200) / 2, 98);
 
-        return (rand() % (100 - min)) + min;
+        return (rand() % (100 - min) + 1) + min;
     }
 }
 
@@ -183,7 +183,7 @@ pokemon_entity::pokemon_entity(std::vector<pokemon> &pokeList, std::vector<pokem
     }
 
     this->pkm = &pokeList[pkmnID - 1];
-    this->species = &speciesList[pkmnID - 1];
+    this->species = &speciesList[pkm->species_id];
 
     // Find our exp based on level and growth rate id
     for (int i = 0; i < (int) expList.size(); i++) {
@@ -198,7 +198,7 @@ pokemon_entity::pokemon_entity(std::vector<pokemon> &pokeList, std::vector<pokem
 
     // Search the vector for the move set
     for (int i = 0; i < (int) pkmnMovesList.size(); i++) {
-        if (pkmnMovesList[i].pokemon_id == pkmnID && pkmnMovesList[i].version_group_id == 19 && pkmnMovesList[i].pokemon_move_method_id == 1) {
+        if (pkmnMovesList[i].pokemon_id == pkmnID && pkmnMovesList[i].pokemon_move_method_id == 1 && pkmnMovesList[i].level <= this->level) {
             this->moveSet.push_back(&pkmnMovesList[i]);
         }
     }
@@ -207,12 +207,16 @@ pokemon_entity::pokemon_entity(std::vector<pokemon> &pokeList, std::vector<pokem
     if (this->moveSet.size() >= 2) {
         int mv1 = rand() % moveSet.size(), mv2 = rand() % moveSet.size();
 
+        int x = 0;
+
         // Make sure they are different moves
-        while (moveSet[mv1]->move_id == moveSet[mv2]->move_id) {
+        while (moveSet[mv1]->move_id == moveSet[mv2]->move_id && x < (int) moveSet.size()) {
             mv2 = rand() % moveSet.size();
+
+            x++;
         }
 
-        for (int i = 0; i < (int) mvList.size(); i++) { // TODO: Add level checking for adding moves
+        for (int i = 0; i < (int) mvList.size(); i++) {
             if (moveSet[mv1]->move_id == mvList[i].id || moveSet[mv2]->move_id == mvList[i].id) {
                 currMoves.push_back(&mvList[i]); // if the id matches, then add it to the move list
             }
@@ -245,5 +249,5 @@ pokemon_entity::pokemon_entity(std::vector<pokemon> &pokeList, std::vector<pokem
 }
 
 std::ostream &operator<< (std::ostream &o, pokemon_entity pe) {
-    return o << pe.pkm->identifier << " lvl: " << pe.level << " Move1: " << pe.currMoves[0]->identifier << " Move2: " << pe.currMoves[1]->identifier;
+    return o << pe.pkm->identifier << " lvl: " << pe.level; //<< " Move1: " << pe.currMoves[0]->identifier; // << " Move2: " << pe.currMoves[1]->identifier;
 }
