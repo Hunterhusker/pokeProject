@@ -1,4 +1,7 @@
-This is my implementation of the 1.06 file reading code.
+This is my implementation of the 1.07 pokemon interaction code.
+
+Basically I read in the files just as before to vectors for quick access to the important data. Then I can generate a
+random pokemon from the list, and have him fight us, and for now, that's all we really need.
 
 Game Controls:
 
@@ -31,4 +34,7 @@ How to use:
 5. Success
 
 Any known bugs:
-    As of right now I haven't noticed any bugs, I think it should be fully functional
+    Have been watching for a stack smashing detected error for a while now, that hasn't popped up in a few assignments,
+    but I feel like I should mention it. Other than that I have been able to successfully generate all of the pokemon
+    several times, so I think we are bug free. I haven't made it out to the edges of the map, but I assume that all works,
+    since I tested it artificially.

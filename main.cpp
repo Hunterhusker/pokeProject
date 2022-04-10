@@ -8,12 +8,17 @@
 #include "minHeap.h"
 #include "fileReader.h"
 #include "pokemon.h"
-#include "pokemon_species.h"
-#include "experience.h"
-#include "type_names.h"
-#include "pokemon_moves.h"
-#include "moves.h"
 #include <vector>
+
+// Some global values to use here in main
+std::vector<pokemon> pokeList;
+std::vector<pokemon_species> species;
+std::vector<experience> expList;
+std::vector<type_names> types;
+std::vector<pokemon_moves> pkmnMoves;
+std::vector<moves> mvList;
+std::vector<pokemon_stats> pkmnStats;
+std::vector<stats> statList;
 
 typedef struct gameBoard
 {
@@ -172,6 +177,50 @@ void cursesInit()
     keypad(stdscr, TRUE);
 }
 
+int fightRandomPokemon(int dist)
+{
+    set_escdelay(10);
+
+    for (int i = 4; i < 19; i++) {
+        for (int j = 15; j < 65; j++) {
+            mvaddch(i, j, ' ');
+        }
+    }
+
+    int pID = rand() % pokeList.size() + 1;
+
+    pokemon_entity pe(pokeList, species, expList, types, pkmnMoves, mvList, pkmnStats, statList, dist, pID);
+
+    if (pe.shiny) {
+        mvprintw(5, 16, "A shiny level %d wild %s appears!", pe.level, pe.pkm->identifier.c_str());
+    } else {
+        mvprintw(5, 16, "A level %d wild %s appears!", pe.level, pe.pkm->identifier.c_str());
+    }
+
+    mvprintw(6, 16, "It has %d hp, and %d total xp", pe.pkmnStats[0], pe.xp);
+
+    mvprintw(7, 16, "It can attack with: ");
+
+    for (int i = 0; i < (int) pe.currMoves.size(); i++) {
+        mvprintw(i+8, 19, "%s", pe.currMoves[i]->identifier.c_str());
+    }
+
+    mvprintw(18, 16, "Press Esc to win!");
+
+    refresh();
+
+    int ch;
+
+    while (true) {
+        ch = getch();
+
+        if (ch == 27) {
+            set_escdelay(1000);
+            return 0;
+        }
+    }
+}
+
 int movePlayer(int y, int x, gameBoard_t *world, cell *player, char message[]) {
     // if the location is invalid, then return -1 to denote the error
     if (y > 20 || y < 0 || x > 79 || x < 0) {
@@ -287,6 +336,17 @@ int movePlayer(int y, int x, gameBoard_t *world, cell *player, char message[]) {
 
     player->y = y;
     player->x = x;
+
+    if (world->board[world->currY][world->currX]->map[y][x].type == ':') {
+        int fight = rand() % 10;
+
+        if (fight == 0) {
+            fightRandomPokemon(abs(world->currX - 199) + abs(world->currY - 199));
+
+            printCurr(world, message);
+            sprintf(message, "You beat the pokemon!");
+        }
+    }
 
     // Since the player has moved and their gameTime has updated, then we need to send them further into the heap
     heapifyDown(&world->board[world->currY][world->currX]->mh, 0);
@@ -564,6 +624,17 @@ void runGame(gameBoard_t *world, cell *player)
 
             heapifyDown(&world->board[world->currY][world->currX]->mh, 0);
 
+            if (world->board[world->currY][world->currX]->map[player->y][player->x].type == ':') {
+                int fight = rand() % 10;
+
+                if (fight == 0) {
+                    fightRandomPokemon(abs(world->currX - 199) + abs(world->currY - 199));
+
+                    printCurr(world, message);
+                    sprintf(message, "You beat the pokemon!");
+                }
+            }
+
             sprintf(message, "Stood still...");
         } else if (ch == '6' || ch == 'l') {
             result = movePlayer(player->y, player->x + 1, world, player, message);
@@ -609,108 +680,62 @@ void runGame(gameBoard_t *world, cell *player)
     }
 }
 
+// Populate the globals with the DB info
+int readPokeDB() {
+    int success;
+
+    success = readAllPokemon(pokeList);
+
+    if (success == -1) {return -1;}
+
+    success = readAllPokemonSpecies(species);
+
+    if (success == -1) {return -1;}
+
+    success = readAllExperience(expList);
+
+    if (success == -1) {return -1;}
+
+    success = readAllTypes(types);
+
+    if (success == -1) {return -1;}
+
+    success = readAllPokemonMoves(pkmnMoves);
+
+    if (success == -1) {return -1;}
+
+    success = readAllMoves(mvList);
+
+    if (success == -1) {return -1;}
+
+    success = readAllPokemonStats(pkmnStats);
+
+    if (success == -1) {return -1;}
+
+    success = readAllStats(statList);
+
+    if (success == -1) {return -1;}
+
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
     gameBoard_t world;
     cell *player; // a pointer to the player for better access
     int trainerCnt = 10;
 
+    // Read the DB into this mess
+    int s = readPokeDB();
+
+    if (s == -1) {
+        fprintf(stderr, "Error finding the required csv files\n");
+        return -1;
+    }
+
     // Handle the switches
     if (argc >= 2) {
-        if (!strcmp("pokemon", argv[1])) {
-            std::vector<pokemon> pokeList;
-
-            // Here for the file reading
-            int x = readAllPokemon(pokeList);
-
-            if (x == -1) {
-                fprintf(stderr, "Error: Problem finding pokemon.csv\n");
-                return -1;
-            }
-
-            for (int i = 0; i < (int) pokeList.size(); i++) {
-                std::cout << pokeList[i] << std::endl;
-            }
-
-            return 0; // end the game before it starts
-
-        } else if (!strcmp("pokemon_species", argv[1])) {
-            std::vector<pokemon_species> pokeList;
-
-            // Here for the file reading
-            int x = readAllPokemonSpecies(pokeList);
-
-            if (x == -1) {
-                fprintf(stderr, "Error: Problem finding pokemon_species.csv\n");
-                return -1;
-            }
-
-            for (int i = 0; i < (int) pokeList.size(); i++) {
-                std::cout << pokeList[i] << std::endl;
-            }
-
-            return 0; // end the game before it starts
-        } else if (!strcmp("experience", argv[1])) {
-            std::vector<experience> expList;
-
-            int x = readAllExperience(expList);
-
-            if (x == -1) {
-                fprintf(stderr, "Error: Problem finding experience.csv\n");
-                return -1;
-            }
-
-            for (int i = 0; i < (int) expList.size(); i++) {
-                std::cout << expList[i] << std::endl;
-            }
-
-            return 0;
-        } else if (!strcmp("type_names", argv[1])) {
-            std::vector<type_names> typList;
-
-            int x = readAllTypes(typList);
-
-            if (x == -1) {
-                fprintf(stderr, "Error: Problem finding type_names.csv\n");
-                return -1;
-            }
-
-            for (int i = 0; i < (int) typList.size(); i++) {
-                std::cout << typList[i] << std::endl;
-            }
-
-            return 0;
-        } else if (!strcmp("pokemon_moves", argv[1])) {
-            std::vector<pokemon_moves> mvList;
-
-            int x = readAllPokemonMoves(mvList);
-
-            if (x == -1) {
-                fprintf(stderr, "Error: Problem finding pokemon_moves.csv\n");
-                return -1;
-            }
-
-            for (int i = 0; i < (int) mvList.size(); i++) {
-                std::cout << mvList[i] << std::endl;
-            }
-
-            return 0;
-        } else if (!strcmp("moves", argv[1])) {
-            std::vector<moves> mvList;
-
-            int x = readAllMoves(mvList);
-
-            if (x == -1) {
-                fprintf(stderr, "Error: Problem finding moves.csv\n");
-                return -1;
-            }
-
-            for (int i = 0; i < (int) mvList.size(); i++) {
-                std::cout << mvList[i] << std::endl;
-            }
-
-            return 0;
-        } else if (!strcmp("--numtrainers", argv[1]) && argv[2] != NULL) {
+        if (!strcmp("--numtrainers", argv[1]) && argv[2] != NULL) {
             // Checks to make sure that the numbers after the switch are valid
             for (char *i = &argv[2][0]; *i != '\0'; i++) {
                 if (isdigit(*i) == 0) {

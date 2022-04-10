@@ -1,25 +1,27 @@
-Mar 27, 2022
-    Converted the entire project over to C++ and fixed the bugs so that it runs
+Apr 3, 2022
+    Combined all of the pokemon parts into one file, since they're really constructing one weird object
+    Added a generic file opening function after I remembered how cool references are in C++
+        This abstracts behavior, and makes adding new paths to check easier
+    Fixed issues with the make file so that it runs again
+    Added functionality to read the new stats CSVs into the game
+    Stopped parsing anything in pokemon_moves that doesn't have a version_group_id of 19 to save memory
+    Creating a pokemon_entity class to combine all the different pieces into one entity to fight
+        Stopped bc midnight, and I think it has all the data in theory (not tested)
 
-Mar 28, 2022
-    started class conversion
-        Gave up for now since file reading is more important
-    Tested using a priority queue as a minHeap to shorten my code and use a better heap
+Apr 4, 2022
+    Working on a constructor for the pokemon_entity so that I can encounter a random pokemon based on an id
 
-Mar 30, 2022
-    Setup the pokemon class
-    Got reading from the pokemon.csv working
-    Population of the pokemon classes though file input works
-    Added the command line flag to just do the pokemon file reading
-    Added the attempts at other file reads
-    Added functionality to actually run the game if the new flags arent used upon running
-        Now it is past midnight so I guess I move into a new date
+Apr 5, 2022
+    Got the constructor working
+        Debugged issues with creation, and a weird sigsev I seemed to have fixed accidentally
 
-Mar 31, 2022 // im working until file reading is done, pray for me I have an exam tomorrow (oh yeah I make bad decisions professionally)
-    ffw 2hours pokemon_species is read and implemented into the game
-    Experience file parsing is now all set up
-    type_names.csv parsing is all done and it is 4 am so I go to bed now
-    added pokemon_moves and moves reading, which finishes file reading
-    Converted the cell struct to a class (cells are map tiles and entites no inheritance yet since im running low on time, but I plan on it)
-    Converted maps to a class
-    Converted heatMaps to a class
+Apr 6, 2022
+    Time to scramble XD
+    Set the pokemon.csv reading to ignore pokemon with ids > 898 since those are regional difference pokemon, and I don't care about them, necessary complexity
+    Officially finished the pokemon since I have generated one for each possibility successfully
+    Opened the file reading up to not only do version 19 moves so that more pokemon have moves
+    Fixed bugs with pokemon that only have one learnable move like mf metapod, no need to have two hardens if you choose a dogshit pokemon like that
+    Made a menu for the pokemon attack, no ASCII art, but I might try and add some later (MIGHT)
+    Added in a chance to be attacked when walking in tall grass only
+    Made it so that pokemon can only have moves that are of a lower or equal min level requirement, since it would be busted to have a level 100 move on a lvl 1
+    Going to call it there since I don't have much time left, and the game is mostly functional for these requirements
