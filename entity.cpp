@@ -7,6 +7,20 @@
 #include "heatMap.h"
 #include "minHeap.h"
 
+/// Constructor/Destuctors
+
+/**
+ * Deconstructor to ensure that we delete all of the trainer's pokemon when we end the game
+ */
+entity_cell::~entity_cell() {
+    for (int i = 0; i < 6; i++) {
+        if (this->pkmns[i] != NULL) {
+            delete this->pkmns[i];
+        }
+    }
+}
+
+/// METHODS
 cell* placeEntity(map *screen, minHeap *mh, char type)
 {
     srand(time(NULL));

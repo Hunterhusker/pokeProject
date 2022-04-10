@@ -2,6 +2,7 @@
 #define MAPBUILDER_H
 
 #include "minHeap.h"
+#include "pokemon.h"
 
 class cell {
 public:
@@ -13,6 +14,12 @@ public:
     int x;
     int y;
     bool inHeap;
+};
+
+class entity_cell : cell {
+public:
+    pokemon_entity *pkmns[6];
+    ~entity_cell();
 };
 
 class map {
