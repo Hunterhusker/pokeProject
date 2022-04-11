@@ -20,8 +20,8 @@ template <class T>
 void minHeap<T>::add(T *t, int *val) {
     heapNode temp;
 
-    temp.value = t;
-    temp.data = val;
+    temp.value = val;
+    temp.data = t;
 
     this->heap.push_back(temp); // add it to the heap on the end
     this->currLen++; // make sure we know we have more elements
