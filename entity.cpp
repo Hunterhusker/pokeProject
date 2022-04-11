@@ -120,7 +120,7 @@ void delEntity(map *screen, minHeap *mh, entity_cell *entity)
     screen->eMap[entity->y][entity->x] = NULL;
 
     // free the memory
-    free(entity);
+    delete entity;
 }
 
 int moveEntity(map *screen, minHeap *mh, entity_cell *entity, entity_cell *player)
