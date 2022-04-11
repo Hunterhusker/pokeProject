@@ -4,4 +4,7 @@ Apr 10, 2022
     Branched out to 1.08 and rebased since I forgot and did it in a bad order
     Converted the entity map to only be entity_cell types
         Added a destructor so that these are deleted not freed now that they arent being malloced
-    
+    Branched out again, as my inheritance is making some things weird, and I want a generic min heap
+        I think I have it mostly done, but I have an exam tomorrow, and it is still buggy
+        Fixed that issue cuz I am not tired yet, gonna fail this exam so hard
+
