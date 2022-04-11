@@ -46,6 +46,14 @@ entity_cell::entity_cell(int x, int y, char type, int weight, int dist) {
     }
 }
 
+/// Cell comparator
+class entity_cell_comparator {
+public:
+    bool operator()(entity_cell a, entity_cell b) {
+        return a.dist - b.dist;
+    }
+};
+
 int main() {
     minHeap<entity_cell> mh;
 
