@@ -1,153 +1,116 @@
+#include <cmath>
 #include "minHeap.h"
-#include <math.h>
-#include <limits.h>
-#include "mapBuilder.h"
 
-void mhSwap(minHeap *mh, int idx1, int idx2)
-{
-    heapNode_t tmp = mh->heap[idx1];
-
-    mh->heap[idx1] = mh->heap[idx2];
-    mh->heap[idx2] = tmp;
+/// The constructor
+template <class T>
+minHeap<T>::minHeap() {
+    this->currLen = 0;
 }
 
-void heapifyUp(minHeap *mh, int srcIdx)
-{
-    if (srcIdx <= 0)
-    {
-        return;
-    }
-
-    // If we try to heapify Up outside the arr, then no don't do that
-    if (srcIdx > mh->currLen)
-    {
-        srcIdx = mh->currLen;
-    }
-
-    if (*mh->heap[srcIdx].value < *mh->heap[(int)floor((srcIdx - 1) / 2)].value)
-    {
-        mhSwap(mh, srcIdx, (int)floor((srcIdx - 1) / 2));
-
-        heapifyUp(mh, (int)floor((srcIdx - 1) / 2));
-    }
+/// Destructor: deletes each heapNode, since they're dynamically allocated w/ new
+template <class T>
+minHeap<T>::~minHeap() {
+//    for (int i = 0; i < this->currLen; i++) {
+//        delete this->heap[i];
+//    }
 }
 
-void heapifyUpCell(minHeap *mh, cell *cell)
-{
-    int srcIdx = mhFind(mh, cell);
+/// Adds a generic item to the heap, and maintains the heap property
+template <class T>
+void minHeap<T>::add(T *t, int *val) {
+    heapNode temp;
 
-    if (srcIdx <= 0)
-    {
-        return;
-    }
+    temp.value = t;
+    temp.data = val;
 
-    // If we try to heapify Up outside the arr, then no don't do that
-    if (srcIdx > mh->currLen)
-    {
-        srcIdx = mh->currLen;
-    }
+    this->heap.push_back(temp); // add it to the heap on the end
+    this->currLen++; // make sure we know we have more elements
 
-    if (*mh->heap[srcIdx].value < *mh->heap[(int)floor((srcIdx - 1) / 2)].value)
-    {
-        mhSwap(mh, srcIdx, (int)floor((srcIdx - 1) / 2));
-
-        heapifyUp(mh, (int)floor((srcIdx - 1) / 2));
-    }
+    heapifyUp(this->currLen - 1); // restore the heap property (-1 since arrays start at 0)
 }
 
-void heapifyDown(minHeap *mh, int srcIdx)
-{
-    if ((srcIdx * 2) + 1 < mh->currLen && *mh->heap[(2 * srcIdx) + 1].value < *mh->heap[srcIdx].value)
-    {
-        mhSwap(mh, (2 * srcIdx) + 1, srcIdx);
-        heapifyDown(mh, (2 * srcIdx) + 1);
+/// Returns a bool that is true only when the heap has a length of 0
+template <class T>
+bool minHeap<T>::isEmpty() const {
+    return currLen == 0;
+}
+
+/// Returns the current amount of items in the heap
+template <class T>
+int minHeap<T>::len() const {
+    return currLen;
+}
+
+/// Returns a pointer to the thing on the head of the heap
+template <class T>
+T *minHeap<T>::peek() {
+    return &this->heap[0];
+}
+
+/// Returns a pointer to the element that was at the head of the heap, and removes it from the head
+template <class T>
+T *minHeap<T>::extract() {
+    T *tmp = this->heap[0].data; // grab the value to return
+    this->currLen--; // decrement the size, since we have one less element
+
+    this->heap[0] = this->heap[currLen]; // move the tail to the head
+    this->heap.pop_back();
+
+    heapifyDown(0); // heapify this down
+
+    return tmp; // actually return the value we saved earlier
+}
+
+/// Method to swap two nodes in the heap
+template <class T>
+void minHeap<T>::swap(int i, int j) {
+    heapNode tmp = this->heap[i];
+
+    this->heap[i] = this->heap[j];
+    this->heap[j] = tmp;
+}
+
+/// A function to maintain the heap param from bottom up
+template <class T>
+void minHeap<T>::heapifyUp(int idx) {
+    if (idx < 0 || idx > this->currLen) {
+        std::cerr << "Heap out of bounds: \"" << idx << "\" is outside of the given heap!" << std::endl;
     }
 
-    if ((srcIdx * 2) + 2 < mh->currLen && *mh->heap[(2 * srcIdx) + 2].value < *mh->heap[srcIdx].value)
-    {
-        mhSwap(mh, (2 * srcIdx) + 2, srcIdx);
-        heapifyDown(mh, (2 * srcIdx) + 2);
-    }
-}
+    if (*this->heap[idx].value < *this->heap[(int) floor((idx - 1) / 2)].value) {
+        swap(idx, (int) floor((idx - 1) / 2)); // swap the two
 
-void mhAdd(minHeap *mh, cell *cell)
-{
-    heapNode_t hN;
-
-    hN.value = &cell->dist;
-    hN.data = cell;
-    hN.data->inHeap = true;
-
-    mh->heap[mh->currLen] = hN;
-
-    heapifyUp(mh, mh->currLen);
-
-    mh->currLen++;
-}
-
-cell mhExtract(minHeap *mh)
-{
-    heapNode_t tmp = mh->heap[0];
-
-    mh->heap[0] = mh->heap[mh->currLen - 1];
-
-    mh->currLen--;
-
-    heapifyDown(mh, 0); // cry
-
-    return *tmp.data;
-}
-
-int mhFind(minHeap *mh, cell *cell)
-{
-    for (int i = 0; i < mh->currLen; i++)
-    {
-        if (mh->heap[i].data->x == cell->x && mh->heap[i].data->y == cell->y)
-        {
-            return i;
-        }
-    }
-
-    return -1;
-}
-
-void mhResetMap(cell map[21][80])
-{
-    for (int i = 0; i < 21; i++)
-    {
-        for (int j = 0; j < 80; j++)
-        {
-            map[i][j].dist = INT_MAX;
-
-            map[i][j].parentLoc[0] = -1;
-            map[i][j].parentLoc[1] = -1;
-        }
+        heapifyUp((int) floor((idx - 1) / 2)); // heapify the node further up, just in case
     }
 }
 
-void mhAddAll(minHeap *mh, cell map[21][80])
-{
-    for (int i = 0; i < 21; i++)
-    {
-        for (int j = 0; j < 80; j++)
-        {
-            mhAdd(mh, &map[i][j]);
-        }
+/// A heapify down function to maintain the heap param from top down
+template <class T>
+void minHeap<T>::heapifyDown(int idx) {
+    if ((idx * 2) + 1 < this->currLen && *this->heap[idx].value > *this->heap[(idx * 2) + 1].value) {
+        swap((idx * 2) + 1, idx);
+
+        heapifyDown((idx * 2) + 1);
+    }
+
+    if ((idx * 2) + 2 < this->currLen && *this->heap[idx].value > *this->heap[(idx * 2) + 2].value) {
+        swap((idx * 2) + 2, idx);
+
+        heapifyDown((idx * 2) + 2);
     }
 }
 
-void mhDeleteElement(minHeap *mh, cell *theDoomed)
-{
-    int i = mhFind(mh, theDoomed); // Find our cell in the list
-
-    mhSwap(mh, i, mh->currLen - 1); // Swap our cell to the end
-
-    mh->currLen--; // decrement the size
-
-    heapifyDown(mh, i); // restore the heap property
+template <class T>
+T *minHeap<T>::operator[](const int idx) {
+    return this->heap[idx].value;
 }
 
-// Just peek at the cell in the front of the list w/o removing it
-cell *peek(minHeap *mh) {
-    return mh->heap[0].data;
+/// Prints out the entire minHeap w/ std::cout
+template <class T>
+std::ostream &operator<< (std::ostream &o, minHeap<T> mh) {
+    for (int i = 0; i < mh.len(); i++) {
+        o << *mh[i] << ", ";
+    }
+
+    return o;
 }
