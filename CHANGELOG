@@ -2,3 +2,6 @@ Apr 10, 2022
     creating the entity_cell class to inherit from cell to differentiate my entities from pieces of map
         The biggest difference is that they will be able to have 6 pokemon and a name
     Branched out to 1.08 and rebased since I forgot and did it in a bad order
+    Converted the entity map to only be entity_cell types
+        Added a destructor so that these are deleted not freed now that they arent being malloced
+    
