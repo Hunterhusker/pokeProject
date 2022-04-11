@@ -87,7 +87,7 @@ void destroyWorld(gameBoard_t *world)
         }
     }
 
-    endwin(); // de-init the screen so we can end the program
+    //endwin(); // de-init the screen so we can end the program
 }
 
 int isScreenGenerated(gameBoard_t *world, int x, int y)
@@ -221,7 +221,7 @@ int fightRandomPokemon(int dist)
     }
 }
 
-int movePlayer(int y, int x, gameBoard_t *world, cell *player, char message[]) {
+int movePlayer(int y, int x, gameBoard_t *world, entity_cell *player, char message[]) {
     // if the location is invalid, then return -1 to denote the error
     if (y > 20 || y < 0 || x > 79 || x < 0) {
         return -1;
@@ -294,7 +294,7 @@ int movePlayer(int y, int x, gameBoard_t *world, cell *player, char message[]) {
         }
 
         // Grab the player from the current screen
-        cell *temp = world->board[world->currY][world->currX]->eMap[player->y][player->x];
+        entity_cell *temp = world->board[world->currY][world->currX]->eMap[player->y][player->x];
 
         // Nullify the old location of the player, since they're no longer there
         world->board[world->currY][world->currX]->eMap[player->y][player->x] = NULL;
@@ -363,7 +363,7 @@ void menuInit() {
     }
 }
 
-void entityString(gameBoard_t *world, cell *entity, cell *player, char str[])
+void entityString(gameBoard_t *world, entity_cell *entity, entity_cell *player, char str[])
 {
     int x, y;
 
@@ -414,7 +414,7 @@ int shopMenu(char shopType)
     }
 }
 
-int trainerMenu(gameBoard_t *world, cell *player)
+int trainerMenu(gameBoard_t *world, entity_cell *player)
 {
     set_escdelay(10);
 
@@ -439,7 +439,7 @@ int trainerMenu(gameBoard_t *world, cell *player)
     }
 
     for (int i = start; i <= end; i++) {
-        entityString(world, trainers[i], player, entityStrs);
+        entityString(world, (entity_cell *) trainers[i], player, entityStrs);
 
         mvprintw(lineLoc + 2, 25, entityStrs);
 
@@ -473,7 +473,7 @@ int trainerMenu(gameBoard_t *world, cell *player)
                     lineLoc = 0;
 
                     for (int i = start; i <= end; i++) {
-                        entityString(world, trainers[i], player, entityStrs);
+                        entityString(world, (entity_cell *) trainers[i], player, entityStrs);
 
                         mvprintw(lineLoc + 2, 25, entityStrs);
 
@@ -507,7 +507,7 @@ int trainerMenu(gameBoard_t *world, cell *player)
                     lineLoc = 0;
 
                     for (int i = start; i <= end; i++) {
-                        entityString(world, trainers[i], player, entityStrs);
+                        entityString(world, (entity_cell *) trainers[i], player, entityStrs);
 
                         mvprintw(lineLoc + 2, 25, entityStrs);
 
@@ -533,7 +533,7 @@ int trainerMenu(gameBoard_t *world, cell *player)
     return 0;
 }
 
-void runGame(gameBoard_t *world, cell *player)
+void runGame(gameBoard_t *world, entity_cell *player)
 {
     char message[50] = "Your move!";
     int result;
@@ -543,7 +543,7 @@ void runGame(gameBoard_t *world, cell *player)
     bool alive = true;
     while (alive) {
         while (peek(&world->board[world->currY][world->currX]->mh) != player) {
-            moveEntity(world->board[world->currY][world->currX], &world->board[world->currY][world->currX]->mh, peek(&world->board[world->currY][world->currX]->mh), player);
+            moveEntity(world->board[world->currY][world->currX], &world->board[world->currY][world->currX]->mh, (entity_cell *) peek(&world->board[world->currY][world->currX]->mh), player);
         }
 
         // TODO: make the entities update the buffer as they move so that we don't waste power/time redoing the whole board each time
@@ -722,7 +722,7 @@ int readPokeDB() {
 int main(int argc, char *argv[])
 {
     gameBoard_t world;
-    cell *player; // a pointer to the player for better access
+    entity_cell *player; // a pointer to the player for better access
     int trainerCnt = 10;
 
     // Read the DB into this mess
@@ -764,6 +764,9 @@ int main(int argc, char *argv[])
     player = placeEntity(world.board[world.currY][world.currX], &world.board[world.currY][world.currX]->mh,'@');
 
     runGame(&world, player);
+
+
+    endwin();
 
     destroyWorld(&world); // must be run to collect garbage at the end
 

@@ -5,7 +5,7 @@
 #include "minHeap.h"
 #include "mapBuilder.h"
 
-void emptyEntityMap(cell *eMap[21][80])
+void emptyEntityMap(entity_cell *eMap[21][80])
 {
     for (int i = 0; i < 21; i++) {
         for (int j = 0; j < 80; j++) {
@@ -18,12 +18,12 @@ void emptyEntityMap(cell *eMap[21][80])
  * Free all of the declared entities
  * @param eMap ~ the entity map
  */
-void deleteAllEntities(cell *eMap[21][80])
+void deleteAllEntities(entity_cell *eMap[21][80])
 {
     for (int i = 0; i < 21; i++) {
         for (int j = 0; j < 80; j++) {
             if (eMap[i][j] != NULL) {
-                free(eMap[i][j]);
+                delete eMap[i][j];
             }
         }
     }

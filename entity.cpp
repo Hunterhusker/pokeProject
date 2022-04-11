@@ -20,8 +20,20 @@ entity_cell::~entity_cell() {
     }
 }
 
+entity_cell::entity_cell(int x, int y, char type, int weight, int dist) {
+    this->x = x;
+    this->y = y;
+    this->type = type;
+    this->weight = weight;
+    this->dist = dist;
+
+    for (int i = 0; i < 6; i++) {
+        this->pkmns[i] = NULL;
+    }
+}
+
 /// METHODS
-cell* placeEntity(map *screen, minHeap *mh, char type)
+entity_cell* placeEntity(map *screen, minHeap *mh, char type)
 {
     srand(time(NULL));
 
@@ -40,14 +52,7 @@ cell* placeEntity(map *screen, minHeap *mh, char type)
 
                 for (int i = 3; i < 21; i++) {
                     if (screen->map[i][loc].type == '#' && screen->eMap[i][loc] == NULL) {
-                        screen->eMap[i][loc] = (cell *) malloc(sizeof (cell));
-
-                        screen->eMap[i][loc]->type = type;
-                        screen->eMap[i][loc]->y = i;
-                        screen->eMap[i][loc]->x = loc;
-                        screen->eMap[i][loc]->weight = rand() % 4;
-
-                        screen->eMap[i][loc]->dist = 10;
+                        screen->eMap[i][loc] = new entity_cell(loc, i, '@', rand() % 4, 10); //(cell *) malloc(sizeof (cell));
 
                         // add this mf to the game time heap
                         mhAdd(mh, screen->eMap[i][loc]);
@@ -65,14 +70,7 @@ cell* placeEntity(map *screen, minHeap *mh, char type)
 
                 for (int i = 3; i < 80; i++) {
                     if (screen->map[loc][i].type == '#' && screen->eMap[loc][i] == NULL) {
-                        screen->eMap[loc][i] = (cell *) malloc(sizeof (cell));
-
-                        screen->eMap[loc][i]->type = type;
-                        screen->eMap[loc][i]->y = loc;
-                        screen->eMap[loc][i]->x = i;
-                        screen->eMap[loc][i]->weight = rand() % 4;
-
-                        screen->eMap[loc][i]->dist = 10;
+                        screen->eMap[loc][i] = new entity_cell(i, loc, '@', rand() % 4, 10);//(cell *) malloc(sizeof (cell));
 
                         // add this mf to the game time heap
                         mhAdd(mh, screen->eMap[loc][i]);
@@ -98,18 +96,10 @@ cell* placeEntity(map *screen, minHeap *mh, char type)
 
         if (screen->eMap[y][x] == NULL && screen->map[y][x].type != 'M' && screen->map[y][x].type != 'C' && screen->map[y][x].type != '%' && screen->map[y][x].type != '#') {
             // Malloc some space for our entity
-            screen->eMap[y][x] = (cell *) malloc(sizeof (cell));
+            screen->eMap[y][x] = new entity_cell(x, y, type, facing, determineCost(screen->map[y][x].type, type)); //(cell *) malloc(sizeof (cell));
 
-            // Set up our entity with its required values
-            screen->eMap[y][x]->type = type;
-            screen->eMap[y][x]->x = x;
-            screen->eMap[y][x]->y = y;
-            screen->eMap[y][x]->weight = facing; // Putting the facing in here since it is wasted space anyways right now
             screen->eMap[y][x]->instance = 0;
             screen->eMap[y][x]->inHeap = true;
-
-            // Get the cost of the cell we were plopped down on for a good start time
-            screen->eMap[y][x]->dist = determineCost(screen->map[y][x].type, type);
 
             // Add them to the heap
             mhAdd(mh, screen->eMap[y][x]);
@@ -121,7 +111,7 @@ cell* placeEntity(map *screen, minHeap *mh, char type)
     return screen->eMap[y][x];
 }
 
-void delEntity(map *screen, minHeap *mh, cell *entity)
+void delEntity(map *screen, minHeap *mh, entity_cell *entity)
 {
     // Remove it from the heap
     mhDeleteElement(mh, entity);
@@ -133,7 +123,7 @@ void delEntity(map *screen, minHeap *mh, cell *entity)
     free(entity);
 }
 
-int moveEntity(map *screen, minHeap *mh, cell *entity, cell *player)
+int moveEntity(map *screen, minHeap *mh, entity_cell *entity, entity_cell *player)
 {
     int iters, nX = entity->x, nY = entity->y;
     heatMap hm;
@@ -588,7 +578,7 @@ int moveEntity(map *screen, minHeap *mh, cell *entity, cell *player)
     /// Actually move the entity now that we have found their new location
 
     // Grab the pointer to the entity
-    cell *tmp = screen->eMap[entity->y][entity->x];
+    entity_cell *tmp = screen->eMap[entity->y][entity->x];
 
     // Nullify the old place of the entity
     screen->eMap[entity->y][entity->x] = NULL;
@@ -633,7 +623,7 @@ void printScreen(map *screen, char str[])
     refresh(); // actually displays the board
 }
 
-int fightPLayer(map *screen, cell *entity, cell *player)
+int fightPLayer(map *screen, entity_cell *entity, entity_cell *player)
 {
     set_escdelay(10);
 
