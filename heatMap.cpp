@@ -12,7 +12,7 @@
  * @param player ~ the player so we can find it's location and deal with the edge cases
  * @param enemyType ~ the type of enemy we have, so we can have custom weights for custom enemies
  */
-void fillHeatMap(map *screen, heatMap *heatMap, cell *player, char enemyType)
+void fillHeatMap(map *screen, heatMap *heatMap, player_cell *player, char enemyType)
 {
     minHeap mh;
     mh.currLen = 0;

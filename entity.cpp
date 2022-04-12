@@ -7,7 +7,7 @@
 #include "heatMap.h"
 #include "minHeap.h"
 
-/// Constructor/Destuctors
+/// entity_cell stuff
 
 /**
  * Deconstructor to ensure that we delete all of the trainer's pokemon when we end the game
@@ -26,6 +26,24 @@ entity_cell::entity_cell(int x, int y, char type, int weight, int dist) {
     this->type = type;
     this->weight = weight;
     this->dist = dist;
+    this->pkmnCnt = 0;
+
+    for (int i = 0; i < 6; i++) {
+        this->pkmns[i] = NULL;
+    }
+}
+
+/// Player Cell constructor
+player_cell::player_cell(int x, int y, char type, int weight, int dist, int ballCnt, int reviveCnt, int potionCnt) {
+    this->x = x;
+    this->y = y;
+    this->type = type;
+    this->weight = weight;
+    this->dist = dist;
+    this->pkmnCnt = 0;
+    this->pokeballs = ballCnt;
+    this->revives = reviveCnt;
+    this->potions = potionCnt;
 
     for (int i = 0; i < 6; i++) {
         this->pkmns[i] = NULL;
@@ -33,61 +51,68 @@ entity_cell::entity_cell(int x, int y, char type, int weight, int dist) {
 }
 
 /// METHODS
-entity_cell* placeEntity(map *screen, minHeap *mh, char type)
+player_cell *placePlayer(map *screen, minHeap *mh)
 {
     srand(time(NULL));
 
     int x, y, facing;
     bool in = false;
 
-    if (type == '@') {
-        int loc, dir, found = 0;
+    int loc, dir, found = 0;
 
-        while (found == 0) {
+    while (found == 0) {
 
-            dir = rand() % 2;
+        dir = rand() % 2;
 
-            if (dir == 0) {
-                loc = (rand() % 78) + 2;
+        if (dir == 0) {
+            loc = (rand() % 78) + 2;
 
-                for (int i = 3; i < 21; i++) {
-                    if (screen->map[i][loc].type == '#' && screen->eMap[i][loc] == NULL) {
-                        screen->eMap[i][loc] = new entity_cell(loc, i, '@', rand() % 4, 10); //(cell *) malloc(sizeof (cell));
+            for (int i = 3; i < 21; i++) {
+                if (screen->map[i][loc].type == '#' && screen->eMap[i][loc] == NULL) {
+                    screen->eMap[i][loc] = new player_cell(loc, i, '@', rand() % 4, 10, 5, 2, 3);
 
-                        // add this mf to the game time heap
-                        mhAdd(mh, screen->eMap[i][loc]);
-                        screen->eMap[i][loc]->inHeap = true;
+                    // add this mf to the game time heap
+                    mhAdd(mh, screen->eMap[i][loc]);
+                    screen->eMap[i][loc]->inHeap = true;
 
-                        y = i;
-                        x = loc;
+                    y = i;
+                    x = loc;
 
-                        found = 1;
-                        break;
-                    }
+                    found = 1;
+                    break;
                 }
-            } else {
-                loc = (rand() % 19) + 2;
+            }
+        } else {
+            loc = (rand() % 19) + 2;
 
-                for (int i = 3; i < 80; i++) {
-                    if (screen->map[loc][i].type == '#' && screen->eMap[loc][i] == NULL) {
-                        screen->eMap[loc][i] = new entity_cell(i, loc, '@', rand() % 4, 10);//(cell *) malloc(sizeof (cell));
+            for (int i = 3; i < 80; i++) {
+                if (screen->map[loc][i].type == '#' && screen->eMap[loc][i] == NULL) {
+                    screen->eMap[loc][i] = new player_cell(i, loc, '@', rand() % 4, 10, 5, 2, 3);
 
-                        // add this mf to the game time heap
-                        mhAdd(mh, screen->eMap[loc][i]);
-                        screen->eMap[loc][i]->inHeap = true;
+                    // add this mf to the game time heap
+                    mhAdd(mh, screen->eMap[loc][i]);
+                    screen->eMap[loc][i]->inHeap = true;
 
-                        y = loc;
-                        x = i;
+                    y = loc;
+                    x = i;
 
-                        found = 1;
-                        break;
-                    }
+                    found = 1;
+                    break;
                 }
             }
         }
-        // Return the pointer to the cell we made
-        return screen->eMap[y][x];
     }
+
+    // Return the pointer to the cell we made
+    return (player_cell *) screen->eMap[y][x];
+}
+
+entity_cell* placeEntity(map *screen, minHeap *mh, char type)
+{
+    srand(time(NULL));
+
+    int x, y, facing;
+    bool in = false;
 
     while (!in) {
         x = (rand() % 78) + 1;
@@ -123,7 +148,7 @@ void delEntity(map *screen, minHeap *mh, entity_cell *entity)
     free(entity);
 }
 
-int moveEntity(map *screen, minHeap *mh, entity_cell *entity, entity_cell *player)
+int moveEntity(map *screen, minHeap *mh, entity_cell *entity, player_cell *player)
 {
     int iters, nX = entity->x, nY = entity->y;
     heatMap hm;
@@ -623,7 +648,7 @@ void printScreen(map *screen, char str[])
     refresh(); // actually displays the board
 }
 
-int fightPLayer(map *screen, entity_cell *entity, entity_cell *player)
+int fightPLayer(map *screen, entity_cell *entity, player_cell *player)
 {
     set_escdelay(10);
 

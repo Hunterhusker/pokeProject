@@ -221,7 +221,7 @@ int fightRandomPokemon(int dist)
     }
 }
 
-int movePlayer(int y, int x, gameBoard_t *world, entity_cell *player, char message[]) {
+int movePlayer(int y, int x, gameBoard_t *world, player_cell *player, char message[]) {
     // if the location is invalid, then return -1 to denote the error
     if (y > 20 || y < 0 || x > 79 || x < 0) {
         return -1;
@@ -363,7 +363,7 @@ void menuInit() {
     }
 }
 
-void entityString(gameBoard_t *world, entity_cell *entity, entity_cell *player, char str[])
+void entityString(gameBoard_t *world, entity_cell *entity, player_cell *player, char str[])
 {
     int x, y;
 
@@ -414,7 +414,7 @@ int shopMenu(char shopType)
     }
 }
 
-int trainerMenu(gameBoard_t *world, entity_cell *player)
+int trainerMenu(gameBoard_t *world, player_cell *player)
 {
     set_escdelay(10);
 
@@ -533,7 +533,11 @@ int trainerMenu(gameBoard_t *world, entity_cell *player)
     return 0;
 }
 
-void runGame(gameBoard_t *world, entity_cell *player)
+void bagMenu() {
+
+}
+
+void runGame(gameBoard_t *world, player_cell *player)
 {
     char message[50] = "Your move!";
     int result;
@@ -545,9 +549,6 @@ void runGame(gameBoard_t *world, entity_cell *player)
         while (peek(&world->board[world->currY][world->currX]->mh) != player) {
             moveEntity(world->board[world->currY][world->currX], &world->board[world->currY][world->currX]->mh, (entity_cell *) peek(&world->board[world->currY][world->currX]->mh), player);
         }
-
-        // TODO: make the entities update the buffer as they move so that we don't waste power/time redoing the whole board each time
-        //printCurr(world, message);
 
         mvprintw(0, 0, "Current Location: (%d, %d): %s\n", world->currX, world->currY, message);
         refresh();
@@ -567,6 +568,8 @@ void runGame(gameBoard_t *world, entity_cell *player)
 
             printCurr(world, (char *) "bruh");
             sprintf(message, "Left the trainer menu!");
+
+        } else if (ch == 'b') {
 
         } else if (ch == '>') {
             if (world->board[world->currY][world->currX]->map[player->y][player->x].type == 'M' || world->board[world->currY][world->currX]->map[player->y][player->x].type == 'C') {
@@ -719,10 +722,70 @@ int readPokeDB() {
     return 0;
 }
 
+void startScreen(player_cell *player) {
+    pokemon_entity *choices[3];
+
+    int p1 = rand() % 898 + 1, p2 = rand() % 898 + 1, p3 = rand() % 898 + 1;
+
+    choices[0] = new pokemon_entity(pokeList, species, expList, types, pkmnMoves, mvList, pkmnStats, statList, 1, p1);
+    choices[1] = new pokemon_entity(pokeList, species, expList, types, pkmnMoves, mvList, pkmnStats, statList, 1, p2);
+    choices[2] = new pokemon_entity(pokeList, species, expList, types, pkmnMoves, mvList, pkmnStats, statList, 1, p3);
+
+    mvprintw(6, 30, "Choose your starter w/ space!");
+
+    mvprintw(10, 13 - (choices[0]->pkm->identifier.length() / 2), choices[0]->pkm->identifier.c_str());
+    mvprintw(10, 39 - (choices[1]->pkm->identifier.length() / 2), choices[1]->pkm->identifier.c_str());
+    mvprintw(10, 65 - (choices[2]->pkm->identifier.length() / 2), choices[2]->pkm->identifier.c_str());
+
+    bool choosing = true;
+
+    int currPkmn = 0, pkmnIdx = 13;
+
+    mvaddch(9, pkmnIdx, ACS_DIAMOND);
+
+    while (choosing) {
+        int ch = getch();
+
+        refresh();
+
+        switch (ch) {
+            case ' ':
+                player->pkmns[0] = choices[currPkmn];
+
+                choosing = false;
+                break;
+
+            case KEY_LEFT:
+                if (currPkmn != 0) {
+                    currPkmn--;
+
+                    mvaddch(9, pkmnIdx, ' ');
+
+                    pkmnIdx -= 26;
+
+                    mvaddch(9, pkmnIdx, ACS_DIAMOND);
+                }
+                break;
+
+            case KEY_RIGHT:
+                if (currPkmn != 2) {
+                    currPkmn++;
+
+                    mvaddch(9, pkmnIdx, ' ');
+
+                    pkmnIdx += 26;
+
+                    mvaddch(9, pkmnIdx, ACS_DIAMOND);
+                }
+                break;
+        }
+    }
+}
+
 int main(int argc, char *argv[])
 {
     gameBoard_t world;
-    entity_cell *player; // a pointer to the player for better access
+    player_cell *player; // a pointer to the player for better access
     int trainerCnt = 10;
 
     // Read the DB into this mess
@@ -761,10 +824,11 @@ int main(int argc, char *argv[])
     cursesInit();
 
     // Put the player into it's starting location
-    player = placeEntity(world.board[world.currY][world.currX], &world.board[world.currY][world.currX]->mh,'@');
+    player = placePlayer(world.board[world.currY][world.currX], &world.board[world.currY][world.currX]->mh);
+
+    startScreen(player);
 
     runGame(&world, player);
-
 
     endwin();
 
