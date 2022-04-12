@@ -19,9 +19,22 @@ public:
 class entity_cell : public cell {
 public:
     pokemon_entity *pkmns[6];
+    int pkmnCnt;
+
     ~entity_cell();
     entity_cell() {}
     entity_cell(int x, int y, char type, int weight, int dist);
+};
+
+class player_cell : public entity_cell {
+public:
+    int pokeballs;
+    int revives;
+    int potions;
+
+    player_cell() {}
+    player_cell(int x, int y, char type, int weight, int dist, int ballCnt, int reviveCnt, int potionCnt);
+    ~player_cell();
 };
 
 class map {
@@ -49,9 +62,10 @@ int placeEntities(int entityCount, map *screen, minHeap *mh);
 
 // Entity methods
 entity_cell* placeEntity(map *screen, minHeap *mh, char type);
+player_cell *placePlayer(map *screen, minHeap *mh);
 void delEntity(map *screen, minHeap *mh, entity_cell *entity);
-int moveEntity(map *screen, minHeap *mh, entity_cell *entity, entity_cell *player);
-int fightPLayer(map *screen, entity_cell *entity, entity_cell *player);
+int moveEntity(map *screen, minHeap *mh, entity_cell *entity, player_cell *player);
+int fightPLayer(map *screen, entity_cell *entity, player_cell *player);
 void printAmogus();
 
 #endif
