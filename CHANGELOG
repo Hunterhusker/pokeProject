@@ -6,9 +6,14 @@ Apr 10, 2022
         Added a destructor so that these are deleted not freed now that they arent being malloced
     
 Apr 11, 2022
-    Paused development on the generic minheap to focus on real reqs for this assignement (those changes are in the CL in that branch)
+    Paused development on the generic minheap to focus on real reqs for this assignment (those changes are in the CL in that branch)
     Added a random pokemon choosing starting screen, it randomly chooses three pokemon, and lets you choose one with space before the game starts
         All levels are 1, but they can be any pokemon, since that is the requirement, I will probably change this to be set pokemon since I'd rather that
     Added a player_cell extending entity_cell, so that the player can have all their pokemon, like an entity, but also have potions and stuff that entities don't
     Added a placePlayer function in entity.cpp so that we can place the player as a player_cell obj
     Updated existing methods to use the player as a player_cell not an entity_cell for full access to its stuff
+
+Apr 13, 2022
+    Made a bag menu, which is read only, since I don't know what you can do with it besides just look at it outside of battle
+        Will work on more tomorrow now that I see potions should be used outside battle on pokemon, so I will try that
+        Didn't do much today since it is no longer due tonight but I got the menu sorted, will polish it soon
