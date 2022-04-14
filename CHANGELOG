@@ -17,3 +17,4 @@ Apr 13, 2022
     Made a bag menu, which is read only, since I don't know what you can do with it besides just look at it outside of battle
         Will work on more tomorrow now that I see potions should be used outside battle on pokemon, so I will try that
         Didn't do much today since it is no longer due tonight but I got the menu sorted, will polish it soon
+    Fixed starter pokemon not counting towards pokemon count bug
