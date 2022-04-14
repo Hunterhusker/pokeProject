@@ -533,8 +533,39 @@ int trainerMenu(gameBoard_t *world, player_cell *player)
     return 0;
 }
 
-void bagMenu() {
+void bagMenu(player_cell *player) {
+    set_escdelay(10);
 
+    bool quit = false;
+
+    for (int i = 3; i < 19; i++) {
+        for (int j = 25; j < 55; j++) {
+            mvaddch(i, j, ' ');
+        }
+    }
+
+    mvprintw(3, 26, "Bag: Esc to exit");
+
+    mvprintw(5, 27, "Pokeballs: %dx", player->pokeballs);
+    mvprintw(6, 27, "Potions: %dx", player->potions);
+    mvprintw(7, 27, "Revives: %dx", player->revives);
+
+    mvprintw(9, 26, "Pokemon: ");
+
+    for (int i = 0; i < player->pkmnCnt; i++) {
+        mvprintw(10 + i, 27, ("lvl " + std::to_string(player->pkmns[i]->level) + " " + player->pkmns[i]->pkm->identifier + " " + std::to_string(player->pkmns[i]->pkmnStats[0]) + " HP").c_str());
+    }
+
+    refresh();
+
+    while (!quit) {
+        int ch = getch();
+
+        if (ch == 27) {
+            set_escdelay(1000); // reset the delay
+            quit = true;
+        }
+    }
 }
 
 void runGame(gameBoard_t *world, player_cell *player)
@@ -570,7 +601,9 @@ void runGame(gameBoard_t *world, player_cell *player)
             sprintf(message, "Left the trainer menu!");
 
         } else if (ch == 'b') {
+            bagMenu(player);
 
+            printCurr(world, "poo");
         } else if (ch == '>') {
             if (world->board[world->currY][world->currX]->map[player->y][player->x].type == 'M' || world->board[world->currY][world->currX]->map[player->y][player->x].type == 'C') {
                 shopMenu(world->board[world->currY][world->currX]->map[player->y][player->x].type);
@@ -751,6 +784,7 @@ void startScreen(player_cell *player) {
         switch (ch) {
             case ' ':
                 player->pkmns[0] = choices[currPkmn];
+                player->pkmnCnt++;
 
                 choosing = false;
                 break;
