@@ -9,6 +9,7 @@
 #include "fileReader.h"
 #include "pokemon.h"
 #include <vector>
+#include <cmath>
 
 // Some global values to use here in main
 std::vector<pokemon> pokeList;
@@ -177,9 +178,14 @@ void cursesInit()
     keypad(stdscr, TRUE);
 }
 
-int fightRandomPokemon(int dist)
+int fightRandomPokemon(int dist, player_cell *player)
 {
     set_escdelay(10);
+
+    int cursX = 17, cursY = 15, playerSpeed, escapeOdds, fleeAttempts = 0, critOdds;
+    pokemon_entity *playerCurr = player->pkmns[0]; // get the player's first pokemon
+
+    playerSpeed = playerCurr->pkmnStats[5];
 
     for (int i = 4; i < 19; i++) {
         for (int j = 15; j < 65; j++) {
@@ -205,7 +211,13 @@ int fightRandomPokemon(int dist)
         mvprintw(i+8, 19, "%s", pe.currMoves[i]->identifier.c_str());
     }
 
-    mvprintw(18, 16, "Press Esc to win!");
+    mvprintw(15, 19, "Fight");
+    mvprintw(17, 19, "Pokemon");
+
+    mvprintw(15, 39, "Bag");
+    mvprintw(17, 39, "Run");
+
+    mvaddch(15, 17, '>');
 
     refresh();
 
@@ -217,6 +229,62 @@ int fightRandomPokemon(int dist)
         if (ch == 27) {
             set_escdelay(1000);
             return 0;
+        } else if (ch == KEY_DOWN) {
+            if (cursY == 15) {
+                mvaddch(cursY, cursX, ' ');
+
+                cursY = 17;
+
+                mvaddch(cursY, cursX, '>');
+            }
+        } else if (ch == KEY_UP) {
+            if (cursY == 17) {
+                mvaddch(cursY, cursX, ' ');
+
+                cursY = 15;
+
+                mvaddch(cursY, cursX, '>');
+            }
+        } else if (ch == KEY_LEFT) {
+            if (cursX == 37) {
+                mvaddch(cursY, cursX, ' ');
+
+                cursX = 17;
+
+                mvaddch(cursY, cursX, '>');
+            }
+        } else if (ch == KEY_RIGHT) {
+            if (cursX == 17) {
+                mvaddch(cursY, cursX, ' ');
+
+                cursX = 37;
+
+                mvaddch(cursY, cursX, '>');
+            }
+        } else if (ch == ' ') {
+            // MENUING by selecting w/ space
+            if (cursX == 17 && cursY == 15) {
+                // Fight
+                mvprintw(22, 0, "Fight!");
+            } else if (cursX == 17 && cursY == 17) {
+                // Pokemon
+                mvprintw(22, 0, "Pokemon");
+            } else if (cursX == 37 && cursY == 15) {
+                // Bag
+                mvprintw(22, 0, "Bag");
+            }  else if (cursX == 37 && cursY == 17) {
+                // Run
+                fleeAttempts++;
+
+                escapeOdds = floor(((playerSpeed * 32) / ((int) (floor(pe.pkmnStats[5] / 4)) % 256))) + 30 * fleeAttempts;
+
+                if (escapeOdds > 255 || ((int) (pe.pkmnStats[5] / 4)) % 256 == 0) {
+                    return 0;
+                } else if (rand() % 256 < escapeOdds) {
+                    return 0;
+                }
+                // If not, keep looping
+            }
         }
     }
 }
@@ -341,7 +409,7 @@ int movePlayer(int y, int x, gameBoard_t *world, player_cell *player, char messa
         int fight = rand() % 10;
 
         if (fight == 0) {
-            fightRandomPokemon(abs(world->currX - 199) + abs(world->currY - 199));
+            fightRandomPokemon(abs(world->currX - 199) + abs(world->currY - 199), player);
 
             printCurr(world, message);
             sprintf(message, "You beat the pokemon!");
@@ -664,7 +732,7 @@ void runGame(gameBoard_t *world, player_cell *player)
                 int fight = rand() % 10;
 
                 if (fight == 0) {
-                    fightRandomPokemon(abs(world->currX - 199) + abs(world->currY - 199));
+                    fightRandomPokemon(abs(world->currX - 199) + abs(world->currY - 199), player);
 
                     printCurr(world, message);
                     sprintf(message, "You beat the pokemon!");
