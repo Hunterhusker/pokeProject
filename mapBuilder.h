@@ -4,6 +4,8 @@
 #include "minHeap.h"
 #include "pokemon.h"
 
+class world;
+
 class cell {
 public:
     char type;
@@ -64,8 +66,7 @@ int placeEntities(int entityCount, map *screen, minHeap *mh);
 entity_cell* placeEntity(map *screen, minHeap *mh, char type);
 player_cell *placePlayer(map *screen, minHeap *mh);
 void delEntity(map *screen, minHeap *mh, entity_cell *entity);
-int moveEntity(map *screen, minHeap *mh, entity_cell *entity, player_cell *player);
-int fightPLayer(map *screen, entity_cell *entity, player_cell *player);
-void printAmogus();
+int moveEntity(world *world, map *screen, minHeap *mh, entity_cell *entity, player_cell *player);
+int movePlayer(int y, int x, world *world, player_cell *player, std::string message);
 
 #endif
