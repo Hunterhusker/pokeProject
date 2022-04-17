@@ -24,3 +24,10 @@ Apr 14, 2022
     Added the menu itself and got a selector working with the dpad
     Got running changes ironed out
     Got tired and went to bed
+
+Apr 16, 2022
+    I organized my code a bit, since main was getting a little too clogged, and I am more familiar with forward declarations
+        I added a world.cpp/.h (Since I forgot to make my world into a class last time)
+        I also added a new menu.cpp/.h so that all of my menus were in their own file
+    I am also going to make my read in data for the file reading more global, since passing all that in is tedious
+    I eliminated
