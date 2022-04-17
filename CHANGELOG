@@ -30,4 +30,5 @@ Apr 16, 2022
         I added a world.cpp/.h (Since I forgot to make my world into a class last time)
         I also added a new menu.cpp/.h so that all of my menus were in their own file
     I am also going to make my read in data for the file reading more global, since passing all that in is tedious
-    I eliminated
+    I eliminated redundant functions
+    Worked on converting char* and char[] to std::string where possible
