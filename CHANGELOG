@@ -32,3 +32,11 @@ Apr 16, 2022
     I am also going to make my read in data for the file reading more global, since passing all that in is tedious
     I eliminated redundant functions
     Worked on converting char* and char[] to std::string where possible
+
+Apr 17, 2022
+    Fixed player spawning in exit glitch
+    Continued work on the wild pokemon fight, since a lot of it's code can be used in trainer fights
+        Worked on the pokemon swap menu, just needs to deal with priority, which hasn't been messed with yet
+        Worked on the fight GUI itself to look more like a real battle
+        Bag menu added item listing and cursor movement for selection
+
