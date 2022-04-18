@@ -8,38 +8,24 @@
 #include <curses.h>
 #include <cmath>
 
-int fightRandomPokemon(int dist, player_cell *player)
-{
-    set_escdelay(10);
-
-    int cursX = 17, cursY = 15, playerSpeed, escapeOdds, fleeAttempts = 0, critOdds;
-    pokemon_entity *playerCurr = player->pkmns[0]; // get the player's first pokemon
-
-    playerSpeed = playerCurr->pkmnStats[5];
-
-    for (int i = 4; i < 19; i++) {
+void drawPokemonFightMenu(player_cell *player, pokemon_entity *pe, int pCurrpkmn) {
+    for (int i = 3; i < 19; i++) {
         for (int j = 15; j < 65; j++) {
             mvaddch(i, j, ' ');
         }
     }
 
-    int pID = rand() % pokeList.size() + 1;
-
-    pokemon_entity pe(pokeList, species, expList, types, pkmnMoves, mvList, pkmnStats, statList, dist, pID);
-
-    if (pe.shiny) {
-        mvprintw(5, 16, "A shiny level %d wild %s appears!", pe.level, pe.pkm->identifier.c_str());
+    if (pe->shiny) {
+        mvprintw(4, 16, "A shiny level %d wild %s appears!", pe->level, pe->pkm->identifier.c_str());
     } else {
-        mvprintw(5, 16, "A level %d wild %s appears!", pe.level, pe.pkm->identifier.c_str());
+        mvprintw(4, 16, "A level %d wild %s appears!", pe->level, pe->pkm->identifier.c_str());
     }
 
-    mvprintw(6, 16, "It has %d hp, and %d total xp", pe.pkmnStats[0], pe.xp);
+    mvprintw(5, 16, "========== %d hp", pe->pkmnStats[0]);
 
-    mvprintw(7, 16, "It can attack with: ");
-
-    for (int i = 0; i < (int) pe.currMoves.size(); i++) {
-        mvprintw(i+8, 19, "%s", pe.currMoves[i]->identifier.c_str());
-    }
+    mvprintw(9, 16, "You have a level %d %s", player->pkmns[pCurrpkmn]->level, player->pkmns[pCurrpkmn]->pkm->identifier.c_str());
+    mvprintw(10, 16, "========== %d hp", player->pkmns[pCurrpkmn]->pkmnStats[0]);
+    //mvprintw(11, 16, "========== %d xp", player->pkmns[pCurrpkmn]->xp);
 
     mvprintw(15, 19, "Fight");
     mvprintw(17, 19, "Pokemon");
@@ -48,6 +34,20 @@ int fightRandomPokemon(int dist, player_cell *player)
     mvprintw(17, 39, "Run");
 
     mvaddch(15, 17, '>');
+}
+
+int fightRandomPokemon(int dist, player_cell *player)
+{
+    int cursX = 17, cursY = 15, playerSpeed, escapeOdds, fleeAttempts = 0, critOdds, pCurrpkmn = 0;
+    pokemon_entity *playerCurr = player->pkmns[0]; // get the player's first pokemon
+
+    playerSpeed = playerCurr->pkmnStats[5];
+
+    int pID = rand() % pokeList.size() + 1;
+
+    pokemon_entity *pe = new pokemon_entity(pokeList, species, expList, types, pkmnMoves, mvList, pkmnStats, statList, dist, pID);
+
+    drawPokemonFightMenu(player, pe, pCurrpkmn);
 
     refresh();
 
@@ -56,10 +56,7 @@ int fightRandomPokemon(int dist, player_cell *player)
     while (true) {
         ch = getch();
 
-        if (ch == 27) {
-            set_escdelay(1000);
-            return 0;
-        } else if (ch == KEY_DOWN) {
+        if (ch == KEY_DOWN) {
             if (cursY == 15) {
                 mvaddch(cursY, cursX, ' ');
 
@@ -92,28 +89,160 @@ int fightRandomPokemon(int dist, player_cell *player)
                 mvaddch(cursY, cursX, '>');
             }
         } else if (ch == ' ') {
+            // Wipe the message slot underneath
+            mvprintw(22, 0, "                                                  ");
+
             // MENUING by selecting w/ space
-            if (cursX == 17 && cursY == 15) {
+            if (cursX == 17 && cursY == 15) { // Fight
                 // Fight
                 mvprintw(22, 0, "Fight!");
-            } else if (cursX == 17 && cursY == 17) {
-                // Pokemon
-                mvprintw(22, 0, "Pokemon");
-            } else if (cursX == 37 && cursY == 15) {
-                // Bag
-                mvprintw(22, 0, "Bag");
-            }  else if (cursX == 37 && cursY == 17) {
-                // Run
-                fleeAttempts++;
+            } else if (cursX == 17 && cursY == 17) { // Pokemon
+                int pkIdx = 0;
 
-                escapeOdds = floor(((playerSpeed * 32) / ((int) (floor(pe.pkmnStats[5] / 4)) % 256))) + 30 * fleeAttempts;
-
-                if (escapeOdds > 255 || ((int) (pe.pkmnStats[5] / 4)) % 256 == 0) {
-                    return 0;
-                } else if (rand() % 256 < escapeOdds) {
-                    return 0;
+                // Clear the menu
+                for (int i = 15; i < 18; i++) {
+                    for (int j = 17; j < 50; j++) {
+                        mvaddch(i, j, ' ');
+                    }
                 }
-                // If not, keep looping
+
+                // List the player's pokemon for choosing
+                for (int i = 0; i < player->pkmnCnt; i++) {
+                    mvprintw(i+12, 20, player->pkmns[i]->pkm->identifier.c_str());
+                }
+
+                mvaddch(12 + pkIdx, 18, '>');
+
+                bool chosen = false;
+
+                while (!chosen) {
+                    int ch2 = getch();
+
+                    switch (ch2) {
+                        case KEY_UP:
+                            if (pkIdx > 0) {
+                                mvaddch(12 + pkIdx, 18, ' ');
+
+                                pkIdx--;
+
+                                mvaddch(12 + pkIdx, 18, '>');
+                            }
+                            break;
+
+                        case KEY_DOWN:
+                            if (pkIdx < 5 && pkIdx < player->pkmnCnt - 1) {
+                                mvaddch(12 + pkIdx, 18, ' ');
+
+                                pkIdx++;
+
+                                mvaddch(12 + pkIdx, 18, '>');
+                            }
+                            break;
+
+                        case ' ':
+                            if (player->pkmns[pkIdx]->pkmnStats[0] != 0) {
+                                pCurrpkmn = pkIdx;
+                                chosen = true;
+                            } else {
+                                mvprintw(22, 0, "That Pokemon has fainted! Choose another!");
+                            }
+                            break;
+                    }
+                }
+
+                // Clear the menu
+                for (int i = 15; i < 18; i++) {
+                    for (int j = 17; j < 50; j++) {
+                        mvaddch(i, j, ' ');
+                    }
+                }
+
+                drawPokemonFightMenu(player, pe, pCurrpkmn);
+                cursX = 17;
+                cursY = 15;
+        } else if (cursX == 37 && cursY == 15) { // Bag
+            // Clear the menu
+            for (int i = 15; i < 18; i++) {
+                for (int j = 17; j < 50; j++) {
+                    mvaddch(i, j, ' ');
+                }
+            }
+
+            int bagCursor = 0, onItems = 1;
+
+            mvprintw(12, 20, "PokeBalls %dx", player->pokeballs);
+            mvprintw(13, 20, "Potions: %dx", player->potions);
+            mvprintw(14, 20, "Revives: %dx", player->revives);
+            mvprintw(15, 20, "Cancel");
+
+            // List the player's pokemon for choosing
+            for (int i = 0; i < player->pkmnCnt; i++) {
+                mvprintw(i+12, 40, player->pkmns[i]->pkm->identifier.c_str());
+            }
+
+            mvaddch(12, 18, '>');
+
+            bool done = false;
+
+            while (!done) {
+                int ch2 = getch();
+
+                switch (ch2) {
+                    case 27:
+                        done = true;
+                        break;
+
+                    case KEY_DOWN:
+                        if (onItems == 1) {
+                            if (bagCursor < 3) {
+                                mvaddch(12 + bagCursor, 18, ' ');
+
+                                bagCursor++;
+
+                                mvaddch(12 + bagCursor, 18, '>');
+                            } else {
+                                // do nothing for now
+                            }
+                        }
+                        break;
+
+                    case KEY_UP:
+                        if (onItems == 1) {
+                            if (bagCursor > 0) {
+                                mvaddch(12 + bagCursor, 18, ' ');
+
+                                bagCursor--;
+
+                                mvaddch(12 + bagCursor, 18, '>');
+                            } else {
+                                // do nothing for now
+                            }
+                            break;
+
+                            case ' ':
+                                done = true;
+                            break;
+                        }
+                }
+            }
+
+            // Reset
+            drawPokemonFightMenu(player, pe, pCurrpkmn);
+            cursX = 17;
+            cursY = 15;
+        } else if (cursX == 37 && cursY == 17) { // Run
+            fleeAttempts++;
+
+            escapeOdds = floor(((playerSpeed * 32) / ((int) (floor(pe->pkmnStats[5] / 4)) % 256))) + 30 * fleeAttempts;
+
+            if (escapeOdds > 255 || ((int) (pe->pkmnStats[5] / 4)) % 256 == 0) {
+                delete pe; // since we didn't catch it, free the memory
+                return 0;
+            } else if (rand() % 256 < escapeOdds) {
+                delete pe;
+                return 0;
+            }
+            // If not, keep looping
             }
         }
     }
