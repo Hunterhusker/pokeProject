@@ -57,8 +57,7 @@ player_cell *placePlayer(map *screen, minHeap *mh)
 {
     srand(time(NULL));
 
-    int x, y, facing;
-    bool in = false;
+    int x, y;
 
     int loc, dir, found = 0;
 
@@ -67,9 +66,9 @@ player_cell *placePlayer(map *screen, minHeap *mh)
         dir = rand() % 2;
 
         if (dir == 0) {
-            loc = (rand() % 78) + 2;
+            loc = (rand() % 76) + 2;
 
-            for (int i = 3; i < 21; i++) {
+            for (int i = 3; i < 20; i++) {
                 if (screen->map[i][loc].type == '#' && screen->eMap[i][loc] == NULL) {
                     screen->eMap[i][loc] = new player_cell(loc, i, '@', rand() % 4, 10, 5, 2, 3);
 
@@ -85,9 +84,9 @@ player_cell *placePlayer(map *screen, minHeap *mh)
                 }
             }
         } else {
-            loc = (rand() % 19) + 2;
+            loc = (rand() % 17) + 2;
 
-            for (int i = 3; i < 80; i++) {
+            for (int i = 3; i < 79; i++) {
                 if (screen->map[loc][i].type == '#' && screen->eMap[loc][i] == NULL) {
                     screen->eMap[loc][i] = new player_cell(i, loc, '@', rand() % 4, 10, 5, 2, 3);
 
