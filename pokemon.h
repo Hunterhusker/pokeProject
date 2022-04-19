@@ -124,4 +124,7 @@ std::ostream &operator<< (std::ostream &o, pokemon_species p);
 std::ostream &operator<< (std::ostream &o, type_names t);
 std::ostream &operator<< (std::ostream &o, pokemon_entity pe);
 
+int setPkmnHP(int hpIV, int base, int level);
+int setOtherPkmnStat(int IV, int base, int level);
+
 #endif //POKEPROJECT_POKEMON_H

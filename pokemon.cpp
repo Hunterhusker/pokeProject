@@ -230,6 +230,8 @@ pokemon_entity::pokemon_entity(std::vector<pokemon> &pokeList, std::vector<pokem
         }
     } // If there are no moves in the set, then don't have any I guess
 
+    // Fill the
+
     // Populate the base stat fields
     for (int i = 0; i < (int) pkmnStatList.size(); i++) {
         if (pkmnStatList[i].pokemon_id == pkmnID) {
