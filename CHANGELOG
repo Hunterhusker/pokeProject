@@ -40,3 +40,10 @@ Apr 17, 2022
         Worked on the fight GUI itself to look more like a real battle
         Bag menu added item listing and cursor movement for selection
 
+Apr 18, 2022
+    Worked on the bag menu, and using potions and such inside the menu
+    Added a back option to not swap pokemon when choosing that in battle
+    In bag menu I added potion support
+        Revive support now in
+    Printed the available moves and added support to select one
+    Started to work on damage calculation, but it is late, and I need to read another CSV so I am going to bed
