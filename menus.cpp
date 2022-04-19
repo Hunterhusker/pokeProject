@@ -36,9 +36,10 @@ void drawPokemonFightMenu(player_cell *player, pokemon_entity *pe, int pCurrpkmn
     mvaddch(15, 17, '>');
 }
 
-int fightRandomPokemon(int dist, player_cell *player)
+void fightRandomPokemon(int dist, player_cell *player)
 {
     int cursX = 17, cursY = 15, playerSpeed, escapeOdds, fleeAttempts = 0, critOdds, pCurrpkmn = 0;
+    int pDmg, eDmg, pPrio, ePrio;
     pokemon_entity *playerCurr = player->pkmns[0]; // get the player's first pokemon
 
     playerSpeed = playerCurr->pkmnStats[5];
@@ -52,8 +53,14 @@ int fightRandomPokemon(int dist, player_cell *player)
     refresh();
 
     int ch;
+    bool fightOn = true;
 
-    while (true) {
+    while (fightOn) {
+        pDmg = 0;
+        eDmg = 0;
+        pPrio = 0;
+        ePrio = 0;
+
         ch = getch();
 
         if (ch == KEY_DOWN) {
@@ -94,10 +101,7 @@ int fightRandomPokemon(int dist, player_cell *player)
 
             // MENUING by selecting w/ space
             if (cursX == 17 && cursY == 15) { // Fight
-                // Fight
-                mvprintw(22, 0, "Fight!");
-            } else if (cursX == 17 && cursY == 17) { // Pokemon
-                int pkIdx = 0;
+                int cursor = 0;
 
                 // Clear the menu
                 for (int i = 15; i < 18; i++) {
@@ -106,10 +110,82 @@ int fightRandomPokemon(int dist, player_cell *player)
                     }
                 }
 
-                // List the player's pokemon for choosing
-                for (int i = 0; i < player->pkmnCnt; i++) {
-                    mvprintw(i+12, 20, player->pkmns[i]->pkm->identifier.c_str());
+                // print the fight menu
+                for (int i = 0; i < player->pkmns[pCurrpkmn]->currMoves.size(); i++) {
+                    mvprintw(14 + i, 19, player->pkmns[pCurrpkmn]->currMoves[i]->identifier.c_str());
+
                 }
+
+                int fightCurs = 0;
+
+                mvaddch(14 + fightCurs, 17, '>');
+
+                bool moved = false;
+
+                while (!moved) {
+                    int ch4 = getch();
+
+                    switch (ch4) {
+                        case ' ':
+                            //pDmg = player->pkmns[pCurrpkmn]->currMoves[fightCurs]->power;
+                            int crit;
+
+                            // See if this is a crit or not
+                            if (rand() % 255 < (player->pkmns[pCurrpkmn]->pkmnBaseStats[6] / 2)) {
+                                crit = 1.5;
+                            } else {
+                                crit = 1;
+                            }
+
+                            if (rand() % 100 < player->pkmns[pCurrpkmn]->currMoves[fightCurs]->accuracy) {
+                                pDmg = ((((2 * player->pkmns[pCurrpkmn]->level) + 2) * player->pkmns[pCurrpkmn]->currMoves[fightCurs]->power * (player->pkmns[pCurrpkmn]->pkmnStats[1] / player->pkmns[pCurrpkmn]->pkmnStats[2]) / 50) + 2) * crit * (rand() % 15 + 85);
+                            }
+
+                            moved = true;
+                            break;
+
+                        case KEY_DOWN:
+                            if (fightCurs < player->pkmns[pCurrpkmn]->currMoves.size() - 1) {
+                                mvaddch(14 + fightCurs, 17, ' ');
+
+                                fightCurs++;
+
+                                mvaddch(14 + fightCurs, 17, '>');
+                            }
+                            break;
+
+                        case KEY_UP:
+                            if (fightCurs > 0) {
+                                mvaddch(14 + fightCurs, 17, ' ');
+
+                                fightCurs--;
+
+                                mvaddch(14 + fightCurs, 17, '>');
+                            }
+                            break;
+                    }
+                }
+
+                drawPokemonFightMenu(player, pe, pCurrpkmn);
+                cursX = 17;
+                cursY = 15;
+
+            } else if (cursX == 17 && cursY == 17) { // Pokemon
+                int pkIdx = 0;
+                int i;
+
+                // Clear the menu
+                for (i = 15; i < 18; i++) {
+                    for (int j = 17; j < 50; j++) {
+                        mvaddch(i, j, ' ');
+                    }
+                }
+
+                // List the player's pokemon for choosing
+                for (i = 0; i < player->pkmnCnt; i++) {
+                    mvprintw(i+12, 20, (player->pkmns[i]->pkm->identifier + " HP: " + std::to_string(player->pkmns[i]->pkmnStats[0])).c_str());
+                }
+                mvprintw(i+12, 20, "Back");
 
                 mvaddch(12 + pkIdx, 18, '>');
 
@@ -130,7 +206,7 @@ int fightRandomPokemon(int dist, player_cell *player)
                             break;
 
                         case KEY_DOWN:
-                            if (pkIdx < 5 && pkIdx < player->pkmnCnt - 1) {
+                            if (pkIdx < player->pkmnCnt) {
                                 mvaddch(12 + pkIdx, 18, ' ');
 
                                 pkIdx++;
@@ -140,6 +216,12 @@ int fightRandomPokemon(int dist, player_cell *player)
                             break;
 
                         case ' ':
+                            // Back out of the menu if you change your mind
+                            if (pkIdx == player->pkmnCnt) {
+                                chosen = true;
+                                break;
+                            }
+
                             if (player->pkmns[pkIdx]->pkmnStats[0] != 0) {
                                 pCurrpkmn = pkIdx;
                                 chosen = true;
@@ -168,7 +250,7 @@ int fightRandomPokemon(int dist, player_cell *player)
                 }
             }
 
-            int bagCursor = 0, onItems = 1;
+            int bagCursor = 0, bagX = 18;
 
             mvprintw(12, 20, "PokeBalls %dx", player->pokeballs);
             mvprintw(13, 20, "Potions: %dx", player->potions);
@@ -176,11 +258,14 @@ int fightRandomPokemon(int dist, player_cell *player)
             mvprintw(15, 20, "Cancel");
 
             // List the player's pokemon for choosing
-            for (int i = 0; i < player->pkmnCnt; i++) {
-                mvprintw(i+12, 40, player->pkmns[i]->pkm->identifier.c_str());
+            int i;
+            for (i = 0; i < player->pkmnCnt; i++) {
+                mvprintw(i+12, 40, (player->pkmns[i]->pkm->identifier + " HP: " + std::to_string(player->pkmns[i]->pkmnStats[0])).c_str());
             }
 
-            mvaddch(12, 18, '>');
+                mvprintw(i+12, 40, "Back");
+
+            mvaddch(12, bagX, '>');
 
             bool done = false;
 
@@ -193,36 +278,174 @@ int fightRandomPokemon(int dist, player_cell *player)
                         break;
 
                     case KEY_DOWN:
-                        if (onItems == 1) {
-                            if (bagCursor < 3) {
-                                mvaddch(12 + bagCursor, 18, ' ');
+                        if (bagCursor < 3) {
+                            mvaddch(12 + bagCursor, bagX, ' ');
 
-                                bagCursor++;
+                            bagCursor++;
 
-                                mvaddch(12 + bagCursor, 18, '>');
-                            } else {
-                                // do nothing for now
-                            }
+                            mvaddch(12 + bagCursor, bagX, '>');
                         }
                         break;
 
                     case KEY_UP:
-                        if (onItems == 1) {
-                            if (bagCursor > 0) {
-                                mvaddch(12 + bagCursor, 18, ' ');
+                        if (bagCursor > 0) {
+                            mvaddch(12 + bagCursor, bagX, ' ');
 
-                                bagCursor--;
+                            bagCursor--;
 
-                                mvaddch(12 + bagCursor, 18, '>');
-                            } else {
-                                // do nothing for now
-                            }
-                            break;
-
-                            case ' ':
-                                done = true;
-                            break;
+                            mvaddch(12 + bagCursor, bagX, '>');
                         }
+                        break;
+
+
+                    case ' ':
+                        switch (bagCursor) {
+                            case 0: // Pokeball
+                                if (player->pokeballs > 0) {
+                                    if (player->pkmnCnt < 6) {
+                                        player->pkmns[player->pkmnCnt] = pe;
+                                        player->pkmnCnt++;
+
+                                        player->pokeballs--;
+
+                                        done = true;
+                                        fightOn = false;
+                                    }
+                                }
+                                break;
+
+                            case 1: // Potions
+                                if (player->potions > 0) {
+                                    // Swap over to the pokemon list to choose who gets the potion
+                                    mvaddch(12+bagCursor, bagX, ' ');
+
+                                    bagCursor = 0;
+                                    bagX = 38;
+
+                                    mvaddch(12+bagCursor, bagX, '>');
+
+                                    bool potioned = false;
+
+                                    while (!potioned) {
+                                        int ch3 = getch();
+
+                                        switch (ch3) {
+                                            case KEY_DOWN:
+                                                if (bagCursor < player->pkmnCnt) {
+                                                    mvaddch(12 + bagCursor, bagX, ' ');
+
+                                                    bagCursor++;
+
+                                                    mvaddch(12 + bagCursor, bagX, '>');
+                                                }
+                                                break;
+
+                                            case KEY_UP:
+                                                if (bagCursor > 0) {
+                                                    mvaddch(12 + bagCursor, bagX, ' ');
+
+                                                    bagCursor--;
+
+                                                    mvaddch(12 + bagCursor, bagX, '>');
+                                                }
+                                                break;
+
+                                            case ' ':
+                                                if (bagCursor == player->pkmnCnt) {
+                                                    mvaddch(12 + bagCursor, bagX, ' ');
+
+                                                    bagCursor = 0;
+                                                    bagX = 18;
+
+                                                    mvaddch(12 + bagCursor, bagX, '>');
+
+                                                    potioned = true;
+                                                    done = true;
+                                                } else if (player->pkmns[bagCursor]->pkmnStats[0] > 0 && player->pkmns[bagCursor]->pkmnStats[0] < setPkmnHP(player->pkmns[bagCursor]->IVs[0], player->pkmns[bagCursor]->pkmnBaseStats[0], player->pkmns[bagCursor]->level)) {
+                                                    // Give the selected pokemon either it's max hp or 20 more than it has right now
+                                                    player->pkmns[bagCursor]->pkmnStats[0] = std::min(player->pkmns[bagCursor]->pkmnStats[0] += 20, setPkmnHP(player->pkmns[bagCursor]->IVs[0], player->pkmns[bagCursor]->pkmnBaseStats[0], player->pkmns[bagCursor]->level));
+                                                    player->potions--;
+
+                                                    bagCursor = 0;
+                                                    bagX = 18;
+
+                                                    potioned = true;
+                                                    done = true;
+                                                }
+                                                break;
+                                        }
+                                    }
+                                }
+                                break;
+
+                            case 2: // Revives
+                                if (player->revives > 0) {
+                                    // Swap over to the pokemon list to choose who gets the potion
+                                    mvaddch(12+bagCursor, bagX, ' ');
+
+                                    bagCursor = 0;
+                                    bagX = 38;
+
+                                    mvaddch(12+bagCursor, bagX, '>');
+
+                                    bool revived = false;
+
+                                    while (!revived) {
+                                        int ch3 = getch();
+
+                                        switch (ch3) {
+                                            case KEY_DOWN:
+                                                if (bagCursor < player->pkmnCnt) {
+                                                    mvaddch(12 + bagCursor, bagX, ' ');
+
+                                                    bagCursor++;
+
+                                                    mvaddch(12 + bagCursor, bagX, '>');
+                                                }
+                                                break;
+
+                                            case KEY_UP:
+                                                if (bagCursor > 0) {
+                                                    mvaddch(12 + bagCursor, bagX, ' ');
+
+                                                    bagCursor--;
+
+                                                    mvaddch(12 + bagCursor, bagX, '>');
+                                                }
+                                                break;
+
+                                            case ' ':
+                                                if (bagCursor == player->pkmnCnt) {
+                                                    mvaddch(12 + bagCursor, bagX, ' ');
+
+                                                    bagCursor = 0;
+                                                    bagX = 18;
+
+                                                    mvaddch(12 + bagCursor, bagX, '>');
+                                                    revived = true;
+
+                                                } else if (player->pkmns[bagCursor]->pkmnStats[0] == 0) {
+                                                    // Give the selected pokemon either it's max hp or 20 more than it has right now
+                                                    player->pkmns[bagCursor]->pkmnStats[0] = (int) setPkmnHP(player->pkmns[bagCursor]->IVs[0], player->pkmns[bagCursor]->pkmnBaseStats[0], player->pkmns[bagCursor]->level) / 2;
+                                                    player->revives--;
+
+                                                    bagCursor = 0;
+                                                    bagX = 18;
+
+                                                    revived = true;
+                                                    done = true;
+                                                }
+                                                break;
+                                        }
+                                    }
+                                }
+                                break;
+
+                            case 3:
+                                done = true;
+                                break;
+                        }
+                    break;
                 }
             }
 
@@ -237,10 +460,10 @@ int fightRandomPokemon(int dist, player_cell *player)
 
             if (escapeOdds > 255 || ((int) (pe->pkmnStats[5] / 4)) % 256 == 0) {
                 delete pe; // since we didn't catch it, free the memory
-                return 0;
+                fightOn = false;
             } else if (rand() % 256 < escapeOdds) {
                 delete pe;
-                return 0;
+                fightOn = false;
             }
             // If not, keep looping
             }
