@@ -20,8 +20,9 @@ std::vector<experience> expList;
 std::vector<type_names> types;
 std::vector<pokemon_moves> pkmnMoves;
 std::vector<moves> mvList;
-std::vector<pokemon_stats> pkmnStats;
+std::vector<pokemon_stats> pkStats;
 std::vector<stats> statList;
+std::vector<pokemon_types> pkmnTypes;
 
 void cursesInit()
 {
@@ -130,7 +131,11 @@ void runGame(world *world, player_cell *player)
                 int fight = rand() % 10;
 
                 if (fight == 0) {
-                    fightRandomPokemon(abs(world->currX - 199) + abs(world->currY - 199), player);
+                    int result = fightRandomPokemon(abs(world->currX - 199) + abs(world->currY - 199), player);
+
+                    if (result == -1) {
+                        return; // End the game if we lose all pokemon
+                    }
 
                     printCurr(world);
                     sprintf(message, "You beat the pokemon!");
@@ -210,11 +215,15 @@ int readPokeDB() {
 
     if (success == -1) {return -1;}
 
-    success = readAllPokemonStats(pkmnStats);
+    success = readAllPokemonStats(pkStats);
 
     if (success == -1) {return -1;}
 
     success = readAllStats(statList);
+
+    if (success == -1) {return -1;}
+
+    success = readAllPokemonTypes(pkmnTypes);
 
     if (success == -1) {return -1;}
 
@@ -268,6 +277,8 @@ int main(int argc, char *argv[])
     startScreen(player);
 
     runGame(&world, player);
+
+    //pokemon_entity *pe = new pokemon_entity(1, 2); // Stuff for testing
 
     endwin();
 
