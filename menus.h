@@ -5,7 +5,7 @@
 #include "world.h"
 #include "global.h"
 
-void fightRandomPokemon(int dist, player_cell *player);
+int fightRandomPokemon(int dist, player_cell *player);
 int trainerMenu(world *world, player_cell *player);
 int shopMenu(char shopType);
 void bagMenu(player_cell *player);
