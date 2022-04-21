@@ -1,6 +1,7 @@
 #include "pokemon.h"
 #include <stdio.h>
 #include <cmath>
+#include "global.h"
 
 /// Pokemon Class stuff
 pokemon::pokemon(int id, std::string identifier, int species_id, int height, int weight, int base_experience, int order, int isDefault) {
@@ -162,10 +163,7 @@ int setOtherPkmnStat(int IV, int base, int level) {
     return floor((((IV + base) * 2) * level) / 100) + 5;
 }
 
-pokemon_entity::pokemon_entity(std::vector<pokemon> &pokeList, std::vector<pokemon_species> &speciesList,
-                               std::vector<experience> &expList, std::vector<type_names> &typeList,
-                               std::vector<pokemon_moves> &pkmnMovesList, std::vector<moves> &mvList,
-                               std::vector<pokemon_stats> &pkmnStatList, std::vector<stats> &statList, int distance, int pkmnID) {
+pokemon_entity::pokemon_entity(int distance, int pkmnID) {
     // Figure out the level based on the distance
     this->level = pkmnLevel(distance);
     this->male = rand() % 2;
@@ -183,23 +181,33 @@ pokemon_entity::pokemon_entity(std::vector<pokemon> &pokeList, std::vector<pokem
     }
 
     this->pkm = &pokeList[pkmnID - 1];
-    this->species = &speciesList[pkm->species_id];
+    this->Species = &species[pkm->species_id];
 
     // Find our exp based on level and growth rate id
     for (int i = 0; i < (int) expList.size(); i++) {
         // find our xp level
-        if (expList[i].growth_rate_id == this->species->growth_rate_id && expList[i].level == this->level) {
+        if (expList[i].growth_rate_id == this->Species->growth_rate_id && expList[i].level == this->level) {
             this->exp = &expList[i];
+            //this->next = &expList[i + 1];
             this->xp = exp->experienceAmt;
 
             break; // No need to check for more once we have it
         }
     }
 
+    // Set the type of the pokemon based on the id
+    for (int i = 0; i < (int) pkmnTypes.size(); i++) {
+        if (pkmnTypeList.size() == 2) {
+            break;
+        } else if (pkmnTypes[i].pokemon_id == pkmnID) {
+            pkmnTypeList.push_back(&types[pkmnTypes[i].type_id - 1]); // put the type itself in, which was put into its own list in reverse order
+        }
+    }
+
     // Search the vector for the move set
-    for (int i = 0; i < (int) pkmnMovesList.size(); i++) {
-        if (pkmnMovesList[i].pokemon_id == pkmnID && pkmnMovesList[i].pokemon_move_method_id == 1 && pkmnMovesList[i].level <= this->level) {
-            this->moveSet.push_back(&pkmnMovesList[i]);
+    for (int i = 0; i < (int) pkmnMoves.size(); i++) {
+        if (pkmnMoves[i].pokemon_id == pkmnID && pkmnMoves[i].pokemon_move_method_id == 1 && pkmnMoves[i].level <= this->level) {
+            this->moveSet.push_back(&pkmnMoves[i]);
         }
     }
 
@@ -219,6 +227,7 @@ pokemon_entity::pokemon_entity(std::vector<pokemon> &pokeList, std::vector<pokem
         for (int i = 0; i < (int) mvList.size(); i++) {
             if (moveSet[mv1]->move_id == mvList[i].id || moveSet[mv2]->move_id == mvList[i].id) {
                 currMoves.push_back(&mvList[i]); // if the id matches, then add it to the move list
+                PPList.push_back(mvList[i].pp);
             }
         }
 
@@ -226,15 +235,16 @@ pokemon_entity::pokemon_entity(std::vector<pokemon> &pokeList, std::vector<pokem
         for (int i = 0; i < (int) mvList.size(); i++) {
             if (moveSet[0]->move_id == mvList[i].id) {
                 currMoves.push_back(&mvList[i]); // if the id matches, then add it to the move list
+                PPList.push_back(mvList[i].pp); // add the pp of the given move to the list
             }
         }
     } // If there are no moves in the set, then don't have any I guess
 
     // Populate the base stat fields
-    for (int i = 0; i < (int) pkmnStatList.size(); i++) {
-        if (pkmnStatList[i].pokemon_id == pkmnID) {
-            this->pkmnBaseStats.push_back(pkmnStatList[i].base_stat);
-        } else if (pkmnStatList[i].pokemon_id > pkmnID) {
+    for (int i = 0; i < (int) pkStats.size(); i++) {
+        if (pkStats[i].pokemon_id == pkmnID) {
+            this->pkmnBaseStats.push_back(pkStats[i].base_stat);
+        } else if (pkStats[i].pokemon_id > pkmnID) {
             break; // If we have moved past the stat field for the given pokemon, stop looping
         }
     }
@@ -245,6 +255,37 @@ pokemon_entity::pokemon_entity(std::vector<pokemon> &pokeList, std::vector<pokem
     // Set the rest of the stats
     for (int i = 1; i < 6; i++) {
         this->pkmnStats.push_back(setOtherPkmnStat(this->IVs[i], this->pkmnBaseStats[i], this->level));
+    }
+}
+
+void pokemon_entity::levelup() {
+    bool lvlUp = false;
+
+    // Get the new xp
+    for (int i = 0; i < (int) expList.size(); i++) {
+        if (expList[i].growth_rate_id == this->Species->growth_rate_id && expList[i].experienceAmt <= this->xp && expList[i].level > this->level) {
+            this->exp = &expList[i];
+            lvlUp = true;
+        } else if (expList[i].growth_rate_id == this->Species->growth_rate_id && expList[i].experienceAmt > this->xp) { // once we see something too high for our pokemon, break
+            break;
+        }
+    }
+
+    if (lvlUp) {
+        // get the new level
+        this->level = this->exp->level;
+
+        int oldHp = this->pkmnStats[0]; // save the old HP
+
+        this->pkmnStats.clear();
+
+        // Set the hp stat back to what it was
+        this->pkmnStats.push_back(oldHp);
+
+        // Set the rest of the stats
+        for (int i = 1; i < 6; i++) {
+            this->pkmnStats.push_back(setOtherPkmnStat(this->IVs[i], this->pkmnBaseStats[i], this->level));
+        }
     }
 }
 

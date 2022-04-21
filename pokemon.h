@@ -98,22 +98,28 @@ public:
     stats(int id, int damage_class_id, std::string identifier, int is_battle_only, int game_index);
 };
 
+class pokemon_types {
+public:
+    int pokemon_id, type_id, slot;
+
+    pokemon_types(int pokemon_id, int type_id, int slot) : pokemon_id(pokemon_id), type_id(type_id), slot(slot) {}
+};
+
 class pokemon_entity {
 public:
     pokemon *pkm;
-    pokemon_species *species;
+    pokemon_species *Species;
     std::vector<pokemon_moves *> moveSet;
     std::vector<moves *> currMoves;
-    experience *exp;
-    //type_names *type;
+    experience *exp;//, *next;
+    std::vector<type_names *> pkmnTypeList;
     int xp, level;
-    std::vector<int> IVs, pkmnStats, pkmnBaseStats;
+    std::vector<int> IVs, pkmnStats, pkmnBaseStats, PPList;
     bool shiny;
     bool male;
 
-    pokemon_entity(std::vector<pokemon> &pokeList, std::vector<pokemon_species> &speciesList, std::vector<experience> &expList,
-                   std::vector<type_names> &typeList, std::vector<pokemon_moves> &pkmMovesList, std::vector<moves> &mvList,
-                   std::vector<pokemon_stats> &pkmStatList, std::vector<stats> &statList, int distance, int id);
+    pokemon_entity(int distance, int id);
+    void levelup();
 };
 
 std::ostream &operator<< (std::ostream &o, pokemon p);
@@ -123,5 +129,8 @@ std::ostream &operator<< (std::ostream &o, pokemon_moves pm);
 std::ostream &operator<< (std::ostream &o, pokemon_species p);
 std::ostream &operator<< (std::ostream &o, type_names t);
 std::ostream &operator<< (std::ostream &o, pokemon_entity pe);
+
+int setPkmnHP(int hpIV, int base, int level);
+int setOtherPkmnStat(int IV, int base, int level);
 
 #endif //POKEPROJECT_POKEMON_H

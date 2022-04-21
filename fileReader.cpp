@@ -396,3 +396,48 @@ int readAllPokemonStats(std::vector<pokemon_stats> &list) {
 
     return 0;
 }
+
+int readAllPokemonTypes(std::vector<pokemon_types> &list) {
+    std::ifstream myFile;
+
+    int s = openFile("pokemon_types.csv", myFile);
+
+    if (s == -1) {
+        return -1;
+    }
+
+    std::string str;
+
+    getline(myFile, str);
+
+    while (myFile.peek() != std::ifstream::traits_type::eof()) {
+        std::vector<int> params;
+
+        for (int i = 0; i < 2; i++) {
+            if (i != 2) {
+                getline(myFile, str, ',');
+
+                if (str != "") {
+                    params.push_back(std::stoi(str));
+                } else {
+                    params.push_back(-1);
+                }
+            }
+        }
+
+        if (myFile.peek() != '\n' && myFile.peek() != std::ifstream::traits_type::eof()) {
+            getline(myFile, str, '\n');
+
+            params.push_back(std::stoi(str));
+        } else {
+            getline(myFile, str, '\n');
+            params.push_back(-1);
+        }
+
+        pokemon_types s(params[0], params[1], params[2]);
+
+        list.push_back(s);
+    }
+
+    return 0;
+}
