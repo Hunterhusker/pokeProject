@@ -45,7 +45,11 @@ void runGame(world *world, player_cell *player)
     bool alive = true;
     while (alive) {
         while (peek(&world->board[world->currY][world->currX]->mh) != player) {
-            moveEntity(world, world->board[world->currY][world->currX], &world->board[world->currY][world->currX]->mh, (entity_cell *) peek(&world->board[world->currY][world->currX]->mh), player);
+            result = moveEntity(world, world->board[world->currY][world->currX], &world->board[world->currY][world->currX]->mh, (entity_cell *) peek(&world->board[world->currY][world->currX]->mh), player);
+
+            if (result == -1) {
+                return;
+            }
         }
 
         mvprintw(0, 0, "Current Location: (%d, %d): %s\n", world->currX, world->currY, message);
@@ -91,6 +95,8 @@ void runGame(world *world, player_cell *player)
                 sprintf(message, "Place occupied, cannot move there!");
             } else if (result == 3) {
                 sprintf(message, "You have already defeated this trainer!");
+            } else if (result == -2) {
+                return;
             }
         } else if (ch == '8' || ch == 'k') {
             result = movePlayer(player->y - 1, player->x, world, player, message);
@@ -101,6 +107,8 @@ void runGame(world *world, player_cell *player)
                 sprintf(message, "Place occupied, cannot move there!");
             } else if (result == 3) {
                 sprintf(message, "You have already defeated this trainer!");
+            } else if (result == -2) {
+                return;
             }
         } else if (ch == '9' || ch == 'u') {
             result = movePlayer(player->y - 1, player->x + 1, world, player, message);
@@ -111,6 +119,8 @@ void runGame(world *world, player_cell *player)
                 sprintf(message, "Place occupied, cannot move there!");
             } else if (result == 3) {
                 sprintf(message, "You have already defeated this trainer!");
+            } else if (result == -2) {
+                return;
             }
         } else if (ch == '4' || ch == 'h') {
             result = movePlayer(player->y, player->x - 1, world, player, message);
@@ -121,6 +131,8 @@ void runGame(world *world, player_cell *player)
                 sprintf(message, "Place occupied, cannot move there!");
             } else if (result == 3) {
                 sprintf(message, "You have already defeated this trainer!");
+            } else if (result == -2) {
+                return;
             }
         } else if (ch == '5' || ch == ' ') {
             player->dist += determineCost(world->board[world->currY][world->currX]->map[player->y][player->x].type, '@');
@@ -131,7 +143,7 @@ void runGame(world *world, player_cell *player)
                 int fight = rand() % 10;
 
                 if (fight == 0) {
-                    int result = fightRandomPokemon(abs(world->currX - 199) + abs(world->currY - 199), player);
+                    result = fightRandomPokemon(abs(world->currX - 199) + abs(world->currY - 199), player);
 
                     if (result == -1) {
                         return; // End the game if we lose all pokemon
@@ -152,6 +164,8 @@ void runGame(world *world, player_cell *player)
                 sprintf(message, "Place occupied, cannot move there!");
             } else if (result == 3) {
                 sprintf(message, "You have already defeated this trainer!");
+            } else if (result == -2) {
+                return;
             }
         } else if (ch == '1' || ch == 'b') {
             result = movePlayer(player->y + 1, player->x - 1, world, player, message);
@@ -162,6 +176,8 @@ void runGame(world *world, player_cell *player)
                 sprintf(message, "Place occupied, cannot move there!");
             } else if (result == 3) {
                 sprintf(message, "You have already defeated this trainer!");
+            } else if (result == -2) {
+                return;
             }
         } else if (ch == '2' || ch == 'j') {
             result = movePlayer(player->y + 1, player->x, world, player, message);
@@ -172,6 +188,8 @@ void runGame(world *world, player_cell *player)
                 sprintf(message, "Your path is blocked, cannot move there!");
             } else if (result == 3) {
                 sprintf(message, "You have already defeated this trainer!");
+            } else if (result == -2) {
+                return;
             }
         } else if (ch == '3' || ch == 'n') {
             result = movePlayer(player->y + 1, player->x + 1, world, player, message);
@@ -182,6 +200,8 @@ void runGame(world *world, player_cell *player)
                 sprintf(message, "Place occupied, cannot move there!");
             } else if (result == 3) {
                 sprintf(message, "You have already defeated this trainer!");
+            } else if (result == -2) {
+                return;
             }
         }
     }
