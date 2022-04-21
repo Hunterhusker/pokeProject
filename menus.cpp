@@ -73,14 +73,14 @@ int fightRandomPokemon(int dist, player_cell *player)
     bool fightOn = true;
 
     while (fightOn) {
-        pDmg = 0;
-        eDmg = 0;
-        pPrio = 0;
-        ePrio = 0;
 
         bool playerTurn = true;
 
         while (playerTurn) {
+            pDmg = 0;
+            eDmg = 0;
+            pPrio = 6; // Init this to be 6 so that if we don't choose an attack we have max priority
+            ePrio = 0;
 
             ch = getch();
 
@@ -526,14 +526,17 @@ int fightRandomPokemon(int dist, player_cell *player)
                         delete pe; // since we didn't catch it, free the memory
                         fightOn = false;
                         playerTurn = false;
+                        mvprintw(22, 0, "                                                  ");
                         return 0;
                     } else if (rand() % 256 < escapeOdds) {
                         delete pe;
                         fightOn = false;
                         playerTurn = false;
+                        mvprintw(22, 0, "                                                  ");
                         return 0;
                     }
-                    // If not, keep looping
+
+                    playerTurn = false; // Skip the turn if we fail to run
                 }
             }
         }
@@ -560,8 +563,11 @@ int fightRandomPokemon(int dist, player_cell *player)
             if (rand() % 100 < pe->currMoves[move]->accuracy || pe->currMoves[move]->accuracy == -1) {
                 if (pe->currMoves[move]->power != -1) {
                     eDmg = ((((2 * pe->level) + 2) * pe->currMoves[move]->power * (pe->pkmnStats[1] / pe->pkmnStats[2]) / 50) + 2) * eCrit * ((double) (rand() % 15 + 85) / 100) * eStab;
+
+                    mvprintw(22, 0, "%s uses %s for %d damage!", pe->pkm->identifier.c_str(), pe->currMoves[move]->identifier.c_str(), eDmg);
                 } else {
                     eDmg = 0;
+                    mvprintw(22, 0, "%s uses %s, but misses!", pe->pkm->identifier.c_str(), pe->currMoves[move]->identifier.c_str());
                 }
 
                 ePrio = pe->currMoves[move]->priority;
@@ -600,6 +606,8 @@ int fightRandomPokemon(int dist, player_cell *player)
                     }
                 }
             }
+
+            drawPokemonFightMenu(player, pe, pCurrpkmn);
         }
 
         if (player->pkmns[pCurrpkmn]->pkmnStats[0] <= 0) {
@@ -622,6 +630,7 @@ int fightRandomPokemon(int dist, player_cell *player)
 
             if (!hasMorePokemon) {
                 delete pe;
+                mvprintw(22, 0, "                                                  ");
                 return -1;
             }
 
@@ -675,8 +684,10 @@ int fightRandomPokemon(int dist, player_cell *player)
 
         // If the wild pokemon is dead, then leave
         if (pe->pkmnStats[0] <= 0) {
-            delete pe;
-            return 0;
+            //delete pe;
+            mvprintw(22, 0, "                                                  ");
+            fightOn = false;
+            //return 0;
         }
     }
 
@@ -685,15 +696,7 @@ int fightRandomPokemon(int dist, player_cell *player)
     int xp = (pe->pkm->base_experience * pe->level) / 7;
 
     player->pkmns[pCurrpkmn]->xp += xp;
-
-    for (int i = 0; i < (int) expList.size(); i++) {
-        if (expList[i].growth_rate_id == player->pkmns[pCurrpkmn]->Species->growth_rate_id && expList[i].level == player->pkmns[pCurrpkmn]->level + 1) {
-            if (player->pkmns[pCurrpkmn]->xp >= expList[i].experienceAmt) {
-                player->pkmns[pCurrpkmn]->levelup();
-            }
-            break;
-        }
-    }
+    player->pkmns[pCurrpkmn]->levelup(); // try a level up
 
     if (!captured) {
         // delete the pokemon if we didnt capture it
@@ -701,6 +704,7 @@ int fightRandomPokemon(int dist, player_cell *player)
     }
 
     // Now that that hell is over, we should probably leave the function now
+    mvprintw(22, 0, "                                                  ");
     return 0;
 }
 
@@ -1096,14 +1100,10 @@ void refreshBuffer(world *world) {
 
 int fightPLayer(world *world, entity_cell *entity, player_cell *player)
 {
-    int cursX = 17, cursY = 15, playerSpeed, escapeOdds, fleeAttempts = 0, pCurrpkmn = 0;
+    int cursX = 17, cursY = 15, playerSpeed, escapeOdds, fleeAttempts = 0, pCurrpkmn = 0, eCurrPkmn = 0, xp = 0;
     int pDmg, eDmg, pPrio, ePrio;
 
-    bool captured = false;
-
     playerSpeed = player->pkmns[pCurrpkmn]->pkmnStats[5];
-
-    int pID = rand() % pokeList.size() + 1;
 
     // If the first pokemon is fainted, grab another
     if (player->pkmns[pCurrpkmn]->pkmnStats[0] == 0) {
@@ -1123,9 +1123,23 @@ int fightPLayer(world *world, entity_cell *entity, player_cell *player)
 
     int dist = abs(world->currX - 199) + abs(world->currY - 199);
 
-    pokemon_entity *pe = new pokemon_entity(dist, pID);
+    int ePkmnCnt = player->pkmnCnt;
 
-    drawTrainerFightMenu(player, pe, pCurrpkmn);
+    if (rand() % 5 < 3) {
+        ePkmnCnt = std::min(6, ePkmnCnt + 1);
+    }
+
+    std::vector<pokemon_entity *> ePkmn;
+
+    //pokemon_entity *pe = new pokemon_entity(dist, pID);
+
+    for (int i = 0; i < ePkmnCnt; i++) {
+        int pID = rand() % pokeList.size() + 1;
+
+        ePkmn.push_back(new pokemon_entity(dist, pID));
+    }
+
+    drawTrainerFightMenu(player, ePkmn[eCurrPkmn], pCurrpkmn);
 
     refresh();
 
@@ -1133,14 +1147,14 @@ int fightPLayer(world *world, entity_cell *entity, player_cell *player)
     bool fightOn = true;
 
     while (fightOn) {
-        pDmg = 0;
-        eDmg = 0;
-        pPrio = 0;
-        ePrio = 0;
 
         bool playerTurn = true;
 
         while (playerTurn) {
+            pDmg = 0;
+            eDmg = 0;
+            pPrio = 6; // so that the player gets max prio when not fighting
+            ePrio = 0;
 
             ch = getch();
 
@@ -1270,7 +1284,7 @@ int fightPLayer(world *world, entity_cell *entity, player_cell *player)
                         }
                     }
 
-                    drawTrainerFightMenu(player, pe, pCurrpkmn);
+                    drawTrainerFightMenu(player, ePkmn[eCurrPkmn], pCurrpkmn);
                     cursX = 17;
                     cursY = 15;
 
@@ -1345,7 +1359,7 @@ int fightPLayer(world *world, entity_cell *entity, player_cell *player)
                         }
                     }
 
-                    drawTrainerFightMenu(player, pe, pCurrpkmn);
+                    drawTrainerFightMenu(player, ePkmn[eCurrPkmn], pCurrpkmn);
                     cursX = 17;
                     cursY = 15;
                 } else if (cursX == 37 && cursY == 15) { // Bag
@@ -1408,19 +1422,7 @@ int fightPLayer(world *world, entity_cell *entity, player_cell *player)
                             case ' ':
                                 switch (bagCursor) {
                                     case 0: // Pokeball
-                                        if (player->pokeballs > 0) {
-                                            if (player->pkmnCnt < 6) {
-                                                player->pkmns[player->pkmnCnt] = pe;
-                                                player->pkmnCnt++;
-
-                                                player->pokeballs--;
-
-                                                done = true;
-                                                fightOn = false;
-                                                playerTurn = false;
-                                                captured = true;
-                                            }
-                                        }
+                                        mvprintw(22, 0, "You can't steal another trainer's pokemon!");
                                         break;
 
                                     case 1: // Potions
@@ -1573,31 +1575,41 @@ int fightPLayer(world *world, entity_cell *entity, player_cell *player)
                     }
 
                     // Reset
-                    drawTrainerFightMenu(player, pe, pCurrpkmn);
+                    drawTrainerFightMenu(player, ePkmn[eCurrPkmn], pCurrpkmn);
                     cursX = 17;
                     cursY = 15;
                 } else if (cursX == 37 && cursY == 17) { // Run
                     fleeAttempts++;
 
-                    escapeOdds = floor(((playerSpeed * 32) / ((int) (floor(pe->pkmnStats[5] / 4)) % 256))) +
+                    escapeOdds = floor(((playerSpeed * 32) / ((int) (floor(ePkmn[eCurrPkmn]->pkmnStats[5] / 4)) % 256))) +
                                  30 * fleeAttempts;
 
-                    if (escapeOdds > 255 || ((int) (pe->pkmnStats[5] / 4)) % 256 == 0) {
-                        delete pe; // since we didn't catch it, free the memory
+                    if (escapeOdds > 255 || ((int) (ePkmn[eCurrPkmn]->pkmnStats[5] / 4)) % 256 == 0) {
+                        for (int i = 0; i < (int) ePkmn.size(); i++) { // delete the trainer's pkmn
+                            delete ePkmn[i];
+                        }
+
                         fightOn = false;
                         playerTurn = false;
                         entity->inHeap = false;
                         refreshBuffer(world);
+                        mvprintw(22, 0, "                                                  ");
                         return 0;
                     } else if (rand() % 256 < escapeOdds) {
-                        delete pe;
+                        for (int i = 0; i < (int) ePkmn.size(); i++) { // delete the trainer's pkmn
+                            delete ePkmn[i];
+                        }
+
                         fightOn = false;
                         playerTurn = false;
                         entity->inHeap = false;
                         refreshBuffer(world);
+                        mvprintw(22, 0, "                                                  ");
                         return 0;
                     }
-                    // If not, keep looping
+
+                    mvprintw(22, 0, "                                                  ");
+                    playerTurn = false;
                 }
             }
         }
@@ -1605,30 +1617,32 @@ int fightPLayer(world *world, entity_cell *entity, player_cell *player)
         /// Wild pokemon "AI"
 
         if (fightOn) {
-            int move = rand() % pe->currMoves.size(); // Choose a random move from the list of moves
+            int move = rand() % ePkmn[eCurrPkmn]->currMoves.size(); // Choose a random move from the list of moves
             int eCrit = 1, eStab = 1;
 
             // See if this is a crit or not
-            if (rand() % 255 < (pe->pkmnBaseStats[6] / 2)) {
+            if (rand() % 255 < (ePkmn[eCurrPkmn]->pkmnBaseStats[6] / 2)) {
                 eCrit = 1.5;
             }
 
             // If we attack w/ a matching move update it to 1.5
-            for (int i = 0; i < (int) pe->pkmnTypeList.size(); i++) {
-                if (pe->pkmnTypeList[i]->type_id == pe->currMoves[move]->type_id) {
+            for (int i = 0; i < (int) ePkmn[eCurrPkmn]->pkmnTypeList.size(); i++) {
+                if (ePkmn[eCurrPkmn]->pkmnTypeList[i]->type_id == ePkmn[eCurrPkmn]->currMoves[move]->type_id) {
                     eStab = 1.5;
                     break;
                 }
             }
 
-            if (rand() % 100 < pe->currMoves[move]->accuracy || pe->currMoves[move]->accuracy == -1) {
-                if (pe->currMoves[move]->power != -1) {
-                    eDmg = ((((2 * pe->level) + 2) * pe->currMoves[move]->power * (pe->pkmnStats[1] / pe->pkmnStats[2]) / 50) + 2) * eCrit * ((double) (rand() % 15 + 85) / 100) * eStab;
+            if (rand() % 100 < ePkmn[eCurrPkmn]->currMoves[move]->accuracy || ePkmn[eCurrPkmn]->currMoves[move]->accuracy == -1) {
+                if (ePkmn[eCurrPkmn]->currMoves[move]->power != -1) {
+                    eDmg = ((((2 * ePkmn[eCurrPkmn]->level) + 2) * ePkmn[eCurrPkmn]->currMoves[move]->power * (ePkmn[eCurrPkmn]->pkmnStats[1] / ePkmn[eCurrPkmn]->pkmnStats[2]) / 50) + 2) * eCrit * ((double) (rand() % 15 + 85) / 100) * eStab;
+                    mvprintw(22, 0, "%s uses %s for %d damage!", ePkmn[eCurrPkmn]->pkm->identifier.c_str(), ePkmn[eCurrPkmn]->currMoves[move]->identifier.c_str(), eDmg);
                 } else {
                     eDmg = 0;
+                    mvprintw(22, 0, "%s uses %s, but misses!", ePkmn[eCurrPkmn]->pkm->identifier.c_str(), ePkmn[eCurrPkmn]->currMoves[move]->identifier.c_str());
                 }
 
-                ePrio = pe->currMoves[move]->priority;
+                ePrio = ePkmn[eCurrPkmn]->currMoves[move]->priority;
             }
 
             if (ePrio > pPrio) { // Greater goes first, so then the enemy hits first
@@ -1636,13 +1650,13 @@ int fightPLayer(world *world, entity_cell *entity, player_cell *player)
 
                 // If the player's pokemon lived through it, hit back
                 if (player->pkmns[pCurrpkmn]->pkmnStats[0] != 0) {
-                    pe->pkmnStats[0] = std::max(0, pe->pkmnStats[0] - pDmg);
+                    ePkmn[eCurrPkmn]->pkmnStats[0] = std::max(0, ePkmn[eCurrPkmn]->pkmnStats[0] - pDmg);
                 }
             } else if (pPrio > ePrio) { // Player has higher prio
-                pe->pkmnStats[0] = std::max(0, pe->pkmnStats[0] - pDmg);
+                ePkmn[eCurrPkmn]->pkmnStats[0] = std::max(0, ePkmn[eCurrPkmn]->pkmnStats[0] - pDmg);
 
                 // If the wild pokemon didn't die from that, then it can attack us
-                if (pe->pkmnStats[0] != 0) {
+                if (ePkmn[eCurrPkmn]->pkmnStats[0] != 0) {
                     player->pkmns[pCurrpkmn]->pkmnStats[0] = std::max(player->pkmns[pCurrpkmn]->pkmnStats[0] - eDmg, 0);
                 }
             } else { // The same??? Idk random chance ffs why is this game so complicated
@@ -1653,17 +1667,19 @@ int fightPLayer(world *world, entity_cell *entity, player_cell *player)
 
                     // If the player's pokemon lived through it, hit back
                     if (player->pkmns[pCurrpkmn]->pkmnStats[0] != 0) {
-                        pe->pkmnStats[0] = std::max(0, pe->pkmnStats[0] - pDmg);
+                        ePkmn[eCurrPkmn]->pkmnStats[0] = std::max(0, ePkmn[eCurrPkmn]->pkmnStats[0] - pDmg);
                     }
                 } else { // we go first
-                    pe->pkmnStats[0] = std::max(0, pe->pkmnStats[0] - pDmg);
+                    ePkmn[eCurrPkmn]->pkmnStats[0] = std::max(0, ePkmn[eCurrPkmn]->pkmnStats[0] - pDmg);
 
                     // If the wild pokemon didn't die from that, then it can attack us
-                    if (pe->pkmnStats[0] != 0) {
+                    if (ePkmn[eCurrPkmn]->pkmnStats[0] != 0) {
                         player->pkmns[pCurrpkmn]->pkmnStats[0] = std::max(player->pkmns[pCurrpkmn]->pkmnStats[0] - eDmg, 0);
                     }
                 }
             }
+
+            drawTrainerFightMenu(player, ePkmn[eCurrPkmn], pCurrpkmn);
         }
 
         if (player->pkmns[pCurrpkmn]->pkmnStats[0] <= 0) {
@@ -1685,8 +1701,11 @@ int fightPLayer(world *world, entity_cell *entity, player_cell *player)
             }
 
             if (!hasMorePokemon) {
-                delete pe;
+                for (int i = 0; i < (int) ePkmn.size(); i++) {
+                    delete ePkmn[i];
+                }
                 entity->inHeap = false;
+                mvprintw(22, 0, "                                                  ");
                 return -1;
             }
 
@@ -1708,7 +1727,7 @@ int fightPLayer(world *world, entity_cell *entity, player_cell *player)
                         if (player->pkmns[faintCurs]->pkmnStats[0] != 0) {
                             pCurrpkmn = faintCurs;
                             newPkmn = true;
-                            drawTrainerFightMenu(player, pe, pCurrpkmn);
+                            drawTrainerFightMenu(player, ePkmn[eCurrPkmn], pCurrpkmn);
                         }
 
                         break;
@@ -1738,37 +1757,58 @@ int fightPLayer(world *world, entity_cell *entity, player_cell *player)
             }
         }
 
-        // If the wild pokemon is dead, then leave
-        if (pe->pkmnStats[0] <= 0) {
-            delete pe;
-            entity->inHeap = false;
-            refreshBuffer(world);
-            return 0;
+        // If the trainer's pokemon is dead
+        if (ePkmn[eCurrPkmn]->pkmnStats[0] <= 0) {
+            // Grab the XP gain for the player
+            xp += (ePkmn[eCurrPkmn]->pkm->base_experience * ePkmn[eCurrPkmn]->level) / (7 * player->pkmnCnt);
+
+            // Check for a living pokemon
+            bool more = false;
+
+            for (int i = 0; i < (int) ePkmn.size(); i++) {
+                if (ePkmn[i]->pkmnStats[0] > 0) {
+                    eCurrPkmn = i;
+                    more = true;
+                    drawTrainerFightMenu(player, ePkmn[eCurrPkmn], pCurrpkmn);
+                    break;
+                }
+            }
+
+            // If there are no more pokemon to choose from, then we win, and the trainer goes away
+            if (!more) {
+                entity->inHeap = false;
+                refreshBuffer(world);
+                mvprintw(22, 0, "                                                  ");
+                fightOn = false;
+            }
         }
     }
 
     // Calculate XP earned (for simplicity it will be only to current Pokemon)
     // Crude implementation of formula from https://bulbapedia.bulbagarden.net/wiki/Experience#Experience_gain_in_battle
-    int xp = (pe->pkm->base_experience * pe->level) / 7;
+    xp += (ePkmn[eCurrPkmn]->pkm->base_experience * ePkmn[eCurrPkmn]->level) / (7 * player->pkmnCnt);
 
-    player->pkmns[pCurrpkmn]->xp += xp;
-
-    for (int i = 0; i < (int) expList.size(); i++) {
-        if (expList[i].growth_rate_id == player->pkmns[pCurrpkmn]->Species->growth_rate_id && expList[i].level == player->pkmns[pCurrpkmn]->level + 1) {
-            if (player->pkmns[pCurrpkmn]->xp >= expList[i].experienceAmt) {
-                player->pkmns[pCurrpkmn]->levelup();
-            }
-            break;
-        }
+    for (int i = 0; i < player->pkmnCnt; i++) {
+        player->pkmns[i]->xp += xp;
+        player->pkmns[i]->levelup(); // try to levelup each pokemon
     }
 
-    if (!captured) {
-        // delete the pokemon if we didnt capture it
-        delete pe;
+//    for (int i = 0; i < (int) expList.size(); i++) {
+//        if (expList[i].growth_rate_id == player->pkmns[pCurrpkmn]->Species->growth_rate_id && expList[i].level == player->pkmns[pCurrpkmn]->level + 1) {
+//            if (player->pkmns[pCurrpkmn]->xp >= expList[i].experienceAmt) {
+//                player->pkmns[pCurrpkmn]->levelup();
+//            }
+//            break;
+//        }
+//    }
+
+    for (int i = 0; i < (int) ePkmn.size(); i++) {
+        delete ePkmn[i];
     }
 
     // Now that that hell is over, we should probably leave the function now
     entity->inHeap = false;
     refreshBuffer(world);
+    mvprintw(22, 0, "                                                  ");
     return 0;
 }
