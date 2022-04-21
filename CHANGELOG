@@ -60,7 +60,19 @@ Apr 20, 2022
     Work carried over, and tbh I don't know where one day stopped and the other began bc it is 1:40
     Did lots of debugging on wild fights, there were lots of small issues that built up to one mess
         Memory management was a disaster, leaky mf, more holes than a block of swiss cheese in that mf
-        Level up system needed a bigger band-aid than was ever imagineable, I will cry myself to sleep over it in 10 minutes
+        Level up system needed a bigger band-aid than was ever imaginable, I will cry myself to sleep over it in 10 minutes
     Started working on the trainer fighting mechanics by coping the entire wild fight code down to it
         Still needs more than one pokemon per trainer, the memory management to support it, and the "AI" to support it
             But I am going to bed now, I will not sleep well, this was a mistake
+
+Apr 20, 2022 part 2:
+    Worked on the trainer fight menu
+        removed pokeball support
+        Generated a list of pokemon for the trainer, rather than just one
+        Added the 60% chance of an extra pokemon
+        fixed all references to be to the trainers equipped pkmn not just the first one
+        Made the trainer pick a new pokemon after it's current faints, iff there is one
+    Fixed a bug with XP where upon beating something you gain no XP at all, ya know a minor issue
+    Made the health stay where it is on level up
+    Fixed level up so that it levels up to next experience bracket, not level, letting pokemon skip levels if they get enough XP to skip one
+    Added XP share amongst all pokemon in trainer fights (Not in wild battles)
