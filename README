@@ -1,7 +1,8 @@
-This is my implementation of the 1.07 pokemon interaction code.
+This is my implementation of the 1.08 pokemon fighting code
 
-Basically I read in the files just as before to vectors for quick access to the important data. Then I can generate a
-random pokemon from the list, and have him fight us, and for now, that's all we really need.
+This made me make lots of internal loops for menus inside menus, so I recommend looking at this picture while reading my code (https://imagebin.ca/v/6eSczxIzgpzq)
+
+(Note: I made game end on black out since pokecenters aren't ready to respawn in)
 
 Game Controls:
 
@@ -18,9 +19,14 @@ Game Controls:
 5: stay still
 
 t: open the trainer menu
-Esc: to exit trainer/fight menus
+Esc: to exit trainer menus
 >: to enter a center or mart
 <: to exit the center/mart menu
+
+Inside menus:
+Arrow keys: move through menus
+Spacebar: select an item in the menu
+Esc: to leave bag menu ann unimplemented menus
 
 q: quit the game
 
@@ -34,7 +40,11 @@ How to use:
 5. Success
 
 Any known bugs:
-    Have been watching for a stack smashing detected error for a while now, that hasn't popped up in a few assignments,
-    but I feel like I should mention it. Other than that I have been able to successfully generate all of the pokemon
-    several times, so I think we are bug free. I haven't made it out to the edges of the map, but I assume that all works,
-    since I tested it artificially.
+    I think they are ironed out now, but I have had issues with losing a fight and the game not ending, and a stack
+smashing error I never "fixed" but I only saw once and could never replicate.
+
+    I also don't consider it a bug, but for simplicity's sake I implemented XP such that the current pokemon gets it all
+at the end of a fight in wild battles, and full xp share, even with fainted pokemon, in trainer battles.
+
+    Also not a bug that you can't use potions outside of battle, I don't think that's in the game, idk I have never played it tbh
+but I don't think it should be that way, and I don't see directions about it. So it's not there on purpose.
