@@ -259,24 +259,33 @@ pokemon_entity::pokemon_entity(int distance, int pkmnID) {
 }
 
 void pokemon_entity::levelup() {
-    this->level++;
+    bool lvlUp = false;
 
     // Get the new xp
     for (int i = 0; i < (int) expList.size(); i++) {
-        if (expList[i].growth_rate_id == this->Species->growth_rate_id && expList[i].level == this->level) {
+        if (expList[i].growth_rate_id == this->Species->growth_rate_id && expList[i].experienceAmt <= this->xp && expList[i].level > this->level) {
             this->exp = &expList[i];
+            lvlUp = true;
+        } else if (expList[i].growth_rate_id == this->Species->growth_rate_id && expList[i].experienceAmt > this->xp) { // once we see something too high for our pokemon, break
             break;
         }
     }
 
-    this->pkmnStats.clear();
+    if (lvlUp) {
+        // get the new level
+        this->level = this->exp->level;
 
-    // Set the hp stat with the given formula
-    this->pkmnStats.push_back(setPkmnHP(this->IVs[0], this->pkmnBaseStats[0], this->level));
+        int oldHp = this->pkmnStats[0]; // save the old HP
 
-    // Set the rest of the stats
-    for (int i = 1; i < 6; i++) {
-        this->pkmnStats.push_back(setOtherPkmnStat(this->IVs[i], this->pkmnBaseStats[i], this->level));
+        this->pkmnStats.clear();
+
+        // Set the hp stat back to what it was
+        this->pkmnStats.push_back(oldHp);
+
+        // Set the rest of the stats
+        for (int i = 1; i < 6; i++) {
+            this->pkmnStats.push_back(setOtherPkmnStat(this->IVs[i], this->pkmnBaseStats[i], this->level));
+        }
     }
 }
 
