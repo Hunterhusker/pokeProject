@@ -151,7 +151,7 @@ void delEntity(map *screen, minHeap *mh, entity_cell *entity)
 
 int moveEntity(world *world, map *screen, minHeap *mh, entity_cell *entity, player_cell *player)
 {
-    int iters, nX = entity->x, nY = entity->y;
+    int iters, nX = entity->x, nY = entity->y, fightResult;
     heatMap hm;
     bool valid;
 
@@ -163,7 +163,11 @@ int moveEntity(world *world, map *screen, minHeap *mh, entity_cell *entity, play
                     if (entity->y - 1 > 0 && (screen->eMap[entity->y - 1][entity->x] != NULL || determineCost(screen->map[entity->y - 1][entity->x].type, entity->type) == INT_MAX)) {
                         // Update the direction of the entity so it turns around
                         if (screen->eMap[entity->y - 1][entity->x] != NULL && screen->eMap[entity->y - 1][entity->x]->type == '@' && entity->inHeap == true) {
-                            fightPLayer(world, entity, player);
+                            fightResult = fightPLayer(world, entity, player);
+
+                            if (fightResult == -1) {
+                                return -1;
+                            }
                         }
 
                         entity->weight = 2;
@@ -184,7 +188,11 @@ int moveEntity(world *world, map *screen, minHeap *mh, entity_cell *entity, play
                     if (entity->x + 1 < 79 && (screen->eMap[entity->y][entity->x + 1] != NULL || determineCost(screen->map[entity->y][entity->x + 1].type, entity->type) == INT_MAX)) {
                         // Update the direction of the entity so it turns around
                         if (screen->eMap[entity->y][entity->x + 1] != NULL && screen->eMap[entity->y][entity->x + 1]->type == '@' && entity->inHeap == true) {
-                            fightPLayer(world, entity, player);
+                            fightResult = fightPLayer(world, entity, player);
+
+                            if (fightResult == -1) {
+                                return -1;
+                            }
                         }
 
                         entity->weight = 3;
@@ -205,7 +213,11 @@ int moveEntity(world *world, map *screen, minHeap *mh, entity_cell *entity, play
                     if (entity->y + 1 < 20 && (screen->eMap[entity->y + 1][entity->x] != NULL || determineCost(screen->map[entity->y + 1][entity->x].type, entity->type) == INT_MAX)) {
                         // Update the direction of the entity so it turns around
                         if (screen->eMap[entity->y + 1][entity->x] != NULL && screen->eMap[entity->y + 1][entity->x]->type == '@' && entity->inHeap == true) {
-                            fightPLayer(world, entity, player);
+                            fightResult = fightPLayer(world, entity, player);
+
+                            if (fightResult == -1) {
+                                return -1;
+                            }
                         }
 
                         entity->weight = 0;
@@ -226,7 +238,11 @@ int moveEntity(world *world, map *screen, minHeap *mh, entity_cell *entity, play
                     if (entity->x - 1 > 0 && (screen->eMap[entity->y][entity->x - 1] != NULL || determineCost(screen->map[entity->y][entity->x - 1].type, entity->type) == INT_MAX)) {
                         // Update the direction of the entity so it turns around
                         if (screen->eMap[entity->y][entity->x - 1] != NULL && screen->eMap[entity->y][entity->x - 1]->type == '@' && entity->inHeap == true) {
-                            fightPLayer(world, entity, player);
+                            fightResult = fightPLayer(world, entity, player);
+
+                            if (fightResult == -1) {
+                                return -1;
+                            }
                         }
 
                         entity->weight = 1;
@@ -258,7 +274,11 @@ int moveEntity(world *world, map *screen, minHeap *mh, entity_cell *entity, play
                         if (entity->y - 1 > 0 && (screen->eMap[entity->y - 1][entity->x] != NULL || screen->map[entity->y][entity->x].type != screen->map[entity->y - 1][entity->x].type)) {
                             // Update the direction of the entity, so it doesn't keep going straight
                             if (screen->eMap[entity->y - 1][entity->x] != NULL && screen->eMap[entity->y - 1][entity->x]->type == '@' && entity->inHeap == true) {
-                                fightPLayer(world, entity, player);
+                                fightResult = fightPLayer(world, entity, player);
+
+                                if (fightResult == -1) {
+                                    return -1;
+                                }
                             } else {
                                 entity->weight = rand() % 4;
                             }
@@ -275,7 +295,11 @@ int moveEntity(world *world, map *screen, minHeap *mh, entity_cell *entity, play
                         if (entity->x + 1 < 79 && (screen->eMap[entity->y][entity->x + 1] != NULL || screen->map[entity->y][entity->x].type != screen->map[entity->y][entity->x + 1].type)) {
                             // Update the direction of the entity, so it doesn't keep going straight
                             if (screen->eMap[entity->y][entity->x + 1] != NULL && screen->eMap[entity->y][entity->x + 1]->type == '@' && entity->inHeap == true) {
-                                fightPLayer(world, entity, player);
+                                fightResult = fightPLayer(world, entity, player);
+
+                                if (fightResult == -1) {
+                                    return -1;
+                                }
                             } else {
                                 entity->weight = rand() % 4;
                             }
@@ -292,7 +316,11 @@ int moveEntity(world *world, map *screen, minHeap *mh, entity_cell *entity, play
                         if (entity->y + 1 < 20 && (screen->eMap[entity->y + 1][entity->x] != NULL || screen->map[entity->y][entity->x].type != screen->map[entity->y + 1][entity->x].type)) {
                             // Update the direction of the entity, so it doesn't keep going straight
                             if (screen->eMap[entity->y + 1][entity->x] != NULL && screen->eMap[entity->y + 1][entity->x]->type == '@' && entity->inHeap == true) {
-                                fightPLayer(world, entity, player);
+                                fightResult = fightPLayer(world, entity, player);
+
+                                if (fightResult == -1) {
+                                    return -1;
+                                }
                             } else {
                                 entity->weight = rand() % 4;
                             }
@@ -309,7 +337,11 @@ int moveEntity(world *world, map *screen, minHeap *mh, entity_cell *entity, play
                         if (entity->x - 1 > 0 && (screen->eMap[entity->y][entity->x - 1] != NULL || screen->map[entity->y][entity->x].type != screen->map[entity->y][entity->x - 1].type)) {
                             // Update the direction of the entity, so it doesn't keep going straight
                             if (screen->eMap[entity->y][entity->x - 1] != NULL && screen->eMap[entity->y][entity->x - 1]->type == '@' && entity->inHeap == true) {
-                                fightPLayer(world, entity, player);
+                                fightResult = fightPLayer(world, entity, player);
+
+                                if (fightResult == -1) {
+                                    return -1;
+                                }
                             } else {
                                 entity->weight = rand() % 4;
                             }
@@ -344,7 +376,11 @@ int moveEntity(world *world, map *screen, minHeap *mh, entity_cell *entity, play
                         if (entity->y - 1 > 0 && (screen->eMap[entity->y - 1][entity->x] != NULL || determineCost(screen->map[entity->y - 1][entity->x].type, entity->type) == INT_MAX)) {
                             // Update the direction of the entity, so it doesn't keep going straight
                             if (screen->eMap[entity->y - 1][entity->x] != NULL && screen->eMap[entity->y - 1][entity->x]->type == '@' && entity->inHeap == true) {
-                                fightPLayer(world, entity, player);
+                                fightResult = fightPLayer(world, entity, player);
+
+                                if (fightResult == -1) {
+                                    return -1;
+                                }
                             } else {
                                 entity->weight = rand() % 4;
                             }
@@ -361,7 +397,11 @@ int moveEntity(world *world, map *screen, minHeap *mh, entity_cell *entity, play
                         if (entity->x + 1 < 79 && (screen->eMap[entity->y][entity->x + 1] != NULL || determineCost(screen->map[entity->y][entity->x + 1].type, entity->type) == INT_MAX)) {
                             // Update the direction of the entity, so it doesn't keep going straight
                             if (screen->eMap[entity->y][entity->x + 1] != NULL && screen->eMap[entity->y][entity->x + 1]->type == '@' && entity->inHeap == true) {
-                                fightPLayer(world, entity, player);
+                                fightResult = fightPLayer(world, entity, player);
+
+                                if (fightResult == -1) {
+                                    return -1;
+                                }
                             } else {
                                 entity->weight = rand() % 4;
                             }
@@ -378,7 +418,11 @@ int moveEntity(world *world, map *screen, minHeap *mh, entity_cell *entity, play
                         if (entity->y + 1 < 20 && (screen->eMap[entity->y + 1][entity->x] != NULL || determineCost(screen->map[entity->y + 1][entity->x].type, entity->type) == INT_MAX)) {
                             // Update the direction of the entity, so it doesn't keep going straight
                             if (screen->eMap[entity->y + 1][entity->x] != NULL && screen->eMap[entity->y + 1][entity->x]->type == '@' && entity->inHeap == true) {
-                                fightPLayer(world, entity, player);
+                                fightResult = fightPLayer(world, entity, player);
+
+                                if (fightResult == -1) {
+                                    return -1;
+                                }
                             } else {
                                 entity->weight = rand() % 4;
                             }
@@ -395,7 +439,11 @@ int moveEntity(world *world, map *screen, minHeap *mh, entity_cell *entity, play
                         if (entity->x - 1 > 0 && (screen->eMap[entity->y][entity->x - 1] != NULL || determineCost(screen->map[entity->y][entity->x - 1].type, entity->type) == INT_MAX)) {
                             // Update the direction of the entity, so it doesn't keep going straight
                             if (screen->eMap[entity->y][entity->x - 1] != NULL && screen->eMap[entity->y][entity->x - 1]->type == '@' && entity->inHeap == true) {
-                                fightPLayer(world, entity, player);
+                                fightResult = fightPLayer(world, entity, player);
+
+                                if (fightResult == -1) {
+                                    return -1;
+                                }
                             } else {
                                 entity->weight = rand() % 4;
                             }
@@ -482,7 +530,11 @@ int moveEntity(world *world, map *screen, minHeap *mh, entity_cell *entity, play
 
                         break;
                     } else if (screen->eMap[y][x]->type == '@') {
-                        fightPLayer(world, entity, player);
+                        fightResult = fightPLayer(world, entity, player);
+
+                        if (fightResult == -1) {
+                            return -1;
+                        }
                         found = true;
                     }
                 }
@@ -518,7 +570,11 @@ int moveEntity(world *world, map *screen, minHeap *mh, entity_cell *entity, play
                             if (entity->y - 1 > 0 && (screen->eMap[entity->y - 1][entity->x] != NULL || screen->map[entity->y][entity->x].type != screen->map[entity->y - 1][entity->x].type)) {
                                 // Update the direction of the entity, so it doesn't keep going straight
                                 if (screen->eMap[entity->y - 1][entity->x] != NULL && screen->eMap[entity->y - 1][entity->x]->type == '@' && entity->inHeap == true) {
-                                    fightPLayer(world, entity, player);
+                                    fightResult = fightPLayer(world, entity, player);
+
+                                    if (fightResult == -1) {
+                                        return -1;
+                                    }
                                 } else {
                                     entity->weight = rand() % 4;
                                 }
@@ -535,7 +591,11 @@ int moveEntity(world *world, map *screen, minHeap *mh, entity_cell *entity, play
                             if (entity->x + 1 < 79 && (screen->eMap[entity->y][entity->x + 1] != NULL || screen->map[entity->y][entity->x].type != screen->map[entity->y][entity->x + 1].type)) {
                                 // Update the direction of the entity, so it doesn't keep going straight
                                 if (screen->eMap[entity->y][entity->x + 1] != NULL && screen->eMap[entity->y][entity->x + 1]->type == '@' && entity->inHeap == true) {
-                                    fightPLayer(world, entity, player);
+                                    fightResult = fightPLayer(world, entity, player);
+
+                                    if (fightResult == -1) {
+                                        return -1;
+                                    }
                                 } else {
                                     entity->weight = rand() % 4;
                                 }
@@ -552,7 +612,11 @@ int moveEntity(world *world, map *screen, minHeap *mh, entity_cell *entity, play
                             if (entity->y + 1 < 20 && (screen->eMap[entity->y + 1][entity->x] != NULL || screen->map[entity->y][entity->x].type != screen->map[entity->y + 1][entity->x].type)) {
                                 // Update the direction of the entity, so it doesn't keep going straight
                                 if (screen->eMap[entity->y + 1][entity->x] != NULL && screen->eMap[entity->y + 1][entity->x]->type == '@' && entity->inHeap == true) {
-                                    fightPLayer(world, entity, player);
+                                    fightResult = fightPLayer(world, entity, player);
+
+                                    if (fightResult == -1) {
+                                        return -1;
+                                    }
                                 } else {
                                     entity->weight = rand() % 4;
                                 }
@@ -569,7 +633,11 @@ int moveEntity(world *world, map *screen, minHeap *mh, entity_cell *entity, play
                             if (entity->x - 1 > 0 && (screen->eMap[entity->y][entity->x - 1] != NULL || screen->map[entity->y][entity->x].type != screen->map[entity->y][entity->x - 1].type)) {
                                 // Update the direction of the entity, so it doesn't keep going straight
                                 if (screen->eMap[entity->y][entity->x - 1] != NULL && screen->eMap[entity->y][entity->x - 1]->type == '@' && entity->inHeap == true) {
-                                    fightPLayer(world, entity, player);
+                                    fightResult = fightPLayer(world, entity, player);
+
+                                    if (fightResult == -1) {
+                                        return -1;
+                                    }
                                 } else {
                                     entity->weight = rand() % 4;
                                 }
@@ -660,7 +728,11 @@ int movePlayer(int y, int x, world *world, player_cell *player, std::string mess
         if (world->board[world->currY][world->currX]->eMap[y][x] != NULL && world->board[world->currY][world->currX]->eMap[y][x]->inHeap == false) {
             return 3;
         } else if (world->board[world->currY][world->currX]->eMap[y][x] != NULL && world->board[world->currY][world->currX]->eMap[y][x]->inHeap == true) {
-            fightPLayer(world, world->board[world->currY][world->currX]->eMap[y][x], player);
+            int fightResult = fightPLayer(world, world->board[world->currY][world->currX]->eMap[y][x], player);
+
+            if (fightResult == -1) {
+                return -2;
+            }
 
             return 0;
         }
