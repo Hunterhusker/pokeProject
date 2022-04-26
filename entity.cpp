@@ -36,7 +36,7 @@ entity_cell::entity_cell(int x, int y, char type, int weight, int dist) {
 }
 
 /// Player Cell constructor
-player_cell::player_cell(int x, int y, char type, int weight, int dist, int ballCnt, int reviveCnt, int potionCnt) {
+player_cell::player_cell(int x, int y, char type, int weight, int dist, int ballCnt, int reviveCnt, int potionCnt, int balance) {
     this->x = x;
     this->y = y;
     this->type = type;
@@ -46,6 +46,7 @@ player_cell::player_cell(int x, int y, char type, int weight, int dist, int ball
     this->pokeballs = ballCnt;
     this->revives = reviveCnt;
     this->potions = potionCnt;
+    this->balance = balance;
 
     for (int i = 0; i < 6; i++) {
         this->pkmns[i] = NULL;
@@ -70,7 +71,7 @@ player_cell *placePlayer(map *screen, minHeap *mh)
 
             for (int i = 3; i < 20; i++) {
                 if (screen->map[i][loc].type == '#' && screen->eMap[i][loc] == NULL) {
-                    screen->eMap[i][loc] = new player_cell(loc, i, '@', rand() % 4, 10, 5, 2, 3);
+                    screen->eMap[i][loc] = new player_cell(loc, i, '@', rand() % 4, 10, 5, 2, 3, 25);
 
                     // add this mf to the game time heap
                     mhAdd(mh, screen->eMap[i][loc]);
@@ -88,7 +89,7 @@ player_cell *placePlayer(map *screen, minHeap *mh)
 
             for (int i = 3; i < 79; i++) {
                 if (screen->map[loc][i].type == '#' && screen->eMap[loc][i] == NULL) {
-                    screen->eMap[loc][i] = new player_cell(i, loc, '@', rand() % 4, 10, 5, 2, 3);
+                    screen->eMap[loc][i] = new player_cell(i, loc, '@', rand() % 4, 10, 5, 2, 3, 25);
 
                     // add this mf to the game time heap
                     mhAdd(mh, screen->eMap[loc][i]);
