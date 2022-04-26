@@ -258,6 +258,95 @@ pokemon_entity::pokemon_entity(int distance, int pkmnID) {
     }
 }
 
+pokemon_entity::pokemon_entity(double level, int id) {
+    // Figure out the level based on the distance
+    this->level = (int) level;
+    this->male = rand() % 2;
+
+    this->shiny = false;
+
+    // Gen the IVs
+    for (int i = 0; i < 8; i++) {
+        this->IVs.push_back(rand() % 15); // Give the IV a random value from 0 to 15
+    }
+
+    this->pkm = &pokeList[id - 1];
+    this->Species = &species[pkm->species_id];
+
+    // Find our exp based on level and growth rate id
+    for (int i = 0; i < (int) expList.size(); i++) {
+        // find our xp level
+        if (expList[i].growth_rate_id == this->Species->growth_rate_id && expList[i].level == this->level) {
+            this->exp = &expList[i];
+            this->xp = exp->experienceAmt;
+
+            break; // No need to check for more once we have it
+        }
+    }
+
+    // Set the type of the pokemon based on the id
+    for (int i = 0; i < (int) pkmnTypes.size(); i++) {
+        if (pkmnTypeList.size() == 2) {
+            break;
+        } else if (pkmnTypes[i].pokemon_id == id) {
+            pkmnTypeList.push_back(&types[pkmnTypes[i].type_id - 1]); // put the type itself in, which was put into its own list in reverse order
+        }
+    }
+
+    // Search the vector for the move set
+    for (int i = 0; i < (int) pkmnMoves.size(); i++) {
+        if (pkmnMoves[i].pokemon_id == id && pkmnMoves[i].pokemon_move_method_id == 1 && pkmnMoves[i].level <= this->level) {
+            this->moveSet.push_back(&pkmnMoves[i]);
+        }
+    }
+
+    // randomly pick at most two moves for this pokemon
+    if (this->moveSet.size() >= 2) {
+        int mv1 = rand() % moveSet.size(), mv2 = rand() % moveSet.size();
+
+        int x = 0;
+
+        // Make sure they are different moves
+        while (moveSet[mv1]->move_id == moveSet[mv2]->move_id && x < (int) moveSet.size()) {
+            mv2 = rand() % moveSet.size();
+
+            x++;
+        }
+
+        for (int i = 0; i < (int) mvList.size(); i++) {
+            if (moveSet[mv1]->move_id == mvList[i].id || moveSet[mv2]->move_id == mvList[i].id) {
+                currMoves.push_back(&mvList[i]); // if the id matches, then add it to the move list
+                PPList.push_back(mvList[i].pp);
+            }
+        }
+
+    } else if (this->moveSet.size() == 1) { // if there is only one available move, then find it and use it
+        for (int i = 0; i < (int) mvList.size(); i++) {
+            if (moveSet[0]->move_id == mvList[i].id) {
+                currMoves.push_back(&mvList[i]); // if the id matches, then add it to the move list
+                PPList.push_back(mvList[i].pp); // add the pp of the given move to the list
+            }
+        }
+    } // If there are no moves in the set, then don't have any I guess
+
+    // Populate the base stat fields
+    for (int i = 0; i < (int) pkStats.size(); i++) {
+        if (pkStats[i].pokemon_id == id) {
+            this->pkmnBaseStats.push_back(pkStats[i].base_stat);
+        } else if (pkStats[i].pokemon_id > id) {
+            break; // If we have moved past the stat field for the given pokemon, stop looping
+        }
+    }
+
+    // Set the hp stat with the given formula
+    this->pkmnStats.push_back(setPkmnHP(this->IVs[0], this->pkmnBaseStats[0], this->level));
+
+    // Set the rest of the stats
+    for (int i = 1; i < 6; i++) {
+        this->pkmnStats.push_back(setOtherPkmnStat(this->IVs[i], this->pkmnBaseStats[i], this->level));
+    }
+}
+
 void pokemon_entity::levelup() {
     bool lvlUp = false;
 

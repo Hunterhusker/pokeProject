@@ -119,6 +119,7 @@ public:
     bool male;
 
     pokemon_entity(int distance, int id);
+    pokemon_entity(double level, int id);
     void levelup();
 };
 
