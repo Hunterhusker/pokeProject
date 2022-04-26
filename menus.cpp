@@ -925,11 +925,11 @@ void bagMenu(player_cell *player) {
 void startScreen(player_cell *player) {
     pokemon_entity *choices[3];
 
-    int p1 = rand() % 898 + 1, p2 = rand() % 898 + 1, p3 = rand() % 898 + 1;
+    int p1 = 1, p2 = 4, p3 = 7; // changed to be the classic starters
 
-    choices[0] = new pokemon_entity(1, p1);
-    choices[1] = new pokemon_entity(1, p2);
-    choices[2] = new pokemon_entity(1, p3);
+    choices[0] = new pokemon_entity(5.0, p1);
+    choices[1] = new pokemon_entity(5.0, p2);
+    choices[2] = new pokemon_entity(5.0, p3);
 
     mvprintw(6, 30, "Choose your starter w/ space!");
 
@@ -981,6 +981,23 @@ void startScreen(player_cell *player) {
                 break;
         }
     }
+}
+
+void pokeMartMenu(int dist) {
+    double multiplier; // Create our multiplier var, since scarcity means higher prices
+    int ballCost, potionCost, reviveCost; // make vars for different item costs
+    int baseBallCost = 20, basePotionCost = 15, baseReviveCost = 25;
+
+    multiplier = (dist * 1.5) / 200 + 1; // Some quick math to map the distance to a price multiplier from 1 to 2.5 based on dist from 0 to 200
+
+    // Set the cost vars
+    ballCost = (int) baseBallCost * multiplier;
+    potionCost = (int) basePotionCost * multiplier;
+    reviveCost = (int) baseReviveCost * multiplier;
+
+    // print the menu
+
+    // Take input
 }
 
 void printAmogus() {
@@ -1792,15 +1809,6 @@ int fightPLayer(world *world, entity_cell *entity, player_cell *player)
         player->pkmns[i]->xp += xp;
         player->pkmns[i]->levelup(); // try to levelup each pokemon
     }
-
-//    for (int i = 0; i < (int) expList.size(); i++) {
-//        if (expList[i].growth_rate_id == player->pkmns[pCurrpkmn]->Species->growth_rate_id && expList[i].level == player->pkmns[pCurrpkmn]->level + 1) {
-//            if (player->pkmns[pCurrpkmn]->xp >= expList[i].experienceAmt) {
-//                player->pkmns[pCurrpkmn]->levelup();
-//            }
-//            break;
-//        }
-//    }
 
     for (int i = 0; i < (int) ePkmn.size(); i++) {
         delete ePkmn[i];
