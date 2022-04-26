@@ -33,9 +33,10 @@ public:
     int pokeballs;
     int revives;
     int potions;
+    int balance;
 
     player_cell() {}
-    player_cell(int x, int y, char type, int weight, int dist, int ballCnt, int reviveCnt, int potionCnt);
+    player_cell(int x, int y, char type, int weight, int dist, int ballCnt, int reviveCnt, int potionCnt, int balance);
     ~player_cell();
 };
 
