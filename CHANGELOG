@@ -1,78 +1,8 @@
-Apr 10, 2022
-    creating the entity_cell class to inherit from cell to differentiate my entities from pieces of map
-        The biggest difference is that they will be able to have 6 pokemon and a name
-    Branched out to 1.08 and rebased since I forgot and did it in a bad order
-    Converted the entity map to only be entity_cell types
-        Added a destructor so that these are deleted not freed now that they arent being malloced
-    
-Apr 11, 2022
-    Paused development on the generic minheap to focus on real reqs for this assignment (those changes are in the CL in that branch)
-    Added a random pokemon choosing starting screen, it randomly chooses three pokemon, and lets you choose one with space before the game starts
-        All levels are 1, but they can be any pokemon, since that is the requirement, I will probably change this to be set pokemon since I'd rather that
-    Added a player_cell extending entity_cell, so that the player can have all their pokemon, like an entity, but also have potions and stuff that entities don't
-    Added a placePlayer function in entity.cpp so that we can place the player as a player_cell obj
-    Updated existing methods to use the player as a player_cell not an entity_cell for full access to its stuff
-
-Apr 13, 2022
-    Made a bag menu, which is read only, since I don't know what you can do with it besides just look at it outside of battle
-        Will work on more tomorrow now that I see potions should be used outside battle on pokemon, so I will try that
-        Didn't do much today since it is no longer due tonight but I got the menu sorted, will polish it soon
-    Fixed starter pokemon not counting towards pokemon count bug
-
-Apr 14, 2022
-    Started to work on the random pokemon fight menu
-    Added the menu itself and got a selector working with the dpad
-    Got running changes ironed out
-    Got tired and went to bed
-
-Apr 16, 2022
-    I organized my code a bit, since main was getting a little too clogged, and I am more familiar with forward declarations
-        I added a world.cpp/.h (Since I forgot to make my world into a class last time)
-        I also added a new menu.cpp/.h so that all of my menus were in their own file
-    I am also going to make my read in data for the file reading more global, since passing all that in is tedious
-    I eliminated redundant functions
-    Worked on converting char* and char[] to std::string where possible
-
-Apr 17, 2022
-    Fixed player spawning in exit glitch
-    Continued work on the wild pokemon fight, since a lot of it's code can be used in trainer fights
-        Worked on the pokemon swap menu, just needs to deal with priority, which hasn't been messed with yet
-        Worked on the fight GUI itself to look more like a real battle
-        Bag menu added item listing and cursor movement for selection
-
-Apr 19, 2022
-    Worked on the bag menu, and using potions and such inside the menu
-    Added a back option to not swap pokemon when choosing that in battle
-    In bag menu I added potion support
-        Revive support now in
-    Printed the available moves and added support to select one
-    Started to work on damage calculation, but it is late, and I need to read another CSV so I am going to bed
-    Gave the pokemon_entity constructor access to the globals so I don't have to pass them around so much
-    Got pokemon fighting working as far as I can tell
-        Fixed those bugs because I apparently couldn't tell
-        Basically each key stroke was considered a move so I made another loop in this mess
-    Working on adding a level up check after beating a wild pokemon
-    Made it so that if the default pokemon is dead, it will not start them in battle
-    Fixed memory management issues
-    Added a fully functional level up system, that isn't just one huge bandaid (it totally is, please don't read it for your sake)
-
-Apr 20, 2022
-    Work carried over, and tbh I don't know where one day stopped and the other began bc it is 1:40
-    Did lots of debugging on wild fights, there were lots of small issues that built up to one mess
-        Memory management was a disaster, leaky mf, more holes than a block of swiss cheese in that mf
-        Level up system needed a bigger band-aid than was ever imaginable, I will cry myself to sleep over it in 10 minutes
-    Started working on the trainer fighting mechanics by coping the entire wild fight code down to it
-        Still needs more than one pokemon per trainer, the memory management to support it, and the "AI" to support it
-            But I am going to bed now, I will not sleep well, this was a mistake
-
-Apr 20, 2022 part 2:
-    Worked on the trainer fight menu
-        removed pokeball support
-        Generated a list of pokemon for the trainer, rather than just one
-        Added the 60% chance of an extra pokemon
-        fixed all references to be to the trainers equipped pkmn not just the first one
-        Made the trainer pick a new pokemon after it's current faints, iff there is one
-    Fixed a bug with XP where upon beating something you gain no XP at all, ya know a minor issue
-    Made the health stay where it is on level up
-    Fixed level up so that it levels up to next experience bracket, not level, letting pokemon skip levels if they get enough XP to skip one
-    Added XP share amongst all pokemon in trainer fights (Not in wild battles)
+Apr 25, 2022
+    I changed the starter pokemon to be the classic starters
+    added a pokemon_entity constructor to make a pokemon with a given level (used a double bc bad overloading)
+    Made starts be level 5, like in the real game to make the early game easier
+    Added a player balance for money earned from fighting the magic rats in violation of everything PETA stands for
+    Began work on a pokemart menu
+        Made function to scale prices based on dist from origin bc capitalism
+        Will work on more tomorrow, since I need to sleep
